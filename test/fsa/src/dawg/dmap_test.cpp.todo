@@ -1,0 +1,79 @@
+#include <terark/automata/dawg_map.hpp>
+#include <terark/util/profiling.cpp>
+#include <stdio.h>
+#include <iostream>
+
+using namespace;
+
+void inverse_host(char* url, ptrdiff_t len) {
+	char* p = (char*)memmem(url, len, "://", 3);
+	if (NULL == p)
+	   	p = url;
+	else
+		p += 3;
+	char* q = (char*)memchr(p, '/', url+len-p);
+	if (NULL == q) q = url+len;
+	std::reverse(p, q);
+	while (p < q) {
+		char* t = p;
+		while (t < q && '.' != *t)
+			++t;
+		std::reverse(p, t);
+		p = t + 1;
+	}
+}
+void inverse_host(std::string& url) {
+	inverse_host(&url[0], url.size());
+}
+
+int main(int argc, char* argv[]) {
+	terark::profiling pf;
+	bool b_inverse = false;
+	dawg_map<unsigned> word_cnt;
+	if (argc >= 2 && strcmp(argv[1], "async") == 0) {
+		word_cnt.set_async_compact();
+	}
+	if (argc >=3 && strcmp(argv[2], "inv") == 0) {
+		b_inverse = true;
+	}
+	std::string line;
+	long lineno = 0;
+	long long t0 = pf.now();
+	while (std::getline(std::cin, line)) {
+		while (!line.empty() && isspace(line.back()))
+			 line.resize(line.size()-1);
+		if (!line.empty()) {
+			if (b_inverse)
+				inverse_host(line);
+			word_cnt.insert(line, 1, [](unsigned& cnt){++cnt;});
+		}
+		if (++lineno % 100000 == 0)
+			fprintf(stderr, "lineno=%09ld len=%zd\n", lineno, line.size());
+	}
+	fprintf(stderr, "End readfile, do final compact\n");
+	long long t1 = pf.now();
+	word_cnt.compact();
+	long long t2 = pf.now();
+	fprintf(stderr, "time=%f's time_final=%f words=%zd states=%zd mem_size=%zd\n"
+			, pf.sf(t0,t1), pf.sf(t1, t2)
+			, word_cnt.size()
+			, word_cnt.risk_dfa().total_states()
+			, word_cnt.risk_dfa().mem_size()
+			);
+	valvec<std::pair<unsigned,unsigned> > cnt_word;
+	cnt_word.resize_no_init(word_cnt.size());
+	for (size_t i = 0, n = word_cnt.size(); i < n; ++i) {
+		cnt_word[i].first = word_cnt.risk_data()[i]; // cnt
+		cnt_word[i].second = i;
+	}
+	std::sort(cnt_word.begin(), cnt_word.end());
+	std::string word;
+	for (size_t i = cnt_word.size(); i > 0; --i) {
+		unsigned cnt = cnt_word[i-1].first;
+		unsigned nth = cnt_word[i-1].second;
+		word_cnt.risk_dfa().nth_word(nth, &word);
+		printf("%06u %s\n", cnt, word.c_str());
+	}
+	return 0;
+}
+

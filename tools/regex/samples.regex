@@ -1,0 +1,32 @@
+a.*b	a-dot-star-b
+abcd.*abcdefghijklmnopqrstuvwxyz
+[a-z]*abc[a-z]{0,10}def
+a.*
+a[acd]*
+a[acdz]*
+z.{500}b	all_char_all_jump
+y.{500}b	all_char_all_jump
+x.{500}b	all_char_all_jump
+[a-z]*abcdefghijklmnopqrstuvwxyz
+[a-z]*abcdefghijkl
+b[^a-z]b
+b[^a-z]*
+b[a-zA-Z]*
+b[a-z]*[a-f]deadbeefdeadbeef
+b[a-f]*[a-z]beefdeaddeadbeef
+a[a-g]*bcdef
+a[a-f]*b	1
+a([a-f]*)([a-c]*)[bc]+	2
+a(1|2|3|4)[ab]{5}	3
+a([0-3a-dx-z]{2,})[0-2cdxy]*abc	4
+(1[358][0-9])([0-9]{8})	mobile-phone-num
+\+86-?(1[358][0-9])([0-9]{8})	china-mobile-phone-num
+(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})	ip_address_IP_ADDRESS
+ab[abcd]*cd	xxx
+#.*computer	computer
+#.*movie.*	movie
+[0-9]*1122[0-9]*	simple
+cd.*ab	kkkk
+ef.*cd.*xx.*yy.*abcde	xxxy
+ef.*xyz.*1234	yyyyy
+([abcd]*)ab([abcd]*)	test

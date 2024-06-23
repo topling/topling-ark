@@ -1,0 +1,59 @@
+
+dfa_intersection_search(KeyDFA, DataBaseDFA) {
+	// a queue which add new elements at tail
+	// and can search by key = pair<StateID, StateID>
+	// the first  StateID of key identify states of KeyDFA
+	// the second StateID of key identify states of DataBaseDFA
+	// qset[nth] access the nth added element
+	// the qset never delete elements
+	qset = new bfs_queue_set<pair<StateID, StateID> >();
+
+	// new qset is empty, the first add will always success
+	qset.add_element(pair(KeyDFA.root, DataBaseDFA.root));
+
+	matched_states = {};
+
+	// This is an implicit BFS (Breath First Search)
+	// bfshead is the pointer(element index) for qset
+	// qset.size() will increase when new elements are added
+	for (bfshead = 0; bfshead < qset.size(); ++bfshead) {
+		pair(state1, state2) = qset[bfshead];
+		if (KeyDFA.is_final(state1)) {
+			// Delim is a special char, such as '\t'
+			// Delim will not in any where except between PinYin and HanZi
+			target = DataBaseDFA.target_of(state2, Delem);
+			if (target != nil) {
+				matched_states.add_element();
+			}
+		}
+		// children_of return children in label_char order
+		children1 =      KeyDFA.children_of(state1);
+		children2 = DataBaseDFA.children_of(state2);
+		children = {};
+		// compute intersection on label_char
+		for (i = 0, j = 0; i < children1.size() && j < children2.size; ) {
+			if (children1[i].label_char < children2[j].label_char) {
+				++i;
+			}
+			else if (children1[i].label_char > children2[j].label_char) {
+				++j;
+			}
+			else { // label_char matched
+				target1 = children1[i].target;
+				target2 = children2[j].target;
+				// qset.size() will increased if add_element success
+				// add_element fails if pair(target1, target2) already
+				// exists in qset
+				qset.add_element(pair(target1, target2));
+				++i; ++j;
+			}
+		}
+	}
+
+	for_each(state in matched_states) {
+		for_each(string in DataBaseDFA.right_lange(state)) {
+			output(string);
+		}
+	}
+}
+

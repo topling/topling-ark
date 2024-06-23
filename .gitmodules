@@ -1,0 +1,15 @@
+[submodule "3rdparty/sdsl-lite"]
+	path = 3rdparty/sdsl-lite
+	url = https://github.com/simongog/sdsl-lite.git
+[submodule "3rdparty/zlib"]
+	path = 3rdparty/zlib
+	url = https://github.com/madler/zlib
+[submodule "3rdparty/xxHash"]
+	path = 3rdparty/xxHash
+	url = https://github.com/Cyan4973/xxHash
+[submodule "3rdparty/base64"]
+	path = 3rdparty/base64
+	url = https://github.com/rockeet/base64.git
+[submodule "boost-include"]
+	path = boost-include
+	url = https://github.com/rockeet/boost-fiber-leipeng

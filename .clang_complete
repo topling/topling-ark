@@ -1,0 +1,4 @@
+-Isrc
+-I/opt/include
+-I/opt/gcc/include/c++/4.7.2/
+-I/opt/gcc/include/c++/4.7.2/x86_64-unknown-linux-gnu

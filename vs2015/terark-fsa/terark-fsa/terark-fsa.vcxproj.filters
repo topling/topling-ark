@@ -1,0 +1,537 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\terark">
+      <UniqueIdentifier>{59a340ca-d77b-4fbe-b092-dc09b80efaf0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\terark">
+      <UniqueIdentifier>{ad791452-8b08-4a4b-9bb3-721d6183e9d6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\re2">
+      <UniqueIdentifier>{90104f53-1b6d-412b-8890-9f7c7e033109}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\re2\util">
+      <UniqueIdentifier>{2bff6148-5c30-40f0-b092-9d5024ec34bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\re2\re2">
+      <UniqueIdentifier>{64860ed8-2da3-49a1-98a6-56a2c68e4d6a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\re2">
+      <UniqueIdentifier>{87efa6a2-9e58-4b15-bc06-b325a5dd80d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\re2\re2">
+      <UniqueIdentifier>{94d02ace-4962-4ee2-be39-df934e63062c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\re2\util">
+      <UniqueIdentifier>{9b5ec89d-4ab7-42b9-ac00-cfbbb4c30b9f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\terark\fsa">
+      <UniqueIdentifier>{1c9a23c4-2765-4078-a9c0-8436f96e8124}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\terark\fsa\ppi">
+      <UniqueIdentifier>{a8f88219-0293-4a1c-bcff-a9e648e59f29}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\terark\fsa\re2">
+      <UniqueIdentifier>{da68e309-8b36-4b5b-b0b0-8b3883bafe9b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\terark\fsa">
+      <UniqueIdentifier>{e77409df-79a1-4b99-80ee-60b79fcee00d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\terark\fsa\re2">
+      <UniqueIdentifier>{b33b9dd6-1f27-402f-b0be-668d0ead8e36}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\src\terark\fsa\aho_corasick.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\automata.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\dawg.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\dawg_map.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\dense_dfa.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\dfa_algo.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\fsa.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\dfa_mmap_header.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\dfa_with_register.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\double_array_trie.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\fsa_for_union_dfa.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\graph_walker.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\hopcroft.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\linear_dawg.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\linear_dfa.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\mre_match.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\nfa.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\onfly_minimize.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\string_as_dfa.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\suffix_dfa.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\tmplinst.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\dense_dfa_v2.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\pinyin_dfa.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\louds_dfa.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\ppi\adfa_minimize.hpp">
+      <Filter>Header Files\terark\fsa\ppi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\ppi\dawg_const_virtuals.hpp">
+      <Filter>Header Files\terark\fsa\ppi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\ppi\dawg_dfa_mmap.hpp">
+      <Filter>Header Files\terark\fsa\ppi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\ppi\dfa_const_virtuals.hpp">
+      <Filter>Header Files\terark\fsa\ppi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\ppi\dfa_hopcroft.hpp">
+      <Filter>Header Files\terark\fsa\ppi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\ppi\dfa_methods_calling_swap.hpp">
+      <Filter>Header Files\terark\fsa\ppi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\ppi\dfa_methods_calling_swap_using_super.hpp">
+      <Filter>Header Files\terark\fsa\ppi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\ppi\dfa_mutation_virtuals.hpp">
+      <Filter>Header Files\terark\fsa\ppi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\ppi\dfa_reverse.hpp">
+      <Filter>Header Files\terark\fsa\ppi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\ppi\dfa_set_op.hpp">
+      <Filter>Header Files\terark\fsa\ppi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\ppi\flat_dfa_mmap.hpp">
+      <Filter>Header Files\terark\fsa\ppi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\ppi\for_each_suffix.hpp">
+      <Filter>Header Files\terark\fsa\ppi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\ppi\match_key.hpp">
+      <Filter>Header Files\terark\fsa\ppi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\ppi\match_path.hpp">
+      <Filter>Header Files\terark\fsa\ppi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\ppi\match_prefix.hpp">
+      <Filter>Header Files\terark\fsa\ppi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\ppi\packed_state.hpp">
+      <Filter>Header Files\terark\fsa\ppi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\ppi\path_zip.hpp">
+      <Filter>Header Files\terark\fsa\ppi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\ppi\pool_dfa_mmap.hpp">
+      <Filter>Header Files\terark\fsa\ppi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\ppi\post_order.hpp">
+      <Filter>Header Files\terark\fsa\ppi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\quick_dfa.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\squick_dfa.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\re2\re2\filtered_re2.h">
+      <Filter>Header Files\re2\re2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\re2\re2\prefilter.h">
+      <Filter>Header Files\re2\re2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\re2\re2\prefilter_tree.h">
+      <Filter>Header Files\re2\re2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\re2\re2\prog.h">
+      <Filter>Header Files\re2\re2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\re2\re2\re2.h">
+      <Filter>Header Files\re2\re2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\re2\re2\regexp.h">
+      <Filter>Header Files\re2\re2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\re2\re2\set.h">
+      <Filter>Header Files\re2\re2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\re2\re2\stringpiece.h">
+      <Filter>Header Files\re2\re2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\re2\re2\unicode_casefold.h">
+      <Filter>Header Files\re2\re2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\re2\re2\unicode_groups.h">
+      <Filter>Header Files\re2\re2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\re2\re2\variadic_function.h">
+      <Filter>Header Files\re2\re2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\re2\re2\walker-inl.h">
+      <Filter>Header Files\re2\re2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\re2\util\arena.h">
+      <Filter>Header Files\re2\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\re2\util\atomicops.h">
+      <Filter>Header Files\re2\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\re2\util\benchmark.h">
+      <Filter>Header Files\re2\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\re2\util\flags.h">
+      <Filter>Header Files\re2\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\re2\util\mutex.h">
+      <Filter>Header Files\re2\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\re2\util\random.h">
+      <Filter>Header Files\re2\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\re2\util\sparse_array.h">
+      <Filter>Header Files\re2\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\re2\util\sparse_set.h">
+      <Filter>Header Files\re2\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\re2\util\thread.h">
+      <Filter>Header Files\re2\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\re2\util\utf.h">
+      <Filter>Header Files\re2\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\3rdparty\re2\util\util.h">
+      <Filter>Header Files\re2\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\re2\vm_nfa.hpp">
+      <Filter>Header Files\terark\fsa\re2</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\virtual_machine_dfa.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\virtual_machine_dfa_builder.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\full_dfa.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\nest_louds_trie.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\ppi\dfa_const_methods_use_walk.hpp">
+      <Filter>Header Files\terark\fsa\ppi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\ppi\dfa_deprecated_edit_distance_algo.hpp">
+      <Filter>Header Files\terark\fsa\ppi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\ppi\fast_state.hpp">
+      <Filter>Header Files\terark\fsa\ppi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\ppi\flat_dfa_data_io.hpp">
+      <Filter>Header Files\terark\fsa\ppi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\ppi\linear_dfa_inclass.hpp">
+      <Filter>Header Files\terark\fsa\ppi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\ppi\linear_dfa_tmpl_inst.hpp">
+      <Filter>Header Files\terark\fsa\ppi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\ppi\linear_dfa_typedef.hpp">
+      <Filter>Header Files\terark\fsa\ppi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\ppi\make_edit_distance_dfa.hpp">
+      <Filter>Header Files\terark\fsa\ppi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\ppi\nfa_algo.hpp">
+      <Filter>Header Files\terark\fsa\ppi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\ppi\nfa_mutation_algo.hpp">
+      <Filter>Header Files\terark\fsa\ppi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\ppi\quick_dfa_common.hpp">
+      <Filter>Header Files\terark\fsa\ppi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\ppi\state_move_fast.hpp">
+      <Filter>Header Files\terark\fsa\ppi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\ppi\virtual_suffix_cnt.hpp">
+      <Filter>Header Files\terark\fsa\ppi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\nest_trie_dawg.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\fast_search_byte.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\forward_decl.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\create_regex_dfa.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\create_regex_dfa_impl.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\ppi\dfa_using_template_base.hpp">
+      <Filter>Header Files\terark\fsa\ppi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\ppi\tpl_for_each_word.hpp">
+      <Filter>Header Files\terark\fsa\ppi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\ppi\tpl_match_key.hpp">
+      <Filter>Header Files\terark\fsa\ppi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\ppi\accept.hpp">
+      <Filter>Header Files\terark\fsa\ppi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\ppi\adfa_iter.hpp">
+      <Filter>Header Files\terark\fsa\ppi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\dict_trie.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\ppi\for_each_word.hpp">
+      <Filter>Header Files\terark\fsa\ppi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\ppi\match_pinyin.hpp">
+      <Filter>Header Files\terark\fsa\ppi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\nest_louds_trie_inline.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\fsa_cache.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\fsa_cache_detail.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\automata_basic.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\power_set.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\base_ac.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\x_fsa_util.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\iterator_to_byte_stream.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\automata_tpl_impl.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\dfa_algo_basic.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\terark\fsa\dynamic_patricia_trie.hpp">
+      <Filter>Header Files\terark\fsa</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\src\terark\fsa\aho_corasick.cpp">
+      <Filter>Source Files\terark\fsa</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\terark\fsa\automata.cpp">
+      <Filter>Source Files\terark\fsa</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\terark\fsa\dawg.cpp">
+      <Filter>Source Files\terark\fsa</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\terark\fsa\fsa.cpp">
+      <Filter>Source Files\terark\fsa</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\terark\fsa\linear_dawg.cpp">
+      <Filter>Source Files\terark\fsa</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\terark\fsa\linear_dfa.cpp">
+      <Filter>Source Files\terark\fsa</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\terark\fsa\mre_match.cpp">
+      <Filter>Source Files\terark\fsa</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\terark\fsa\mre_tmplinst.cpp">
+      <Filter>Source Files\terark\fsa</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\terark\fsa\tmplinst.cpp">
+      <Filter>Source Files\terark\fsa</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\terark\fsa\fsa_for_union_dfa.cpp">
+      <Filter>Source Files\terark\fsa</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\terark\fsa\louds_dfa.cpp">
+      <Filter>Source Files\terark\fsa</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\terark\fsa\quick_dfa.cpp">
+      <Filter>Source Files\terark\fsa</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\terark\fsa\squick_dfa.cpp">
+      <Filter>Source Files\terark\fsa</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\terark\fsa\pinyin_dfa.cpp">
+      <Filter>Source Files\terark\fsa</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\re2\re2\bitstate.cc">
+      <Filter>Source Files\re2\re2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\re2\re2\compile.cc">
+      <Filter>Source Files\re2\re2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\re2\re2\dfa.cc">
+      <Filter>Source Files\re2\re2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\re2\re2\filtered_re2.cc">
+      <Filter>Source Files\re2\re2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\re2\re2\mimics_pcre.cc">
+      <Filter>Source Files\re2\re2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\re2\re2\nfa.cc">
+      <Filter>Source Files\re2\re2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\re2\re2\onepass.cc">
+      <Filter>Source Files\re2\re2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\re2\re2\parse.cc">
+      <Filter>Source Files\re2\re2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\re2\re2\perl_groups.cc">
+      <Filter>Source Files\re2\re2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\re2\re2\prefilter.cc">
+      <Filter>Source Files\re2\re2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\re2\re2\prefilter_tree.cc">
+      <Filter>Source Files\re2\re2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\re2\re2\prog.cc">
+      <Filter>Source Files\re2\re2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\re2\re2\re2.cc">
+      <Filter>Source Files\re2\re2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\re2\re2\regexp.cc">
+      <Filter>Source Files\re2\re2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\re2\re2\set.cc">
+      <Filter>Source Files\re2\re2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\re2\re2\simplify.cc">
+      <Filter>Source Files\re2\re2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\re2\re2\tostring.cc">
+      <Filter>Source Files\re2\re2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\re2\re2\unicode_casefold.cc">
+      <Filter>Source Files\re2\re2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\re2\re2\unicode_groups.cc">
+      <Filter>Source Files\re2\re2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\re2\util\arena.cc">
+      <Filter>Source Files\re2\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\re2\util\hash.cc">
+      <Filter>Source Files\re2\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\re2\util\random.cc">
+      <Filter>Source Files\re2\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\re2\util\rune.cc">
+      <Filter>Source Files\re2\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\re2\util\stringpiece.cc">
+      <Filter>Source Files\re2\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\re2\util\stringprintf.cc">
+      <Filter>Source Files\re2\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\re2\util\valgrind.cc">
+      <Filter>Source Files\re2\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\3rdparty\re2\util\strutil.cc">
+      <Filter>Source Files\re2\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\terark\fsa\re2\vm_nfa.cpp">
+      <Filter>Source Files\terark\fsa\re2</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\terark\fsa\nest_louds_trie.cpp">
+      <Filter>Source Files\terark\fsa</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\terark\fsa\nest_trie_dawg.cpp">
+      <Filter>Source Files\terark\fsa</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\terark\fsa\dfa_algo.cpp">
+      <Filter>Source Files\terark\fsa</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\terark\fsa\dict_trie.cpp">
+      <Filter>Source Files\terark\fsa</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\terark\fsa\fsa_cache.cpp">
+      <Filter>Source Files\terark\fsa</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\terark\fsa\base_ac.cpp">
+      <Filter>Source Files\terark\fsa</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\terark\fsa\dynamic_patricia_trie.cpp">
+      <Filter>Source Files\terark\fsa</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

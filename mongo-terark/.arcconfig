@@ -1,0 +1,10 @@
+{
+  "project_id" : "mongo-terark",
+  "conduit_uri" : "https://terark.com/",
+  "load" : [],
+  "base" : "git:HEAD^, hg:.^",
+  "git.default-relative-commit" : "HEAD^",
+  "git:arc.feature.start.default" : "origin/master",
+  "arc.feature.start.default" : "master",
+  "history.immutable" : false
+}

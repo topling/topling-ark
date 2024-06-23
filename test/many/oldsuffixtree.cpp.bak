@@ -1,0 +1,104 @@
+#undef NDEBUG
+#include <vector>
+#include <assert.h>
+#include <obsoleted/suffix_tree.cpp>
+#include <obsoleted/wordseg/suffix_tree_alg.hpp>
+#include <terark/util/autoclose.hpp>
+#include <terark/util/profiling.hpp>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
+
+struct isword
+{
+	bool operator()(const unsigned char* sstr, int slen, int freq) const
+	{
+		return (isalpha(sstr[0]) || isdigit(sstr[0])) && !isalpha(sstr[-1]) && !isdigit(sstr[-1]);
+	}
+};
+
+int main(int argc, char **argv)
+{
+	std::string all;
+	char* line = NULL;
+	size_t len = 0;
+//	FILE* fp = fopen("/home/leipeng/terark/codelite/RadixSort/main.cpp", "r");
+//	FILE* fp = fopen("C:\\Windows\\ntbtlog.txt", "r");
+	terark::Auto_fclose fp;
+	for (;;) {
+#ifdef _MSC_VER
+// 		std::string line2;
+// 		std::getline(std::cin, line2);
+// 		int len2 = line2.size() + 1;
+// 		line = &line2[0];
+		len = 1024*1024;
+		if (NULL == line) line = (char*)malloc(len);
+		if (NULL == fgets(line, len, fp.self_or(stdin))) break;
+		int len2 = strlen(line);
+		int i;
+#else
+		ssize_t len2 = getline(&line, &len, fp.self_or(stdin));
+		ssize_t i;
+#endif
+		for (i=0; i < len2; ++i)
+			if ((0==i||(line[i-1]&0x80)==0)&&line[i]>0 && isspace(line[i]))
+				line[i] = '@';
+		if (-1 == len2) break;
+		all.append(line, len2+1);
+	}
+#ifndef _MSC_VER
+	if (line) free(line);
+#endif
+	int FirstN = 1;
+	if (argc >= 2) FirstN = atoi(argv[1]);
+
+	printf("all.size=%d\n", (int)all.size());
+	getchar();
+	if (all.size() < 16*1024)
+		printf("%s\n", all.c_str());
+
+	ptrdiff_t i=0,n=all.size();
+
+	terark::suffix_array suff1, suff2;
+	for (; i < n; ++i) {
+		suff1.append(all[i]);
+		suff2.append(all[i]);
+	}
+	terark::profiling pf;
+	long long t0 = pf.now();
+	const std::vector<int>& sa1 = suff1.build();
+	long long t1 = pf.now();
+	const std::vector<int>& sa2 = suff2.build_o(FirstN);
+	long long t2 = pf.now();
+	if (all.size() <= 16*1024) {
+		for (i=0; i < n; ++i) {
+			int l = n - sa1[i] - 1;
+			assert(l < n);
+			assert(l >= 0);
+			if (l >= 40) l = 40;
+			printf("%-.*s\n", 40, all.data()+sa1[i]);
+		}
+	}
+	printf("FirstN=%d, time[slow=%f'ms, fast=%f'ms, s/f=%f, f/s=%f]\n", FirstN
+		, pf.us(t0,t1)/1000.0, pf.us(t1,t2)/1000.0
+		, (double)pf.us(t0,t1)/pf.us(t1,t2)
+		, (double)pf.us(t1,t2)/pf.us(t0,t1)
+		);
+	assert(sa1 == sa2);
+	assert(0);
+
+	using namespace terark::wordseg;
+	std::vector<TokenWord_CT<unsigned char> > words;
+	SuffixTreeAlg<unsigned char> alg;
+	alg. text = (const unsigned char*)all.data();
+	alg.ntext = all.size();
+	alg. tree = &sa2[0];
+	alg.ntree = sa2.size();
+	alg.get_word_freq(words, isword());
+	alg.sortby_word_area(words);
+	for (i = 0, n = words.size(); i < n; ++i)
+	{
+		printf("%-30.*s %d\n", words[i].size(), words[i].data(), words[i].freq);
+	}
+	return 0;
+}

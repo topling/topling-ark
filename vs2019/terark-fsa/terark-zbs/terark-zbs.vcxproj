@@ -1,0 +1,310 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{C5ECD2A1-C35E-4CE4-BEFA-C5C6F206F5AE}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>terarkfsa</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>..\..\..\..\boost-include;..\..\..\src;..\..\..\3rdparty\re2;..\..\..\3rdparty\zlib;$(IncludePath)</IncludePath>
+    <TargetName>$(ProjectName)-d</TargetName>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>..\..\..\boost-include;..\..\..\src;..\..\..\3rdparty\re2;..\..\..\3rdparty\zlib;..\..\..\3rdparty\zstd;..\..\..\3rdparty\zstd\zstd\common;$(IncludePath)</IncludePath>
+    <TargetName>$(ProjectName)-d</TargetName>
+    <LibraryPath>..\..\..\3rdparty\zlib;..\..\..\boost-include\stage\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>..\..\..\..\boost-include;..\..\..\src;..\..\..\3rdparty\re2;..\..\..\3rdparty\zlib;$(IncludePath)</IncludePath>
+    <TargetName>$(ProjectName)-r</TargetName>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>..\..\..\boost-include;..\..\..\src;..\..\..\3rdparty\re2;..\..\..\3rdparty\zlib;..\..\..\3rdparty\zstd;..\..\..\3rdparty\zstd\zstd\common;$(IncludePath)</IncludePath>
+    <TargetName>$(ProjectName)-r</TargetName>
+    <LibraryPath>..\..\..\3rdparty\zlib;..\..\..\boost-include\stage\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_ENABLE_ATOMIC_ALIGNMENT_FIX;_CRT_NONSTDC_NO_DEPRECATE;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;__SSE4_2__;DIVSUFSORT_API=;WIN32;_DEBUG;_WINDOWS;_USRDLL;TERARK_CREATE_DLL;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;NO_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BrowseInformation>true</BrowseInformation>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <DisableSpecificWarnings>4275;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>zlibstat.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>BOOST_ALL_DYN_LINK;_ENABLE_ATOMIC_ALIGNMENT_FIX;_CRT_NONSTDC_NO_DEPRECATE;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;__AVX2__;__SSE4_2__;TERARK_CREATE_DLL;ZSTD_DLL_EXPORT=1;WIN32;_DEBUG;_WINDOWS;_USRDLL;TERARK_CREATE_DLL;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;NO_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BrowseInformation>true</BrowseInformation>
+      <StringPooling>true</StringPooling>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <DisableSpecificWarnings>4275;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <AdditionalOptions>/Zc:preprocessor /wd5104 /wd5105 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>_ENABLE_ATOMIC_ALIGNMENT_FIX;_CRT_NONSTDC_NO_DEPRECATE;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;__SSE4_2__;DIVSUFSORT_API=;WIN32;NDEBUG;_WINDOWS;_USRDLL;TERARK_CREATE_DLL;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;NO_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <DisableSpecificWarnings>4275;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>zlibstat.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <Profile>true</Profile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>BOOST_ALL_DYN_LINK;_ENABLE_ATOMIC_ALIGNMENT_FIX;_CRT_NONSTDC_NO_DEPRECATE;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;__AVX2__;__SSE4_2__;TERARK_CREATE_DLL;__BMI2__;ZSTD_DLL_EXPORT=1;WIN32;NDEBUG;_WINDOWS;_USRDLL;TERARK_CREATE_DLL;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;NO_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <StringPooling>true</StringPooling>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <DisableSpecificWarnings>4275;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <AdditionalOptions>/Zc:preprocessor /wd5104 /wd5105 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <Profile>true</Profile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\3rdparty\zstd\zstd\common\bitstream.h" />
+    <ClInclude Include="..\..\..\3rdparty\zstd\zstd\common\error_private.h" />
+    <ClInclude Include="..\..\..\3rdparty\zstd\zstd\common\fse.h" />
+    <ClInclude Include="..\..\..\3rdparty\zstd\zstd\common\huf.h" />
+    <ClInclude Include="..\..\..\3rdparty\zstd\zstd\common\mem.h" />
+    <ClInclude Include="..\..\..\3rdparty\zstd\zstd\common\pool.h" />
+    <ClInclude Include="..\..\..\3rdparty\zstd\zstd\common\threading.h" />
+    <ClInclude Include="..\..\..\3rdparty\zstd\zstd\common\xxhash.h" />
+    <ClInclude Include="..\..\..\3rdparty\zstd\zstd\common\zstd_errors.h" />
+    <ClInclude Include="..\..\..\3rdparty\zstd\zstd\common\zstd_internal.h" />
+    <ClInclude Include="..\..\..\3rdparty\zstd\zstd\compress\zstdmt_compress.h" />
+    <ClInclude Include="..\..\..\3rdparty\zstd\zstd\compress\zstd_opt.h" />
+    <ClInclude Include="..\..\..\3rdparty\zstd\zstd\deprecated\zbuff.h" />
+    <ClInclude Include="..\..\..\3rdparty\zstd\zstd\dictBuilder\divsufsort.h" />
+    <ClInclude Include="..\..\..\3rdparty\zstd\zstd\dictBuilder\zdict.h" />
+    <ClInclude Include="..\..\..\3rdparty\zstd\zstd\legacy\zstd_legacy.h" />
+    <ClInclude Include="..\..\..\3rdparty\zstd\zstd\legacy\zstd_v01.h" />
+    <ClInclude Include="..\..\..\3rdparty\zstd\zstd\legacy\zstd_v02.h" />
+    <ClInclude Include="..\..\..\3rdparty\zstd\zstd\legacy\zstd_v03.h" />
+    <ClInclude Include="..\..\..\3rdparty\zstd\zstd\legacy\zstd_v04.h" />
+    <ClInclude Include="..\..\..\3rdparty\zstd\zstd\legacy\zstd_v05.h" />
+    <ClInclude Include="..\..\..\3rdparty\zstd\zstd\legacy\zstd_v06.h" />
+    <ClInclude Include="..\..\..\3rdparty\zstd\zstd\legacy\zstd_v07.h" />
+    <ClInclude Include="..\..\..\3rdparty\zstd\zstd\zstd.h" />
+    <ClInclude Include="..\..\..\src\terark\entropy\entropy_base.hpp" />
+    <ClInclude Include="..\..\..\src\terark\entropy\huffman_encoding.hpp" />
+    <ClInclude Include="..\..\..\src\terark\entropy\rans_encoding.hpp" />
+    <ClInclude Include="..\..\..\src\terark\zbs\abstract_blob_store.hpp" />
+    <ClInclude Include="..\..\..\src\terark\zbs\blob_store.hpp" />
+    <ClInclude Include="..\..\..\src\terark\zbs\blob_store_file_header.hpp" />
+    <ClInclude Include="..\..\..\src\terark\zbs\dict_zip_blob_store.hpp" />
+    <ClInclude Include="..\..\..\src\terark\zbs\dict_zip_blob_store_unzip_func.hpp" />
+    <ClInclude Include="..\..\..\src\terark\zbs\fast_zip_blob_store.hpp" />
+    <ClInclude Include="..\..\..\src\terark\zbs\lru_page_cache.hpp" />
+    <ClInclude Include="..\..\..\src\terark\zbs\mixed_len_blob_store.hpp" />
+    <ClInclude Include="..\..\..\src\terark\zbs\nest_louds_trie_blob_store.hpp" />
+    <ClInclude Include="..\..\..\src\terark\zbs\plain_blob_store.hpp" />
+    <ClInclude Include="..\..\..\src\terark\zbs\sufarr_inducedsort.h" />
+    <ClInclude Include="..\..\..\src\terark\zbs\simple_zip_blob_store.hpp" />
+    <ClInclude Include="..\..\..\src\terark\zbs\suffix_array_dict.hpp" />
+    <ClInclude Include="..\..\..\src\terark\zbs\suffix_array_trie.hpp" />
+    <ClInclude Include="..\..\..\src\terark\zbs\xxhash_helper.hpp" />
+    <ClInclude Include="..\..\..\src\terark\zbs\zero_length_blob_store.hpp" />
+    <ClInclude Include="..\..\..\src\terark\zbs\zip_offset_blob_store.hpp" />
+    <ClInclude Include="..\..\..\src\terark\zbs\zip_reorder_map.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\3rdparty\zstd\zstd\common\debug.c" />
+    <ClCompile Include="..\..\..\3rdparty\zstd\zstd\common\entropy_common.c" />
+    <ClCompile Include="..\..\..\3rdparty\zstd\zstd\common\error_private.c" />
+    <ClCompile Include="..\..\..\3rdparty\zstd\zstd\common\fse_decompress.c" />
+    <ClCompile Include="..\..\..\3rdparty\zstd\zstd\common\pool.c" />
+    <ClCompile Include="..\..\..\3rdparty\zstd\zstd\common\threading.c" />
+    <ClCompile Include="..\..\..\3rdparty\zstd\zstd\common\xxhash.c" />
+    <ClCompile Include="..\..\..\3rdparty\zstd\zstd\common\zstd_common.c" />
+    <ClCompile Include="..\..\..\3rdparty\zstd\zstd\compress\fse_compress.c" />
+    <ClCompile Include="..\..\..\3rdparty\zstd\zstd\compress\hist.c" />
+    <ClCompile Include="..\..\..\3rdparty\zstd\zstd\compress\huf_compress.c" />
+    <ClCompile Include="..\..\..\3rdparty\zstd\zstd\compress\zstdmt_compress.c" />
+    <ClCompile Include="..\..\..\3rdparty\zstd\zstd\compress\zstd_compress.c" />
+    <ClCompile Include="..\..\..\3rdparty\zstd\zstd\compress\zstd_compress_literals.c" />
+    <ClCompile Include="..\..\..\3rdparty\zstd\zstd\compress\zstd_compress_sequences.c" />
+    <ClCompile Include="..\..\..\3rdparty\zstd\zstd\compress\zstd_compress_superblock.c" />
+    <ClCompile Include="..\..\..\3rdparty\zstd\zstd\compress\zstd_double_fast.c" />
+    <ClCompile Include="..\..\..\3rdparty\zstd\zstd\compress\zstd_fast.c" />
+    <ClCompile Include="..\..\..\3rdparty\zstd\zstd\compress\zstd_lazy.c" />
+    <ClCompile Include="..\..\..\3rdparty\zstd\zstd\compress\zstd_ldm.c" />
+    <ClCompile Include="..\..\..\3rdparty\zstd\zstd\compress\zstd_opt.c" />
+    <ClCompile Include="..\..\..\3rdparty\zstd\zstd\decompress\huf_decompress.c" />
+    <ClCompile Include="..\..\..\3rdparty\zstd\zstd\decompress\zstd_ddict.c" />
+    <ClCompile Include="..\..\..\3rdparty\zstd\zstd\decompress\zstd_decompress.c" />
+    <ClCompile Include="..\..\..\3rdparty\zstd\zstd\decompress\zstd_decompress_block.c" />
+    <ClCompile Include="..\..\..\3rdparty\zstd\zstd\deprecated\zbuff_common.c" />
+    <ClCompile Include="..\..\..\3rdparty\zstd\zstd\deprecated\zbuff_compress.c" />
+    <ClCompile Include="..\..\..\3rdparty\zstd\zstd\deprecated\zbuff_decompress.c" />
+    <ClCompile Include="..\..\..\3rdparty\zstd\zstd\dictBuilder\cover.c" />
+    <ClCompile Include="..\..\..\3rdparty\zstd\zstd\dictBuilder\divsufsort.c" />
+    <ClCompile Include="..\..\..\3rdparty\zstd\zstd\dictBuilder\fastcover.c" />
+    <ClCompile Include="..\..\..\3rdparty\zstd\zstd\dictBuilder\zdict.c" />
+    <ClCompile Include="..\..\..\3rdparty\zstd\zstd\legacy\zstd_v01.c" />
+    <ClCompile Include="..\..\..\3rdparty\zstd\zstd\legacy\zstd_v02.c" />
+    <ClCompile Include="..\..\..\3rdparty\zstd\zstd\legacy\zstd_v03.c" />
+    <ClCompile Include="..\..\..\3rdparty\zstd\zstd\legacy\zstd_v04.c" />
+    <ClCompile Include="..\..\..\3rdparty\zstd\zstd\legacy\zstd_v05.c" />
+    <ClCompile Include="..\..\..\3rdparty\zstd\zstd\legacy\zstd_v06.c" />
+    <ClCompile Include="..\..\..\3rdparty\zstd\zstd\legacy\zstd_v07.c" />
+    <ClCompile Include="..\..\..\src\terark\entropy\entropy_base.cpp" />
+    <ClCompile Include="..\..\..\src\terark\entropy\huffman_encoding.cpp" />
+    <ClCompile Include="..\..\..\src\terark\entropy\rans_encoding.cpp" />
+    <ClCompile Include="..\..\..\src\terark\zbs\abstract_blob_store.cpp" />
+    <ClCompile Include="..\..\..\src\terark\zbs\blob_store.cpp" />
+    <ClCompile Include="..\..\..\src\terark\zbs\dict_zip_blob_store.cpp" />
+    <ClCompile Include="..\..\..\src\terark\zbs\entropy_zip_blob_store.cpp" />
+    <ClCompile Include="..\..\..\src\terark\zbs\fast_zip_blob_store.cpp" />
+    <ClCompile Include="..\..\..\src\terark\zbs\gluten_sain.cpp" />
+    <ClCompile Include="..\..\..\src\terark\zbs\inner_sais.cpp" />
+    <ClCompile Include="..\..\..\src\terark\zbs\lru_page_cache.cpp" />
+    <ClCompile Include="..\..\..\src\terark\zbs\mixed_len_blob_store.cpp" />
+    <ClCompile Include="..\..\..\src\terark\zbs\nest_louds_trie_blob_store.cpp" />
+    <ClCompile Include="..\..\..\src\terark\zbs\plain_blob_store.cpp" />
+    <ClCompile Include="..\..\..\src\terark\zbs\sufarr_inducedsort.cpp" />
+    <ClCompile Include="..\..\..\src\terark\zbs\simple_zip_blob_store.cpp" />
+    <ClCompile Include="..\..\..\src\terark\zbs\suffix_array_dict.cpp" />
+    <ClCompile Include="..\..\..\src\terark\zbs\suffix_array_trie.cpp" />
+    <ClCompile Include="..\..\..\src\terark\zbs\zero_length_blob_store.cpp" />
+    <ClCompile Include="..\..\..\src\terark\zbs\zip_offset_blob_store.cpp" />
+    <ClCompile Include="..\..\..\src\terark\zbs\zip_reorder_map.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\terark-core\terark-core.vcxproj">
+      <Project>{c5ecd2a9-c18e-4c04-b2f1-c5d6f236f5ae}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\terark-fsa\terark-fsa.vcxproj">
+      <Project>{c5ecd2a1-c18e-4c04-b2fa-c5c6f206f5ae}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

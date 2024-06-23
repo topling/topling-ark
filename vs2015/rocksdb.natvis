@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="rocksdb::Slice">
+    <DisplayString>{{ {data_,[size_]na} }}</DisplayString>
+    <StringView>data_,[size_]</StringView>
+    <Expand>
+      <Item Name="[size]" ExcludeView="simple">size_</Item>
+      <ArrayItems>
+        <Size>size_</Size>
+        <ValuePointer>data_</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+  <Type Name="rocksdb::InternalKey">
+    <DisplayString Condition="rep_.size() &lt; 8">error</DisplayString>
+    <DisplayString Condition="rep_.size() &gt;= 8">{{ ({(rocksdb::ValueType)rep_[rep_.size() - 8]} / {*(uint64_t*)&amp;rep_[rep_.size() - 8] >> 8}) : {&amp;rep_[0],[rep_.size() - 8]na} }}</DisplayString>
+    <StringView>&amp;rep_[0],[rep_.size() - 8]na</StringView>
+    <Expand>
+      <Item Condition="rep_.size() &gt;= 8" Name="[type]" ExcludeView="simple">(rocksdb::ValueType)rep_[rep_.size() - 8]</Item>
+      <Item Condition="rep_.size() &gt;= 8" Name="[seq]" ExcludeView="simple">*(uint64_t*)&amp;rep_[rep_.size() - 8] >> 8</Item>
+      <ArrayItems Condition="rep_.size() &gt;= 8">
+        <Size>rep_.size() - 8</Size>
+        <ValuePointer>&amp;rep_[0]</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+  <Type Name="rocksdb::FileMetaData">
+    <DisplayString>{{ fd={fd.packed_number_and_path_id&amp;kFileNumberMask} size={fd.file_size} remove={int(partial_removed)} freg={range_set.size() / 2} }}</DisplayString>
+  </Type>
+</AutoVisualizer>

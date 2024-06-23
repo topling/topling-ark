@@ -1,0 +1,10 @@
+rpc.timeout=5000
+MapInput.file.path=/usr/include/stdio.h
+dfs.namenode.host=local
+dfs.namenode.port=0
+dfs.libfile=/home/leipeng/terark/mapreduce/dfs/hdfs/libmapreduce-hdfs-gcc44.so
+dfs.user=root
+dfs.groups=root
+MapOutput_impl=MapOutput_impl_buf
+MapOutput.backup.bufsize=8192
+nReduce=1

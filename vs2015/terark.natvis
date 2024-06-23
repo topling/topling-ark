@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <Type Name="terark::basic_fstring&lt;*&gt;">
+    <DisplayString>{{ {p,[n]na} }}</DisplayString>
+    <StringView>p,[n]</StringView>
+    <Expand>
+      <Item Name="[size]" ExcludeView="simple">n</Item>
+      <ArrayItems>
+        <Size>n</Size>
+        <ValuePointer>p</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+  <Type Name="terark::valvec&lt;*&gt;">
+    <DisplayString>{{ size={n} {p,[n]na} }}</DisplayString>
+    <Expand>
+      <Item Name="[size]" ExcludeView="simple">n</Item>
+      <Item Name="[capacity]" ExcludeView="simple">c</Item>
+      <ArrayItems>
+        <Size>n</Size>
+        <ValuePointer>p</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+  <Type Name="terark::SubSetHashMap&lt;*&gt;">
+    <DisplayString>{{ size={node.n-1} nPower={data.n} nBucket={nBucket} }}</DisplayString>
+    <Expand>
+      <Item Name="[size]" ExcludeView="simple">node.n-1</Item>
+      <Item Name="[nBucket]" ExcludeView="simple">nBucket</Item>
+      <Item Name="[aBucket]" ExcludeView="simple">bucket,[nBucket]</Item>
+      <Item Name="[nPower]" ExcludeView="simple">data.n</Item>
+      <CustomListItems>
+        <Variable InitialValue="size_t(0)" Name="i"/>
+        <Variable InitialValue="size_t(0)" Name="curr"/>
+        <Variable InitialValue="size_t(0)" Name="next"/>
+        <Loop>
+          <If Condition="i == node.n-1">
+            <Break/>
+          </If>
+          <Exec>next=node.p[i+1].index</Exec>
+          <Item Name="[{i},size={next-curr}]">data.p+curr,[next-curr]na</Item>
+          <Exec>++i, curr=next</Exec>
+        </Loop>
+      </CustomListItems>
+<!--
+      <IndexListItems>
+        <Size>node.n-1</Size>
+        <ValueNode>data.p + node.p[$i].index, [node.p[$i+1].index-node.p[$i].index] na</ValueNode>
+      </IndexListItems>
+-->
+    </Expand>
+  </Type>
+  <Type Name="terark::NFA_SubSet&lt;*&gt;">
+    <DisplayString>{{ ch={(short)ch} size={n} {p,[n]na} }}</DisplayString>
+    <Expand>
+      <Item Name="[ch]" ExcludeView="simple">ch</Item>
+      <Item Name="[size]" ExcludeView="simple">n</Item>
+      <Item Name="[capacity]" ExcludeView="simple">c</Item>
+      <ArrayItems>
+        <Size>n</Size>
+        <ValuePointer>p</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+  <Type Name="terark::LineBuf">
+    <DisplayString>{{ size={n} {p,[n]na} }}</DisplayString>
+    <Expand>
+      <Item Name="[size]" ExcludeView="simple">n</Item>
+      <Item Name="[capacity]" ExcludeView="simple">capacity</Item>
+      <ArrayItems>
+        <Size>n</Size>
+        <ValuePointer>p</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+  <Type Name="terark::smallmap&lt;*&gt;">
+    <DisplayString>{{ MapSize={n} RawSize={c} }}</DisplayString>
+    <Expand>
+      <Item Name="[MapSize]" ExcludeView="simple">n</Item>
+      <Item Name="[RawSize]" ExcludeView="simple">c</Item>
+      <Synthetic Name="[ByRaw]">
+        <DisplayString>{{ RawSize={c} }}</DisplayString>
+        <Expand>
+          <ArrayItems>
+            <Size>c</Size>
+            <ValuePointer>p</ValuePointer>
+          </ArrayItems>
+        </Expand>
+      </Synthetic>
+      <Synthetic Name="[ByMap]">
+        <DisplayString>{{ MapSize={n} }}</DisplayString>
+        <Expand>
+          <Item Name="[size]">n</Item>
+          <CustomListItems>
+            <Variable InitialValue="size_t(0)" Name="i"/>
+            <Loop>
+              <If Condition="i == c">
+                <Break/>
+              </If>
+              <If Condition="index[i] != -1">
+                <Item Name="[{index[i]},ch={(short)p[index[i]].ch}]">p[index[i]]</Item>
+              </If>
+              <Exec>++i</Exec>
+            </Loop>
+          </CustomListItems>
+        </Expand>
+      </Synthetic>
+    </Expand>
+  </Type>
+  <Type Name="terark::basic_fstrvec&lt;*&gt;">
+    <DisplayString>{{ size={offsets.n-1} strlen={strpool.n} }}</DisplayString>
+    <Expand>
+      <Item Name="[size]" ExcludeView="simple">offsets.n-1</Item>
+      <Item Name="[strlen]" ExcludeView="simple">strpool.n</Item>
+      <IndexListItems>
+        <Size>offsets.n-1</Size>
+        <ValueNode>strpool.p + offsets.p[$i].offset, [offsets.p[$i+1]-offsets.p[$i]]na</ValueNode>
+      </IndexListItems>
+    </Expand>
+  </Type>
+  <Type Name="terark::FixedLenStrVec">
+    <DisplayString>{{ size={m_size} fixlen={m_fixlen} strlen={m_strpool.n} }}</DisplayString>
+    <Expand>
+      <Item Name="[size]" ExcludeView="simple">m_size</Item>
+      <Item Name="[fixlen]" ExcludeView="simple">m_fixlen</Item>
+      <Item Name="[strlen]" ExcludeView="simple">m_strpool.n</Item>
+      <IndexListItems>
+        <Size>m_size</Size>
+        <ValueNode>m_strpool.p + $i * m_fixlen, [m_fixlen]na</ValueNode>
+      </IndexListItems>
+    </Expand>
+  </Type>
+  <Type Name="terark::SortableStrVec">
+    <DisplayString>{{ size={m_index.n} strlen={m_strpool.n} }}</DisplayString>
+    <Expand>
+      <Item Name="[size]" ExcludeView="simple">m_index.n</Item>
+      <Item Name="[strlen]" ExcludeView="simple">m_strpool.n</Item>
+      <IndexListItems>
+        <Size>m_index.n</Size>
+        <ValueNode>m_strpool.p + m_index.p[$i].offset, [m_index.p[$i].length]na</ValueNode>
+      </IndexListItems>
+    </Expand>
+  </Type>
+  <Type Name="terark::SortedStrVec">
+    <DisplayString Condition="m_offsets.m_size &gt; 1">{{ size={m_offsets.m_size - 1} strlen={m_strpool.n} }}</DisplayString>
+    <DisplayString Condition="m_offsets.m_size &lt;= 1">{{ size=0 strlen={m_strpool.n} }}</DisplayString>
+    <Expand>
+      <Item Name="[size]" Condition="m_offsets.m_size &gt; 1" ExcludeView="simple">m_offsets.m_size - 1</Item>
+      <Item Name="[size]" Condition="m_offsets.m_size &lt;= 1" ExcludeView="simple">0</Item>
+      <Item Name="[strlen]" ExcludeView="simple">m_strpool.n</Item>
+      <CustomListItems Condition="m_offsets.m_size &gt; 1">
+        <Variable InitialValue="size_t(0)" Name="curr"/>
+        <Variable InitialValue="size_t(0)" Name="last"/>
+        <Variable InitialValue="size_t(1)" Name="i"/>
+        <Loop>
+          <If Condition="i == m_offsets.m_size">
+            <Break/>
+          </If>
+          <Exec>curr = (*(size_t*)(m_offsets.m_data.p + i * m_offsets.m_bits / 8) &gt;&gt; (i * m_offsets.m_bits % 8) &amp; m_offsets.m_mask)</Exec>
+          <Item Name="[{i}]">m_strpool.p + last,[curr - last]na</Item>
+          <Exec>++i</Exec>
+          <Exec>last = curr</Exec>
+        </Loop>
+      </CustomListItems>
+    </Expand>
+  </Type>
+  <Type Name="terark::UintVecMin0">
+    <DisplayString>{{ size={m_size} bits={m_bits} }}</DisplayString>
+    <Expand>
+      <Item Name="[size]" ExcludeView="simple">m_size</Item>
+      <Item Name="[bits]" ExcludeView="simple">m_bits</Item>
+      <Item Name="[mask]" ExcludeView="simple">m_mask</Item>
+      <IndexListItems>
+        <Size>m_size</Size>
+        <ValueNode>(*(size_t*)(m_data.p + $i * m_bits / 8) &gt;&gt; ($i * m_bits % 8) &amp; m_mask)</ValueNode>
+      </IndexListItems>
+    </Expand>
+  </Type>
+  <Type Name="terark::ZipIntVector&lt;*&gt;">
+    <DisplayString>{{ size={m_size} bits={m_bits} }}</DisplayString>
+    <Expand>
+      <Item Name="[size]" ExcludeView="simple">m_size</Item>
+      <Item Name="[bits]" ExcludeView="simple">m_bits</Item>
+      <Item Name="[mask]" ExcludeView="simple">m_mask</Item>
+      <Item Name="[min]" ExcludeView="simple">m_min_val</Item>
+      <IndexListItems>
+        <Size>m_size</Size>
+        <ValueNode>int_value_t(m_min_val + (*(size_t*)(m_data.p + $i * m_bits / 8) &gt;&gt; ($i * m_bits % 8) &amp; m_mask))</ValueNode>
+      </IndexListItems>
+    </Expand>
+  </Type>
+  <Type Name="terark::MatchContext">
+    <DisplayString>{{ root={root} pos={pos} zidx={zidx} zbstate={zbuf_state} }}</DisplayString>
+    <Expand>
+      <Item Name="[root]" ExcludeView="simple">root</Item>
+      <Item Name="[pos]" ExcludeView="simple">pos</Item>
+      <Item Name="[zidx]" ExcludeView="simple">zidx</Item>
+      <Item Name="[zbuf]" ExcludeView="simple">zbuf</Item>
+      <Item Name="[zbstate]" ExcludeView="simple">zbuf_state</Item>
+      <Item Name="[complex]" ExcludeView="simple">complex_context</Item>
+    </Expand>
+  </Type>
+</AutoVisualizer>

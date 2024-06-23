@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LocalDebuggerCommandArguments>64-pc-cygwin setup/perl-URI.lst.gz111 &lt; E:\Data.Test\suftest.txt</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerEnvironment>PATH=C:\osc\terark\3rdparty\libdivsufsort\build\examples\Debug;%PATH%</LocalDebuggerEnvironment>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LocalDebuggerCommandArguments>-n 2 -T 4@. -F 0 -b 1 -o query-correction.nlt C:\osc\terark\nlp\data\orig\query-correction.txt</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerWorkingDirectory>c:\osc\terark\tools\fsa</LocalDebuggerWorkingDirectory>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LocalDebuggerCommandArguments>-n 5 -b 1 -o filelist.20k.nlt filelist.txt.sorted.20k</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerWorkingDirectory>c:\osc\terark\tools\fsa</LocalDebuggerWorkingDirectory>
+    <LocalDebuggerEnvironment>LOUDS_DFA_PRINT_STAT=1;
+NestLoudsTrie_debugLevel=2;
+NestLoudsTrie_nestScale=100;
+NestLoudsTrie_useMixedCoreLink=1;</LocalDebuggerEnvironment>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LocalDebuggerCommandArguments>C:\osc\terark\tools\regex\blog.dfa C:\osc\terark\tools\regex\blog.vm</LocalDebuggerCommandArguments>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+</Project>

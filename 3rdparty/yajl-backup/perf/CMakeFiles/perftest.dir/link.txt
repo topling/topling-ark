@@ -1,0 +1,1 @@
+/usr/bin/gcc    -fPIC CMakeFiles/perftest.dir/perftest.o CMakeFiles/perftest.dir/documents.o  -o perftest -rdynamic -L/home/leipeng/osc/yajl/perf/../lib -lyajl_s -Wl,-rpath,/home/leipeng/osc/yajl/perf/../lib 

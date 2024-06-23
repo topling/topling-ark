@@ -1,0 +1,588 @@
+/* vim: set tabstop=4 : */
+#include "pipeline.h"
+#include <iostream>
+#include <sstream>
+#include <boost/thread.hpp>
+#include <boost/bind.hpp>
+
+namespace terark { namespace thread {
+
+PipelineTask::~PipelineTask()
+{
+	// do nothing...
+}
+
+PipelineMultiTask::~PipelineMultiTask()
+{
+	// do nothing...
+// 	for (int i = 0; i != m_tasks.size(); ++i)
+// 	{
+// 		delete m_tasks[i];
+// 	}
+}
+
+//////////////////////////////////////////////////////////////////////////
+class PipelineThread
+{
+	friend class PipelineStep;
+	std::string m_err_text;
+	int m_threadno;
+	volatile bool m_run;
+	boost::thread m_thread;
+public:
+	PipelineThread(PipelineStep* step, int threadno);
+};
+
+PipelineThread::PipelineThread(PipelineStep* step, int threadno)
+: m_threadno(threadno)
+, m_run(true)
+, m_thread(boost::bind(&PipelineStep::run_wrapper, step, this))
+{
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+PipelineStep::PipelineStep()
+{
+	m_prev = m_next = 0;
+	m_owner = 0;
+	m_out_queue = 0;
+}
+
+PipelineStep::PipelineStep(int thread_count, bool batchProcess)
+: m_owner(0)
+{
+	assert(0 != thread_count);
+	m_prev = m_next = 0;
+	m_out_queue = 0;
+	m_threads.resize(thread_count, 0);
+}
+
+PipelineStep::~PipelineStep()
+{
+	delete m_out_queue;
+	for (int threadno = 0; threadno != m_threads.size(); ++threadno)
+	{
+		delete m_threads[threadno];
+	}
+}
+
+const std::string& PipelineStep::err(int threadno) const
+{
+	return m_threads[threadno]->m_err_text;
+}
+
+int PipelineStep::step_ordinal() const
+{
+	return m_owner->step_ordinal(this);
+}
+
+std::string PipelineStep::msg_leading(int threadno) const
+{
+	std::ostringstream oss;
+	oss << "step[" << step_ordinal() << "], threadno[" << threadno << "]";
+	return oss.str();
+}
+
+boost::mutex* PipelineStep::getMutex() const
+{
+	return m_owner->getMutex();
+}
+
+void PipelineStep::stop()
+{
+	m_owner->stop();
+}
+
+bool PipelineStep::isPrevRunning()
+{
+	return m_owner->isRunning() || !m_prev->m_out_queue->empty() || m_prev->isRunning();
+}
+
+bool PipelineStep::isRunning()
+{
+	for (int threadno = 0; threadno!=m_threads.size(); ++threadno)
+	{
+		if (m_threads[threadno]->m_run)
+			return true;
+	}
+	return false;
+}
+
+void PipelineStep::join()
+{
+	for (int threadno = 0; threadno != m_threads.size(); ++threadno)
+		m_threads[threadno]->m_thread.join();
+}
+
+void PipelineStep::start(int queue_size)
+{
+	//  0 == queue_size implies the last step
+	if (0 != queue_size)
+		m_out_queue = new queue_t(queue_size);
+
+	for (int threadno = 0; threadno != m_threads.size(); ++threadno)
+	{
+		m_threads[threadno] = new PipelineThread(this, threadno);
+	}
+}
+
+void PipelineStep::onException(int threadno, const std::exception& exp)
+{
+	std::ostringstream oss;
+	oss << "exception class=" << typeid(exp).name()
+		<< ", what=" << exp.what();
+	m_threads[threadno]->m_err_text = oss.str();
+
+	boost::mutex::scoped_lock lock(*m_owner->m_mutex);
+	std::cerr << "step[" << step_ordinal() << "]: " << m_step_name
+			  << ", threadno[" << threadno
+			  << "], caught: " << m_threads[threadno]->m_err_text
+			  << std::endl;
+}
+
+void PipelineStep::setup(int threadno)
+{
+	boost::mutex::scoped_lock lock(*m_owner->getMutex());
+	std::cout << "start step[ordinal=" << step_ordinal()
+			  << ", threadno=" << threadno
+			  << "]: " << m_step_name << std::endl;
+}
+
+void PipelineStep::clean(int threadno)
+{
+	boost::mutex::scoped_lock lock(*m_owner->getMutex());
+	if (err(threadno).empty())
+		std::cout << "ended step[ordinal=" << step_ordinal()
+				  << ", threadno=" << threadno << "]: " << m_step_name
+				  << std::endl;
+	else
+		std::cerr << "step[ordinal=" << step_ordinal()
+				  << ", threadno=" << threadno << "]: " << m_step_name
+				  << ", error: " << err(threadno) << std::endl;
+}
+
+// 批量处理多个任务
+void PipelineStep::process_wrapper(int threadno, PipelineTask*& task)
+{
+	if (PipelineMultiTask* mtask = dynamic_cast<PipelineMultiTask*>(task))
+	{
+		std::vector<PipelineTask*>& v = mtask->m_tasks;
+		for (std::vector<PipelineTask*>::iterator i = v.begin(); i != v.end(); ++i)
+		{
+			process(threadno, *i);
+		}
+		v.erase(std::remove(v.begin(), v.end(), (PipelineTask*)0), v.end());
+	} else
+		process(threadno, task);
+}
+
+void PipelineStep::run_wrapper(PipelineThread* pthread)
+{
+	bool setup_successed = false;
+	try {
+		setup(pthread->m_threadno);
+		setup_successed = true;
+		run(pthread);
+		clean(pthread->m_threadno);
+		assert(m_prev == m_owner->m_head || m_prev->m_out_queue->empty());
+	}
+	catch (const std::exception& exp)
+	{
+		onException(pthread->m_threadno, exp);
+		if (setup_successed)
+			clean(pthread->m_threadno);
+
+		m_owner->stop();
+
+		if (m_prev != m_owner->m_head)
+		{ // 不是第一个 step, 清空前一个 step 的 out_queue
+			while (!m_prev->m_out_queue->empty() || m_prev->isRunning())
+			{
+				PipelineTask* task = 0;
+				if (m_prev->m_out_queue->pop(task, m_owner->m_queue_timeout))
+				{
+					assert(task);
+					m_owner->destroyTask(task);
+				}
+			}
+		}
+	}
+	pthread->m_run = false;
+}
+
+// 这个实现不能在 pipeline 运行时动态加入新的 step
+//
+void PipelineStep::run(PipelineThread* pthread)
+{
+	assert(m_owner->total_steps() >= 2);
+
+	if (this == m_owner->m_head->m_next)
+	{
+		run_step_first(pthread);
+	}
+	else if (this == m_owner->m_head->m_prev)
+	{
+		run_step_last(pthread);
+	}
+	else
+	{
+		run_step_mid(pthread);
+	}
+}
+
+void PipelineStep::run_step_first(PipelineThread* pthread)
+{
+	size_t fullThreshold = (m_out_queue->maxSize() * 7 + 1) / 8;
+	PipelineMultiTask* mtask = 0;
+	PipelineTask* task = 0;
+	while (m_owner->isRunning() || task)
+	{
+		if (0 == task)
+		{
+			process(pthread->m_threadno, task);
+		}
+		if (0 == task) continue;
+
+		if (0 == mtask)
+		{
+			if (m_out_queue->push(task, 0))
+				task = 0;
+			else {
+				mtask = new PipelineMultiTask;
+				mtask->m_tasks.push_back(task);
+			}
+		} else {
+			int qtimeout;
+			if (int(mtask->m_tasks.size()) < m_owner->getQueueSize()) {
+				mtask->m_tasks.push_back(task);
+				task = 0;
+				qtimeout = 0;
+			} else
+				qtimeout = m_owner->m_queue_timeout;
+
+			if (m_out_queue->push(mtask, qtimeout))
+			{
+				mtask = 0;
+			}
+		}
+	}
+}
+
+void PipelineStep::run_step_last(PipelineThread* pthread)
+{
+	while (isPrevRunning())
+	{
+		PipelineTask* task = 0;
+		if (m_prev->m_out_queue->pop(task, m_owner->m_queue_timeout))
+		{
+			assert(task);
+			process_wrapper(pthread->m_threadno, task);
+			if (task)
+			{
+				m_owner->destroyTask(task);
+				task = 0;
+			}
+		}
+	}
+}
+
+void PipelineStep::pack_multi_task(PipelineTask*& task)
+{
+}
+
+void PipelineStep::run_step_mid(PipelineThread* pthread)
+{
+	PipelineTask* task = 0;
+//	std::vector<PipelineTask*> processed;processed.reserve(m_owner->getQueueSize());
+	PipelineMultiTask* processed = new PipelineMultiTask;
+	while (isPrevRunning() || task)
+	{
+		if (0 == task)
+		{
+			if (m_prev->m_out_queue->pop(task, m_owner->m_queue_timeout))
+			{
+				assert(task);
+				process_wrapper(pthread->m_threadno, task);
+			}
+		}
+		if (0 == task && processed->m_tasks.empty()) continue;
+
+		if (processed->m_tasks.empty())
+		{
+			if (m_out_queue->push(task, 0))
+			{
+				task = 0;
+			}
+		}
+		else
+		{
+			PipelineMultiTask* mtask = dynamic_cast<PipelineMultiTask*>(task);
+			if (0 == mtask)
+			{
+				processed->m_tasks.push_back(task);
+			}
+			else
+			{
+				int old_size = processed->m_tasks.size();
+				processed->m_tasks.resize(old_size + mtask->m_tasks.size());
+				std::copy(mtask->m_tasks.begin(), mtask->m_tasks.end(), processed->m_tasks.begin()+old_size);
+				delete mtask;
+			}
+			if (m_out_queue->push(mtask, 0))
+			{
+				processed = new PipelineMultiTask;
+			}
+			task = 0;
+
+		}
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+FunPipelineStep::FunPipelineStep(int thread_count,
+				const boost::function3<void, PipelineStep*, int, PipelineTask*&>& fprocess,
+				const boost::function2<void, PipelineStep*, int>& fsetup,
+				const boost::function2<void, PipelineStep*, int>& fclean)
+	: PipelineStep(thread_count)
+	, m_process(fprocess), m_setup(fsetup), m_clean(fclean)
+{
+}
+
+FunPipelineStep::FunPipelineStep(int thread_count,
+				const boost::function3<void, PipelineStep*, int, PipelineTask*&>& fprocess,
+				const std::string& step_name)
+	: PipelineStep(thread_count)
+	, m_process(fprocess)
+	, m_setup(&FunPipelineStep::static_default_setup)
+	, m_clean(&FunPipelineStep::static_default_clean)
+{
+	m_step_name = (step_name);
+}
+
+void FunPipelineStep::default_setup(int threadno)
+{
+	PipelineStep::setup(threadno);
+}
+void FunPipelineStep::default_clean(int threadno)
+{
+	PipelineStep::clean(threadno);
+}
+void FunPipelineStep::static_default_setup(PipelineStep* self, int threadno)
+{
+	static_cast<FunPipelineStep*>(self)->default_setup(threadno);
+}
+void FunPipelineStep::static_default_clean(PipelineStep* self, int threadno)
+{
+	static_cast<FunPipelineStep*>(self)->default_clean(threadno);
+}
+
+void FunPipelineStep::process(int threadno, PipelineTask*& task)
+{
+	m_process(this, threadno, task);
+}
+void FunPipelineStep::setup(int threadno)
+{
+	m_setup(this, threadno);
+}
+void FunPipelineStep::clean(int threadno)
+{
+	m_clean(this, threadno);
+}
+//////////////////////////////////////////////////////////////////////////
+
+class Null_PipelineStep : public PipelineStep
+{
+	virtual void process(int threadno, PipelineTask*& task) {}
+};
+
+PipelineProcessor::PipelineProcessor(int queue_size, int queue_timeout)
+  : m_destroyTask(&PipelineProcessor::defaultDestroyTask)
+{
+	m_queue_size = queue_size;
+	m_queue_timeout = queue_timeout;
+	m_head = new Null_PipelineStep;
+	m_head->m_prev = m_head->m_next = m_head;
+	m_run = false;
+	m_is_mutex_owner = false;
+	m_mutex = NULL;
+}
+
+PipelineProcessor::~PipelineProcessor()
+{
+	clear();
+
+	delete m_head;
+	if (m_is_mutex_owner)
+		delete m_mutex;
+}
+
+void PipelineProcessor::defaultDestroyTask(PipelineTask* task)
+{
+	delete task;
+}
+void PipelineProcessor::destroyTask(PipelineTask* task)
+{
+	PipelineMultiTask* mtask = dynamic_cast<PipelineMultiTask*>(task);
+	if (0 == mtask)
+		m_destroyTask(task);
+	else
+	{
+		std::vector<PipelineTask*>::iterator iter = mtask->m_tasks.begin();
+		for (; iter != mtask->m_tasks.end(); ++iter)
+			m_destroyTask(*iter);
+		delete mtask;
+	}
+}
+
+void PipelineProcessor::setMutex(boost::mutex* pmutex)
+{
+	if (m_run)
+	{
+		throw std::logic_error("can not setMutex after PipelineProcessor::start()");
+	}
+	m_mutex = pmutex;
+	m_is_mutex_owner = false;
+}
+
+std::string PipelineProcessor::queueInfo()
+{
+	std::ostringstream oss;
+	const PipelineStep* p = m_head->m_next;
+	oss << "QueueSize: ";
+	while (p != m_head->m_prev)
+	{
+		oss << "(" << p->m_step_name << "=" << p->m_out_queue->peekSize() << "), ";
+		p = p->m_next;
+	}
+	std::string s = oss.str();
+	s.erase(s.end()-2, s.end());
+	return s;
+}
+
+int PipelineProcessor::step_ordinal(const PipelineStep* step) const
+{
+	int ordinal = 0;
+	const PipelineStep* p = m_head->m_next;
+	while (p != step)
+	{
+		p = p->m_next;
+		++ordinal;
+	}
+	return ordinal;
+}
+
+int PipelineProcessor::total_steps() const
+{
+	return step_ordinal(m_head);
+}
+
+void PipelineProcessor::start()
+{
+	assert(m_head);
+	assert(total_steps() >= 2); // 至少要有 2 个 step
+
+	m_run = true;
+
+	if (NULL == m_mutex)
+	{
+		m_mutex = new boost::mutex;
+		m_is_mutex_owner = true;
+	}
+
+	for (PipelineStep* step = m_head->m_next; step != m_head; step = step->m_next)
+	{
+		// let last step has no queue
+		step->start(step == m_head->m_prev ? 0 : m_queue_size);
+	}
+}
+
+void PipelineProcessor::join()
+{
+	for (PipelineStep* step = m_head->m_next; step != m_head; step = step->m_next)
+	{
+		step->join();
+	}
+}
+
+void PipelineProcessor::add_step(PipelineStep* step)
+{
+	step->m_owner = this;
+	step->m_prev = m_head->m_prev;
+	step->m_next = m_head;
+	m_head->m_prev->m_next = step;
+	m_head->m_prev = step;
+}
+
+void PipelineProcessor::clear()
+{
+	assert(!m_run);
+
+	PipelineStep* curr = m_head->m_next;
+	while (curr != m_head)
+	{
+		PipelineStep* next = curr->m_next;
+		delete curr;
+		curr = next;
+	}
+	m_head->m_prev = m_head->m_next = m_head;
+}
+
+class PipelineProcessor_ExampleClass
+{
+public:
+	void step0_process(PipelineStep* step, int threadno, PipelineTask*& task)
+	{
+		
+	}
+	void step0_setup(PipelineStep* step, int threadno)
+	{
+		
+	}
+	void step0_clean(PipelineStep* step, int threadno)
+	{
+		
+	}
+
+	void step1_process(PipelineStep* step, int threadno, PipelineTask*& task)
+	{
+		
+	}
+	void step1_setup(PipelineStep* step, int threadno)
+	{
+		
+	}
+	void step1_clean(PipelineStep* step, int threadno)
+	{
+		
+	}
+	void step2_process(PipelineStep* step, int threadno, PipelineTask*& task)
+	{
+		
+	}
+
+	int main()
+	{
+		PipelineProcessor pipeline(50, 500);
+		pipeline.add_step(new FunPipelineStep(10,
+			boost::bind(&PipelineProcessor_ExampleClass::step0_process, this, _1, _2, _3),
+			boost::bind(&PipelineProcessor_ExampleClass::step0_setup, this, _1, _2),
+			boost::bind(&PipelineProcessor_ExampleClass::step0_clean, this, _1, _2)
+			));
+		pipeline.add_step(new FunPipelineStep(10,
+			boost::bind(&PipelineProcessor_ExampleClass::step1_process, this, _1, _2, _3),
+			boost::bind(&PipelineProcessor_ExampleClass::step1_setup, this, _1, _2),
+			boost::bind(&PipelineProcessor_ExampleClass::step1_clean, this, _1, _2)
+			));
+		pipeline.add_step(new FunPipelineStep(10,
+			boost::bind(&PipelineProcessor_ExampleClass::step2_process, this, _1, _2, _3),
+			"last step"
+			));
+		pipeline.start();
+		pipeline.join();
+	}
+};
+
+} } // namespace terark::thread
+

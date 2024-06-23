@@ -1,0 +1,53 @@
+README for terark lib
+====================
+说明：
+	
+本 C++ 库提供如下功能：
+	1. posix 和 win32 环境下的线程支持
+	2. 流、和对象序列化
+	3. rpc 不需要任何 IDL 接口描述语言，仅使用 C++ 的语法（用一些宏进行声明式定义 rpc），就可以实现远程调用
+	4. 倒排表
+	5. 其它一些实用算法和类
+
+目录说明：
+	src/		源代码目录
+	doc/		doxygen生成的文档目录
+	vcproj/		visual c++ 2008 工程目录
+
+在如下环境中成功编译：
+	1. linux+gcc-3.2.3/4.1.2/4.3.2/4.5.3/4.7.1
+	2. windows+Visual C++ 2005/2008
+	3. windows+cygwin+gcc-4.5.3
+
+编译与安装：
+	如果不需要支持 BerkeleyDB, 使用 "make main" 替换 "make all"
+	对 BerkeleyDB 的支持是通过专门的目标完成的，动态链接库名称为 libterark-bdb_util(-d|-r)gcc(gcc_ver).so
+
+	make all
+	sudo make install
+
+	1. 示例：
+		vcproj/test_rpc/	rpc 示例
+		      /test_rpc/employee_server  	中使用了 bdb_util
+
+		vcproj/test_mpool/	mpool 示例及 benchmark
+		vcproj/DataIO/		DataIO 序列化框架示例及 benchmark
+
+需要的库文件：
+	1. boost-1_33_1 或更高版
+	2. pthread 或者 win32
+
+需要的安装的软件
+	一：windows下：
+		1、doxygen-1.5.1-p1-setup.exe
+		2、html help workshop
+		3、graphviz-2.12.exe
+	二：linux下：
+		1、doxygen-1.5.1.src.tar
+		2、graphviz-2.12.tar.gz
+
+注意：
+	1. 该库绝大部分代码都是包含在头文件中的模板，只有少数 *.cpp 文件。
+	   如果不想将该库编译成库文件，可以直接将这些 *.cpp 文件包含在您的工程中。
+	2. mapreduce 目前处于半成品状态，甚至可能无法通过编译
+	
