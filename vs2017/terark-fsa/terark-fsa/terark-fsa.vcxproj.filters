@@ -542,8 +542,6 @@
     <ClCompile Include="..\..\..\src\terark\fsa\dynamic_patricia_trie.cpp">
       <Filter>Source Files\terark\fsa</Filter>
     </ClCompile>
-      <Filter>Source Files\terark\fsa</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\terark\fsa\mre_dawg.cpp">
       <Filter>Source Files\terark\fsa</Filter>
     </ClCompile>
