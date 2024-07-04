@@ -105,8 +105,6 @@
     <ClInclude Include="..\..\..\src\terark\io\FileStream.hpp">
       <Filter>Header Files\terark\io</Filter>
     </ClInclude>
-      <Filter>Header Files\terark\io</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\src\terark\io\HexCodingStream.hpp">
       <Filter>Header Files\terark\io</Filter>
     </ClInclude>
