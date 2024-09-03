@@ -217,6 +217,17 @@ ifeq (, ${prefix})
   endif
 endif
 
+ifeq ($(filter install, ${MAKECMDGOALS}),install)
+  ifneq ($(wildcard ${prefix}/lib64),)
+    INSTALL_DIR :=  ${prefix}/lib64
+  else
+    INSTALL_DIR :=  ${prefix}/lib
+  endif
+  ifeq ($(wildcard  ${prefix}/lib64),)
+    $(error not exists: INSTALL_DIR = ${INSTALL_DIR})
+  endif
+endif
+
 #$(warning prefix=${prefix} LIBS=${LIBS})
 
 #obsoleted_src =  \
@@ -649,8 +660,8 @@ endif
 	cd $(dir $@); ln -sf $(notdir $@) $(subst -${COMPILER},,$(notdir $@))
 
 .PHONY : install
-install : core
-	cp ${BUILD_ROOT}/lib_shared/* ${prefix}/lib/
+install : zbs fsa core
+	cp -ap ${BUILD_ROOT}/lib_shared/* ${INSTALL_DIR}
 
 .PHONY : clean
 clean:
