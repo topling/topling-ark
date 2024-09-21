@@ -39,6 +39,12 @@ const char* pattern_file = NULL;
 const char* scaning_file = NULL;
 size_t max_edit_distance = 1;
 
+std::string str_rev(const std::string& str) {
+	std::string rev = str;
+	std::reverse(rev.begin(), rev.end());
+	return rev;
+}
+
 template<class Au, class Onfly>
 int run0() {
 #if 1
@@ -144,8 +150,7 @@ int run0() {
 		valvec<typename Au::state_id_t> path;
 		for (size_t i = 0; i < queries.size(); ++i) {
 			using namespace std;
-			std::string rev = queries[i];
-			std::reverse(rev.begin(), rev.end());
+			const std::string rev = str_rev(queries[i]);
 			fstring word(queries[i]);
 			fstring prefix(word.p, word.n/2);
 			fstring rev_prefix(rev.data(), rev.size()/2);

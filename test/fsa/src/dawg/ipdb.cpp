@@ -49,14 +49,14 @@ struct ip_db_t {
 			line.trim();
 			uint32_t i1, i2, i3, i4, i5, i6, i7, i8;
 			int numb = -1;
-			int fields = sscanf(line, "%u.%u.%u.%u %u.%u.%u.%u%*[ ]%n", &i1, &i2, &i3, &i4, &i5, &i6, &i7, &i8, &numb);
+			int fields = sscanf(line.p, "%u.%u.%u.%u %u.%u.%u.%u%*[ ]%n", &i1, &i2, &i3, &i4, &i5, &i6, &i7, &i8, &numb);
 			if (fields == 8 && -1 != numb) {
 				uint32_t iplo = i1 << 24 | i2 << 16 | i3 << 8 | i4;
 				uint32_t iphi = i5 << 24 | i6 << 16 | i7 << 8 | i8;
 				if (iphi != 0xFFFFFFFF)
 					iphi += 1;
 				ipv.push_back({iplo, iphi, (uint32_t)svec.size()});
-				svec.emplace_back(line+numb, line.end());
+				svec.emplace_back(line.p+numb, line.end());
 			}
 			else {
 				fprintf(stderr, "fields=%d, numb=%d  invalid line(%u): %s\n", fields, numb, lineno, line.p);

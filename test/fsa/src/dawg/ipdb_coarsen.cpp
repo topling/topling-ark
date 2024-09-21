@@ -36,7 +36,7 @@ int main(int argc, char** argv) {
 		builder.compile();
 	}
 	while (line.getline(stdin) > 0) {
-		fputs(line, stdout);
+		fputs(line.p, stdout);
 		line.trim();
 		line.split(' ', &F, 3);
 		if (F.size() < 3) {

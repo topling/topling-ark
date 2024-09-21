@@ -148,7 +148,7 @@ ParseDone:
 			buf.resize(0);
 			iterator_to_byte_stream<const char*> input(line.begin(), line.end());
 			if (ignore_case) {
-				low.assign(line, line.size());
+				low.assign(line.p, line.size());
 				strlower(low);
 				input = iterator_to_byte_stream<const char*>(low.data(), low.data()+low.size());
 			}
@@ -159,18 +159,18 @@ ParseDone:
 				if (last_end < begpos) { // no overlapp
 					if (last_end)
 						buf += MARK_END;
-					buf.append(line + last_end, begpos-last_end);
+					buf.append(line.p + last_end, begpos-last_end);
 					buf.append(MARK_BEG);
-					buf.append(line + begpos, hitlen);
+					buf.append(line.p + begpos, hitlen);
 				} else {
 					if (0 == last_end)
 						buf += MARK_BEG;
-					buf.append(line + last_end, endpos-last_end);
+					buf.append(line.p + last_end, endpos-last_end);
 				}
 				last_end = endpos;
 			});
 			if (last_end)
-				printf("%s:%d:%s%s%s\n", fname, lineno, buf.c_str(), MARK_END, line + last_end);
+				printf("%s:%d:%s%s%s\n", fname, lineno, buf.c_str(), MARK_END, line.p + last_end);
 		}
 	}
 	return 0;

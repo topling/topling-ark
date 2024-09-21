@@ -63,7 +63,7 @@ bool TransformerDecoder::load(const char* fpath) {
 		line.chomp();
 		if (line.size() == 0) continue;
 	//	std::transform(line, line+len2, line, &::tolower);
-		char* tab = strchr(line, '\t');
+		char* tab = strchr(line.p, '\t');
 		if (NULL == tab) continue;
 		if (line == tab) continue; // word1 is empty
 		*tab = 0;
