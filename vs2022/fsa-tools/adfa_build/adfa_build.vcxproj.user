@@ -7,7 +7,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LocalDebuggerCommandArguments>-O filelist.dfa -U filelist.udfa -u filelist.udfa.il -z 10:3 -c -s filelist</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerWorkingDirectory>D:\osc\terark\tools\fsa\</LocalDebuggerWorkingDirectory>
+    <LocalDebuggerWorkingDirectory>H:\osc\topling-core\tools\fsa\</LocalDebuggerWorkingDirectory>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LocalDebuggerCommandArguments>-O filelist.dfa -U filelist.udfa -u filelist.udfa.il -z 10:3 -c -s filelist</LocalDebuggerCommandArguments>
