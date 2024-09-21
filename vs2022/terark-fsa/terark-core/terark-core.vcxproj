@@ -371,7 +371,12 @@
     <ClCompile Include="..\..\..\src\terark\succinct\rank_select_se_512.cpp" />
     <ClCompile Include="..\..\..\src\terark\succinct\rank_select_simple.cpp" />
     <ClCompile Include="..\..\..\src\terark\thread\fiber_aio.cpp" />
-    <ClCompile Include="..\..\..\src\terark\thread\fiber_yield.cpp" />
+    <ClCompile Include="..\..\..\src\terark\thread\fiber_yield.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\..\..\src\terark\thread\mutex.cpp" />
     <ClCompile Include="..\..\..\src\terark\thread\pipeline.cpp" />
     <ClCompile Include="..\..\..\src\terark\util\checksum_exception.cpp" />
