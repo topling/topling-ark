@@ -212,7 +212,7 @@ struct Hopcroft {
 	smallmap<Splitter> C_1(512); // set of p which move(p,ch) is in Block C
 	valvec<BlockID> bls; // candidate splitable Blocks
 	{// Init WaitingSet
-		for (int b = 0; b < (int)P.size(); ++b)
+		for (BlockID b = 0; b < (BlockID)P.size(); ++b)
 			putW(b);
 	}
 	long iterations = 0;

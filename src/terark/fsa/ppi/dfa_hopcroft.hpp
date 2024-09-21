@@ -195,8 +195,8 @@ void collapse3(Hopcroft<state_id_t>& H, Au2& minimized) const {
 	size_t min_size = H.P.size();
 	size_t cur_size = total_states();
 	terark::AutoFree<state_id_t> X, M;
-	X.p = (state_id_t*)H.P.data(); H.P.risk_release_ownership();
-	M.p = (state_id_t*)H.L.data(); H.L.risk_release_ownership();
+	X.p = (state_id_t*)H.P.risk_release_ownership();
+	M.p = (state_id_t*)H.L.risk_release_ownership();
 	typedef typename Hopcroft<state_id_t>::Elem  H_Elem;
 	typedef typename Hopcroft<state_id_t>::Block H_Block;
 	for (size_t i = 0; i < min_size; ++i) X.p[i] = ((H_Block*)X.p)[i].head;
