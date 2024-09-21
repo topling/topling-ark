@@ -143,6 +143,8 @@ public:
 	size_t num_free_states() const { return m_free_states; }
 	fstring get_zpath_data(size_t, MatchContext*) const { return ""; }
 
+	size_t hopcroft_hash(size_t state_id) const;
+
 	// for adfa_minimize
 	size_t adfa_hash_hash(const state_id_t* Min, size_t state_id) const;
 	bool   adfa_hash_equal(const state_id_t* Min, size_t x, size_t y) const;

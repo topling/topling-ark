@@ -25,4 +25,7 @@ TMPL_INST_DFA_CLASS(Automata<State7B_448>)
 #endif
 #endif
 
+static bool g_use_hash = getEnvBool("HOPCROFT_USE_HASH", true);
+bool HopcroftUseHash() { return g_use_hash; }
+
 } // namespace terark

@@ -987,6 +987,7 @@ protected:
 	GraphTotalVertexes(const DenseDFA* au) { return au->states.size(); }
 
 public:
+	size_t hopcroft_hash(size_t x_id) const;
 	size_t onfly_hash_hash(size_t x_id) const;
 	bool onfly_hash_equal(size_t x_id, size_t y_id) const;
 	size_t adfa_hash_hash(const StateID* Min, size_t state_id) const;
@@ -1021,6 +1022,22 @@ const StateID DenseDFA<StateID, Sigma, State>::max_state;
 
 typedef DenseDFA<uint32_t, 320> DenseDFA_uint32_320;
 typedef DenseDFA<uint64_t, 320> DenseDFA_uint64_320;
+
+template<class StateID, int Sigma, class State>
+size_t
+DenseDFA<StateID, Sigma, State>::hopcroft_hash(size_t x_id) const {
+	assert(x_id < states.size());
+	const State& x = states[x_id];
+	assert(!x.is_pzip());
+	size_t h = x.is_term();
+	for (size_t i = 0; i < MyBitMap::BlockN; ++i) {
+		bm_uint_t d = x. dense.block(i);
+		bm_uint_t s = x.sparse.block(i);
+		h = FaboHashCombine(h, d);
+		h = FaboHashCombine(h, s);
+	}
+	return h;
+}
 
 template<class StateID, int Sigma, class State>
 size_t

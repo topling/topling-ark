@@ -559,6 +559,7 @@ protected:
 	friend size_t
 	GraphTotalVertexes(const AutomataTpl* au) { return au->states.size(); }
 public:
+	size_t hopcroft_hash(size_t x_id) const;
 	size_t onfly_hash_hash(size_t x_id) const;
 	bool onfly_hash_equal(size_t x_id, size_t y_id) const;
 	size_t adfa_hash_hash(const state_id_t* Min, size_t state_id) const;

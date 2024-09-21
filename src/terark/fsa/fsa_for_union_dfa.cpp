@@ -185,6 +185,27 @@ bool FSA_ForUnionDFA::is_free(size_t s) const {
 #endif
 }
 
+size_t FSA_ForUnionDFA::hopcroft_hash(size_t s) const {
+	assert(s != initial_state);
+	assert(s < m_total_states);
+	auto i = std::upper_bound(m_index.begin(), m_index.end(), s) - 1;
+	assert(i >= m_index.begin());
+	auto root = *i;
+	auto dfa = m_dfas[i - m_index.begin()];
+	assert(s - root < dfa->v_total_states());
+	size_t h = dfa->v_is_term(s - root) ? 1 : 0;
+	size_t oldsize = m_stack_moves.size();
+	m_stack_moves.resize_no_init(oldsize + m_max_sigma);
+	CharTarget<size_t>* moves = m_stack_moves.data() + oldsize;
+	size_t cnt = dfa->get_all_move(s - root, moves);
+	for (size_t i = oldsize; i < oldsize + cnt; ++i) {
+		h = FaboHashCombine(h, moves[i].ch);
+	}
+	h = FaboHashCombine(h, cnt);
+	m_stack_moves.risk_set_size(oldsize);
+	return h;
+}
+
 size_t FSA_ForUnionDFA::adfa_hash_hash(const state_id_t* Min, size_t s) const {
 	assert(s != initial_state);
 	assert(s < m_total_states);

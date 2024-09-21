@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <terark/valvec.hpp>
 #include <terark/smallmap.hpp>
+#include <terark/hash_common.hpp>
 #include "graph_walker.hpp"
 
 namespace terark {
@@ -14,6 +15,14 @@ namespace terark {
 //  #define AU_TRACE 1 ? 0 : printf
     #define AU_TRACE(format, ...)
 #endif
+
+template<class DFA>
+struct HopcroftDeltaHash {
+	size_t operator()(const DFA& dfa, size_t state) const {
+		return dfa.hopcroft_hash(state);
+	}
+};
+TERARK_DLL_EXPORT bool HopcroftUseHash();
 
 template<class StateID>
 struct Hopcroft {
@@ -76,6 +85,32 @@ struct Hopcroft {
 		}
 		if (0 == P[1].blen) P.pop_back();
 	}
+	template<class DFA, class DeltaHash>
+	explicit Hopcroft(const DFA& dfa, DeltaHash hash) {
+		BOOST_STATIC_ASSERT(sizeof(StateID) >= sizeof(typename DFA::state_id_t));
+		assert(dfa.has_freelist());
+		assert(dfa.total_states() >= 1);
+		L.resize_no_init(dfa.total_states());
+		P.reserve((dfa.total_states()+1)/2);
+		constexpr StateID nil = StateID(-1);
+		const size_t n_buckets = __hsm_stl_next_prime(dfa.total_states() + 1);
+		AutoFree<StateID> bucket(n_buckets, nil);
+		bool HasFreeStates = (dfa.num_free_states() != 0);
+		for (size_t s = 0; s < L.size(); ++s) {
+			if (HasFreeStates && dfa.is_free(s)) continue;
+			StateID hidx = hash(dfa, s) % n_buckets;
+			StateID blid = bucket[hidx];
+			if (nil == blid) { // make a new block
+				blid = P.size();
+				P.push_back();
+				// do not consider hash equal but <value> does not equal
+				bucket[hidx] = blid; // insert to hash hidx
+			}
+			else if (P[blid].blen == max_blen)
+				throw std::length_error(BOOST_CURRENT_FUNCTION);
+			add(blid, s);
+		}
+	}
 
 	template<class DFA>
 	Hopcroft(const DFA& dfa, StateID RootState) {
@@ -87,6 +122,7 @@ struct Hopcroft {
 		assert(dfa.total_states() >= 1);
 		slow_init(dfa, roots, n_roots);
 	}
+
 	template<class DFA, class Uint>
 	void slow_init(const DFA& dfa, const Uint* roots, size_t n_roots) {
 		BOOST_STATIC_ASSERT(sizeof(StateID) >= sizeof(typename DFA::state_id_t));
@@ -109,6 +145,49 @@ struct Hopcroft {
 			fix_blid(0);
 		}
 		if (0 == P[1].blen) P.pop_back();
+	}
+
+	template<class DFA, class DeltaHash>
+	Hopcroft(const DFA& dfa, StateID RootState, DeltaHash hash) {
+		assert(dfa.total_states() >= 1);
+		init_with_hash(dfa, &RootState, 1, hash);
+	}
+	template<class DFA, class Uint, class DeltaHash>
+	Hopcroft(const DFA& dfa, const Uint* roots, size_t n_roots,
+			 DeltaHash hash) {
+		assert(dfa.total_states() >= 1);
+		init_with_hash(dfa, roots, n_roots, hash);
+	}
+	template<class DFA, class Uint, class DeltaHash>
+	void init_with_hash(const DFA& dfa, const Uint* roots, size_t n_roots,
+						DeltaHash hash) {
+		constexpr StateID nil = StateID(-1);
+		const size_t n_buckets = __hsm_stl_next_prime(dfa.total_states() + 1);
+		AutoFree<StateID> bucket(n_buckets, nil);
+		assert(dfa.total_states() >= 1);
+		BOOST_STATIC_ASSERT(sizeof(StateID) >= sizeof(typename DFA::state_id_t));
+		L.resize_no_init(dfa.total_states());
+		P.reserve((dfa.total_states()+1)/2);
+		assert(P.empty());
+		PFS_GraphWalker<StateID> walker;
+		walker.resize(dfa.total_states());
+		for (size_t i = 0; i < n_roots; ++i) walker.putRoot(roots[i]);
+		while (!walker.is_finished()) {
+			StateID curr = walker.next();
+			StateID hidx = hash(dfa, curr) % n_buckets;
+			StateID blid = bucket[hidx];
+			if (nil == blid) { // make a new block
+				blid = P.size();
+				P.push_back();
+				// do not consider hash equal but <value> does not equal
+				bucket[hidx] = blid; // insert to hash hidx
+			}
+			else if (P[blid].blen == max_blen) {
+				throw std::length_error(BOOST_CURRENT_FUNCTION);
+			}
+			add(blid, curr); // reuse L as hash link
+			walker.putChildren(&dfa, curr);
+		}
 	}
 
 	// add 's' to end of P[g], P[g] is a double linked cyclic list

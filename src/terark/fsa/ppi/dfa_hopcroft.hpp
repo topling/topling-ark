@@ -81,7 +81,9 @@ hopcroft_multi_root_dfa(const size_t* srcRoots, size_t nRoots,
 const {
 	minimized.erase_all();
 	assert(total_states() < (size_t)nil_state);
-	Hopcroft<state_id_t> H(*this, srcRoots, nRoots);
+	Hopcroft<state_id_t> H = HopcroftUseHash()
+		? Hopcroft<state_id_t>(*this, srcRoots, nRoots, HopcroftDeltaHash<MyType>())
+		: Hopcroft<state_id_t>(*this, srcRoots, nRoots);
 	hopcroft_graph_dfa_no_collapse(H);
 	for(size_t i = 0; i < nRoots; ++i) {
 		size_t src = srcRoots[i];
@@ -97,7 +99,9 @@ template<class Au2>
 void graph_dfa_minimize(Au2& minimized) const {
 	minimized.erase_all();
 	assert(total_states() < (size_t)nil_state);
-	Hopcroft<state_id_t> H(*this);
+	Hopcroft<state_id_t> H = HopcroftUseHash()
+		? Hopcroft<state_id_t>(*this, HopcroftDeltaHash<MyType>())
+		: Hopcroft<state_id_t>(*this);
 	hopcroft_graph_dfa_no_collapse(H);
 	collapse(H, minimized);
 }
@@ -105,7 +109,9 @@ template<class Au2>
 void trie_dfa_minimize(Au2& minimized) const {
 	minimized.erase_all();
 	assert(total_states() < (size_t)nil_state);
-	Hopcroft<state_id_t> H(*this);
+	Hopcroft<state_id_t> H = HopcroftUseHash()
+		? Hopcroft<state_id_t>(*this, HopcroftDeltaHash<MyType>())
+		: Hopcroft<state_id_t>(*this);
 	{
 		valvec<CharTarget<state_id_t> > inv(trie_reverse_dfa());
 		H.refine([&inv](state_id_t curr, ch_to_invset_t& mE) {

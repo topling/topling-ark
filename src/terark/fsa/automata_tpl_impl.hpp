@@ -641,6 +641,37 @@ const {
 
 template<class State, class SuperDFA>
 size_t
+AutomataTpl<State, SuperDFA>::hopcroft_hash(size_t x_id) const {
+	assert(x_id < states.size());
+	const State& s = states[x_id];
+	assert(!s.is_pzip());
+	size_t h = s.getMinch();
+	if (s.more_than_one_child()) {
+		int bits = s.rlen();
+		h = h * 7 + bits;
+		size_t pos = s.getpos();
+		int n;
+		if (is_32bitmap(bits)) {
+			uint32_t bm = pool.template at<uint32_t>(pos);
+			h = FaboHashCombine(h, bm);
+			n = fast_popcount32(bm);
+		}
+		else {
+			const header_max& hb = pool.template at<header_max>(pos);
+			bits = hb.align_bits(bits);
+			for (int i = 0; i < bits/hb.BlockBits; ++i)
+				h = FaboHashCombine(h, hb.block(i));
+			n = hb.popcnt_aligned(bits);
+		}
+		h = FaboHashCombine(h, n);
+	}
+	if (s.is_term())
+		h = FaboHashCombine(h, 1);
+	return h;
+}
+
+template<class State, class SuperDFA>
+size_t
 AutomataTpl<State, SuperDFA>::onfly_hash_hash(size_t x_id) const {
 	assert(x_id < states.size());
 	const State& s = states[x_id];
