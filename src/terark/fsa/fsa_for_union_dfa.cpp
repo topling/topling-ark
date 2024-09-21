@@ -193,13 +193,13 @@ size_t FSA_ForUnionDFA::hopcroft_hash(size_t s) const {
 	auto root = *i;
 	auto dfa = m_dfas[i - m_index.begin()];
 	assert(s - root < dfa->v_total_states());
-	size_t h = dfa->v_is_term(s - root) ? 1 : 0;
+	size_t h = 123;
 	size_t oldsize = m_stack_moves.size();
 	m_stack_moves.resize_no_init(oldsize + m_max_sigma);
 	CharTarget<size_t>* moves = m_stack_moves.data() + oldsize;
 	size_t cnt = dfa->get_all_move(s - root, moves);
 	for (size_t i = oldsize; i < oldsize + cnt; ++i) {
-		h = FaboHashCombine(h, moves[i].ch);
+		h = FaboHashCombine(h, moves[i].ch * 32);
 	}
 	h = FaboHashCombine(h, cnt);
 	m_stack_moves.risk_set_size(oldsize);

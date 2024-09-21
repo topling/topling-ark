@@ -1029,7 +1029,7 @@ DenseDFA<StateID, Sigma, State>::hopcroft_hash(size_t x_id) const {
 	assert(x_id < states.size());
 	const State& x = states[x_id];
 	assert(!x.is_pzip());
-	size_t h = x.is_term();
+	size_t h = 123;
 	for (size_t i = 0; i < MyBitMap::BlockN; ++i) {
 		bm_uint_t d = x. dense.block(i);
 		bm_uint_t s = x.sparse.block(i);

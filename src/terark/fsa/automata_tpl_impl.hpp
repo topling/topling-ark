@@ -645,7 +645,7 @@ AutomataTpl<State, SuperDFA>::hopcroft_hash(size_t x_id) const {
 	assert(x_id < states.size());
 	const State& s = states[x_id];
 	assert(!s.is_pzip());
-	size_t h = s.getMinch();
+	size_t h = s.getMinch() * 256;
 	if (s.more_than_one_child()) {
 		int bits = s.rlen();
 		h = h * 7 + bits;
@@ -665,8 +665,6 @@ AutomataTpl<State, SuperDFA>::hopcroft_hash(size_t x_id) const {
 		}
 		h = FaboHashCombine(h, n);
 	}
-	if (s.is_term())
-		h = FaboHashCombine(h, 1);
 	return h;
 }
 

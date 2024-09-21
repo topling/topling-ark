@@ -93,12 +93,13 @@ struct Hopcroft {
 		L.resize_no_init(dfa.total_states());
 		P.reserve((dfa.total_states()+1)/2);
 		constexpr StateID nil = StateID(-1);
-		const size_t n_buckets = __hsm_stl_next_prime(dfa.total_states() + 1);
-		AutoFree<StateID> bucket(n_buckets, nil);
+		const size_t n_buckets = __hsm_stl_next_prime(dfa.total_states()/2 + 1);
+		AutoFree<StateID> bucket(n_buckets + 1, nil);
 		bool HasFreeStates = (dfa.num_free_states() != 0);
 		for (size_t s = 0; s < L.size(); ++s) {
 			if (HasFreeStates && dfa.is_free(s)) continue;
-			StateID hidx = hash(dfa, s) % n_buckets;
+			size_t hidx = hash(dfa, s) % n_buckets;
+			hidx = dfa.is_term(s) ? (hidx | 1) : (hidx & ~1);
 			StateID blid = bucket[hidx];
 			if (nil == blid) { // make a new block
 				blid = P.size();
@@ -162,8 +163,8 @@ struct Hopcroft {
 	void init_with_hash(const DFA& dfa, const Uint* roots, size_t n_roots,
 						DeltaHash hash) {
 		constexpr StateID nil = StateID(-1);
-		const size_t n_buckets = __hsm_stl_next_prime(dfa.total_states() + 1);
-		AutoFree<StateID> bucket(n_buckets, nil);
+		const size_t n_buckets = __hsm_stl_next_prime(dfa.total_states()/2 + 1);
+		AutoFree<StateID> bucket(n_buckets + 1, nil);
 		assert(dfa.total_states() >= 1);
 		BOOST_STATIC_ASSERT(sizeof(StateID) >= sizeof(typename DFA::state_id_t));
 		L.resize_no_init(dfa.total_states());
@@ -174,7 +175,8 @@ struct Hopcroft {
 		for (size_t i = 0; i < n_roots; ++i) walker.putRoot(roots[i]);
 		while (!walker.is_finished()) {
 			StateID curr = walker.next();
-			StateID hidx = hash(dfa, curr) % n_buckets;
+			size_t hidx = hash(dfa, curr) % n_buckets;
+			hidx = dfa.is_term(curr) ? (hidx | 1) : (hidx & ~1);
 			StateID blid = bucket[hidx];
 			if (nil == blid) { // make a new block
 				blid = P.size();
