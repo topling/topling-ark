@@ -262,6 +262,12 @@ core_src := \
    $(wildcard src/terark/succinct/*.cpp) \
    ${obsoleted_src}
 
+ifeq (CYGWIN, ${UNAME_System})
+  core_src := $(filter-out src/terark/lru_map.cpp \
+                           src/terark/util/process.cpp \
+                , ${core_src})
+endif
+
 core_src := $(filter-out ${trbxx_src} ${zip_src}, ${core_src})
 
 re2_src := \
