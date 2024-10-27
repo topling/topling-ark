@@ -1,8 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.6)
 PROJECT(terark-core)
 
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++17 -D_DARWIN_UNLIMITED_SELECT -D_GNU_SORUCE")
-SET(CMAKE_CXX_STANDARD 14)
+SET(CMAKE_CXX_STANDARD 17)
 
 # Headers
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -17,6 +16,8 @@ FILE(GLOB CORE_SRC src/terark/*.?pp
         src/terark/thread/*.?pp
         src/terark/succinct/*.?pp
         src/terark/c/*.c
+        )
+FILE(GLOB CORE_BOOST_SRC
         boost-include/libs/coroutine/src/*.?pp
         boost-include/libs/coroutine/src/detail/*.?pp
         boost-include/libs/coroutine/src/posix/*.?pp
@@ -29,8 +30,11 @@ FILE(GLOB CORE_SRC src/terark/*.?pp
         boost-include/libs/fiber/examples/hip/*.?pp
         boost-include/libs/fiber/examples/numa/*.?pp
         )
+if (NOT MSVC)
+  set(CORE_SRC ${CORE_SRC} ${CORE_BOOST_SRC})
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++17 -D_DARWIN_UNLIMITED_SELECT -D_GNU_SORUCE")
+endif()
 ADD_LIBRARY(terark-core SHARED ${CORE_SRC})
-
 
 # FSA LIB
 FILE(GLOB FSA_SRC src/terark/fsa/*.?pp)
