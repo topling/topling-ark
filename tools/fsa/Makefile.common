@@ -71,7 +71,11 @@ ifeq "$(shell a=${COMPILER};echo $${a:0:2})" "ic"
   override CXXFLAGS += -xHost -fasm-blocks
   CPU ?= -xHost
 else
-  CPU ?= -march=haswell
+  ifeq "${MARCH}" "x86_64"
+    ifeq (${WITH_BMI2},1)
+      CPU ?= -march=haswell
+    endif
+  endif
   COMMON_C_FLAGS  += -Wno-deprecated-declarations
   ifeq "$(shell a=${COMPILER};echo $${a:0:5})" "clang"
     COMMON_C_FLAGS  += -Wno-deprecated-builtins
