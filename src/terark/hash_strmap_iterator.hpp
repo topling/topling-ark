@@ -16,6 +16,9 @@ public:
 		operator std::pair<std::string, mapped_type>() const {
 		  return std::pair<std::string, mapped_type>(first.str(), second);
 		}
+		operator std::pair<const std::string, mapped_type>() const {
+		  return std::pair<const std::string, mapped_type>(first.str(), second);
+		}
 		value_type(fstring key, mapped_type& val) : first(key), second(val) {}
 	};
 	typedef ptrdiff_t difference_type;

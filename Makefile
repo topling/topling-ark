@@ -14,7 +14,13 @@ RLS_FLAGS ?= -O3 -DNDEBUG ${DBG_DWARF} -g3 ${RLS_ASAN}
 #AFR_FLAGS ?= -Og ${DBG_DWARF} -g3 ${AFR_ASAN}
 AFR_FLAGS ?= -O1 ${DBG_DWARF} -g3 ${AFR_ASAN}
 
+MARCH ?= $(shell uname -m)
+ifeq "${MARCH}" "x86_64"
 WITH_BMI2 ?= $(shell bash ./cpu_has_bmi2.sh)
+else
+# not available
+WITH_BMI2 ?= na
+endif
 CMAKE_INSTALL_PREFIX ?= /usr
 
 BOOST_INC ?= -Iboost-include
@@ -133,7 +139,9 @@ ifeq "$(shell a=${COMPILER};echo $${a:0:3})" "g++"
   ifeq "$(shell echo ${COMPILER} | awk -F- '{if ($$2 >= 9.0) print 1;}')" "1"
     COMMON_C_FLAGS += -Wno-alloc-size-larger-than
   endif
-  COMMON_C_FLAGS += -mcx16
+  ifeq "${MARCH}" "x86_64"
+    COMMON_C_FLAGS += -mcx16
+  endif
   CXXFLAGS += -Wno-class-memaccess
 endif
 
@@ -159,7 +167,7 @@ endif
 
 ifeq (${WITH_BMI2},1)
   CPU += -mbmi -mbmi2
-else
+else ifeq (${WITH_BMI2},0)
   CPU += -mno-bmi -mno-bmi2
 endif
 
