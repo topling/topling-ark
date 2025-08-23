@@ -171,6 +171,12 @@ else ifeq (${WITH_BMI2},0)
   CPU += -mno-bmi -mno-bmi2
 endif
 
+ifeq (${TOPLING_USE_DYNAMIC_TLS},1)
+  DEFS += -DTOPLING_USE_DYNAMIC_TLS
+else
+  ARG_TLS_MODEL := -ftls-model=initial-exec
+endif
+
 ifeq ($(shell ${CXX} -w -x c - -ljemalloc <<< 'main(){mallocx(8,0);}' >> /dev/null && echo 1),1)
   DISABLE_JEMALLOC ?= 0
 else
@@ -189,7 +195,7 @@ ifneq (${WITH_TBB},)
 endif
 
 COMMON_C_FLAGS  += -DNO_THREADS # Workaround re2
-COMMON_C_FLAGS  += -ftls-model=initial-exec
+COMMON_C_FLAGS  += ${ARG_TLS_MODEL}
 #COMMON_C_FLAGS  += -DTERARK_CONCURRENT_QUEUE_USE_BOOST
 
 #-v #-Wall -Wparentheses
@@ -630,7 +636,7 @@ ${rdir}/boost-static/build.done:
 	 && ${CP_FAST} -r ../../../../boost-include/tools . \
 	 && ${USER_GCC} \
 	 && env CC=${CC} CXX=${CXX} bash bootstrap.sh --with-libraries=fiber,context,system \
-	 && env CC=${CC} CXX=${CXX} ./b2 cxxflags="-fPIC -std=gnu++17 ${DBG_DWARF} -g3 -ftls-model=initial-exec -Wno-deprecated-builtins" \
+	 && env CC=${CC} CXX=${CXX} ./b2 cxxflags="-fPIC -std=gnu++17 ${DBG_DWARF} -g3 ${ARG_TLS_MODEL} -Wno-deprecated-builtins" \
 		                     -j8   cflags="-fPIC ${DBG_DWARF} -g3" threading=multi link=static variant=release
 	touch $@
 ${rdir}/boost-shared/build.done:
@@ -641,7 +647,7 @@ ${rdir}/boost-shared/build.done:
 	 && ${CP_FAST} -r ../../../../boost-include/tools . \
 	 && ${USER_GCC} \
 	 && env CC=${CC} CXX=${CXX} bash bootstrap.sh --with-libraries=fiber,context,system \
-	 && env CC=${CC} CXX=${CXX} ./b2 cxxflags="-fPIC -std=gnu++17 -ftls-model=initial-exec -Wno-deprecated-builtins" \
+	 && env CC=${CC} CXX=${CXX} ./b2 cxxflags="-fPIC -std=gnu++17 ${ARG_TLS_MODEL} -Wno-deprecated-builtins" \
 		                     -j8   cflags="-fPIC" threading=multi link=shared variant=release
 	touch $@
 ${ddir}/boost-static/build.done:
