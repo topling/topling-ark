@@ -9,7 +9,6 @@
 #include <terark/fsa/dense_dfa.hpp>
 #include <terark/fsa/nfa.hpp>
 #include <terark/fsa/nest_trie_dawg.hpp>
-#include <boost/function.hpp>
 
 namespace terark { namespace zsrch {
 
