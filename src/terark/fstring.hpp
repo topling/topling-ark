@@ -198,11 +198,10 @@ struct TERARK_DLL_EXPORT basic_fstring {
 
 	const std::pair<const Char*, const Char*> range() const { return std::make_pair(p, p+n); }
 
-/*
-	template<class AnyStringType>
-	operator decltype(AnyStringType((const Char*)0, 1))
+	template<class AnyStringType, class = decltype(AnyStringType((const Char*)0, (size_t)1))>
+	explicit operator AnyStringType
 	() const { return AnyStringType(p, n); }
-*/
+
 //	std::basic_string<Char> operator*() const { return str(); }
 
 	typedef ptrdiff_t difference_type;
