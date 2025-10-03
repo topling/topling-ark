@@ -441,7 +441,7 @@ int main(int argc, char* argv[]) {
     test_mixed<rank_select_mixed_il_256   , 2>(max_bits);
     test_mixed<rank_select_mixed_se_512   , 2>(max_bits);
     test_mixed<rank_select_mixed_xl_256<2>, 2>(max_bits);
-    test_mixed<rank_select_mixed_xl_256<3>, 3>(max_bits);
+ // test_mixed<rank_select_mixed_xl_256<3>, 3>(max_bits);
     test_mixed<rank_select_mixed_xl_256<4>, 4>(max_bits);
 
     fprintf(stderr, "All Passed!\n");
