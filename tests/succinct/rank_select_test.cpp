@@ -430,6 +430,12 @@ int main(int argc, char* argv[]) {
     assert(UintSelect1(uint64_t(1) << 32, 0) == 32);
     assert(UintSelect1(uint64_t(1) << 33, 0) == 33);
     assert(UintSelect1(uint64_t(1) << 63, 0) == 63);
+    for (size_t i = 1; i < 64; i++) {
+        TERARK_ASSERT_EQ(UintSelect1(~(uint64_t(-1) << i), i-1), i-1);
+    }
+    for (size_t i = 0; i < 64; i++) {
+        TERARK_ASSERT_EQ(UintSelect1(uint64_t(-1), i), i);
+    }
     mt.seed(max_bits);
 
     test<rank_select_simple   >(max_bits);
