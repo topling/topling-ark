@@ -941,7 +941,7 @@ size_t LazyUnion_DA_Trie::state_move(size_t state, auchar_t ch) const {
 	auto da = m_states.data();
 	size_t child = da[state].child0() + ch;
 	if (da[child].parent() == state)
-		return get_full_state(da, child);
+		TOPLING_ASSUME_RETURN(get_full_state(da, child), != nil_state);
 	else
 		return LazyUnionDFA::nil_state;
 }

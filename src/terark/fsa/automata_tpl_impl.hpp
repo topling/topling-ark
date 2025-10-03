@@ -286,12 +286,18 @@ const {
         const header_b32& hb = pool.template at<header_b32>(s.getpos());
         if (hb.b & uint32_t(1)<<bpos) {
             int index = fast_popcount_trail(hb.b, bpos);
+			if constexpr (std::is_integral_v<Transition>) {
+				TOPLING_ASSUME_RETURN(hb.s[index], != nil_state);
+			}
             return hb.s[index];
         }
     } else {
         const header_max& hb = pool.template at<header_max>(s.getpos());
         if (hb.is1(bpos)) {
             int index = hb.popcnt_index(bpos);
+			if constexpr (std::is_integral_v<Transition>) {
+				TOPLING_ASSUME_RETURN(hb.base(bits)[index], != nil_state);
+			}
             return hb.base(bits)[index];
         }
     }
