@@ -322,6 +322,15 @@ void init_mixed(RsBitVec& rs_base) {
         }
         //    printf("%06" PFZD "'th rand = %016zX\n", i, rs.bldata()[i]);
     }
+    if (rs.num_words() > 512 * 12 * 10) {
+        // edge case, many continues 0 and 1
+        size_t h = 1, i;
+        for (i = h; i < h+13*512/64; i++)
+            rs.set_word(i, 0);
+        h = i + 1;
+        for (i = h; i < h+13*512/64; i++)
+            rs.set_word(i, size_t(-1));
+    }
     rs.push_back(!(rand() & 1));
     rs.push_back(!(rand() & 1));
     rs.push_back(!(rand() & 1));
