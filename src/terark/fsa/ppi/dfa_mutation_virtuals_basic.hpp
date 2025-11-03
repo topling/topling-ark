@@ -1,4 +1,10 @@
 public:
+void reserve_states(size_t cap) {
+	if (cap >= this->max_state) {
+		cap = this->max_state;
+	}
+	this->states.reserve(cap);
+}
 bool add_word(fstring word) {
 	return add_word_aux(initial_state, word).second;
 }
