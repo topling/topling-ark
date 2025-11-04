@@ -44,6 +44,7 @@ int main(int argc, char* argv[]) {
 	long lineno = 0;
 	long matched = 0;
 	long sumlen = 0;
+	long sumhit = 0;
 	terark::LineBuf line;
 	while (line.getline(stdin) > 0) {
 		lineno++;
@@ -63,6 +64,7 @@ int main(int argc, char* argv[]) {
 			}
 			matched++;
 			sumlen += line.size();
+			sumhit += all->size();
 		}
 	}
 	long long t1 = pf.now();
@@ -75,6 +77,7 @@ int main(int argc, char* argv[]) {
 			, sumlen/pf.uf(t0,t1)
 			, pf.uf(t0,t1)/lineno
 			);
+	printf("sum hit num = %zd, %.1f Hits Per Second\n", sumhit, sumhit / pf.sf(t0,t1));
 	malloc_stats();
 	return 0;
 }
