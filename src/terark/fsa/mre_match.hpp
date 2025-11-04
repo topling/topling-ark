@@ -28,8 +28,8 @@ struct TERARK_DLL_EXPORT MultiRegexMatchOptions {
 private:
 	BaseDFA* m_dfa;
 private: // disable copy
-	MultiRegexMatchOptions(const MultiRegexMatchOptions&);
-	MultiRegexMatchOptions& operator=(const MultiRegexMatchOptions&);
+	MultiRegexMatchOptions(const MultiRegexMatchOptions&) = delete;
+	MultiRegexMatchOptions& operator=(const MultiRegexMatchOptions&) = delete;
 };
 
 class TERARK_DLL_EXPORT MultiRegexSubmatch {
@@ -195,7 +195,7 @@ public:
 	virtual size_t byte_find_all(fstring text);
 	virtual size_t byte_find_all(fstring text, const ByteTR& tr);
 	virtual size_t byte_find_all(fstring text, const byte_t* tr);
- 
+
 	virtual size_t shortest_byte_find_all(fstring text);
 	virtual size_t shortest_byte_find_all(fstring text, const ByteTR& tr);
 	virtual size_t shortest_byte_find_all(fstring text, const byte_t* tr);

@@ -34,13 +34,6 @@ void MultiRegexMatchOptions::load_dfa(fstring _dfaFilePath) {
 	m_dfa = BaseDFA::load_from(dfaFilePath);
 }
 
-MultiRegexMatchOptions::MultiRegexMatchOptions(const MultiRegexMatchOptions&)
-= default;
-
-MultiRegexMatchOptions&
-MultiRegexMatchOptions::operator=(const MultiRegexMatchOptions&)
-= default;
-
 ///////////////////////////////////////////////////////////////////////////////
 
 #define IMPLEMENT_find_first(StepBytes, MatchCall) \
