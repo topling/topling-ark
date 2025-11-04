@@ -461,7 +461,7 @@ public:
 
     template<class TR>
 	size_t match_all_with_tr_bitmap(fstring text, TR tr) {
-		this->m_hits.resize_fill(m_hits.capacity(), false);
+		this->m_hits.erase_all();
 		for (size_t root : m_roots) {
 			match_all_with_tr_bitmap_one<TR>(root, text, tr);
 		}
