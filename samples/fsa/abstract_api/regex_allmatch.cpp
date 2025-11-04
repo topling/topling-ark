@@ -19,12 +19,14 @@ using namespace terark;
 
 int main(int argc, char* argv[]) {
 	bool verbose = false;
+	bool lower_case = false;
 	MultiRegexMatchOptions mrOpt;
-	for (int opt=0; (opt = getopt(argc, argv, "D:i:v")) != -1; ) {
+	for (int opt=0; (opt = getopt(argc, argv, "D:i:lv")) != -1; ) {
 		switch (opt) {
 		case '?': return 1;
 		case 'D': mrOpt.enableDynamicDFA = atoi(optarg) != 0; break;
 		case 'i': mrOpt.dfaFilePath = optarg;       break;
+		case 'l': lower_case = true; break;
 		case 'v': verbose  = true;         break;
 		}
 	}
@@ -46,7 +48,11 @@ int main(int argc, char* argv[]) {
 	while (line.getline(stdin) > 0) {
 		lineno++;
 		line.chomp();
-		all->match_all(fstring(line), ::tolower);
+		if (lower_case)
+		  //all->match_all(fstring(line), ::tolower);          // slower
+			all->match_all(fstring(line), gtab_ascii_tolower); // faster
+		else
+			all->match_all(fstring(line));
 		if (all->size()) {
 			if (verbose) {
 				printf("line:%ld:", lineno);
