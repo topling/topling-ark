@@ -429,9 +429,9 @@ print_labels(FILE* fp, size_t parent, const CharTarget<size_t>* children, size_t
 		else if (j - i == 256) {
 			sbuf.append(".");
 		}
-		else if (j - i >= 236) {
+		else if (j - i >= 236 && j[-1].ch < 256) {
 			sbuf.append("[^");
-			for (auchar_t c = 0; c < 512; ++c) {
+			for (auchar_t c = 0; c < 256; ++c) {
 				if (c != '-' && !std::binary_search(i, j, c, By_ch())) {
 					char buf[32];
 					auchar_t ch = c;
