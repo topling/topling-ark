@@ -453,17 +453,26 @@ const MyType& operator-=(const DFA2& y) {
 	return *this;
 }
 
-MyType operator|(const MyType& y) {
+template<class DFA2>
+auto operator|(const DFA2& y) const
+-> std::remove_reference_t<decltype(y.total_states(), std::declval<MyType>())>
+{
 	MyType z; z.dfa_union(*this, y);
 	return z;
 }
 
-MyType operator&(const MyType& y) {
+template<class DFA2>
+auto operator&(const DFA2& y) const
+-> std::remove_reference_t<decltype(y.total_states(), std::declval<MyType>())>
+{
 	MyType z; z.dfa_intersection(*this, y);
 	return z;
 }
 
-MyType operator-(const MyType& y) {
+template<class DFA2>
+auto operator-(const DFA2& y) const
+-> std::remove_reference_t<decltype(y.total_states(), std::declval<MyType>())>
+{
 	MyType z; z.dfa_difference(*this, y);
 	return z;
 }
