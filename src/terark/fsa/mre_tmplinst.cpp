@@ -1330,7 +1330,7 @@ DenseDFA_DynDFA_256::full_match_all_with_tr_sort_uniq(
 	   	fstring text, valvec<int>* matched, DynDFA_Context* ctx)
 {
 	matched->erase_all();
-	ctx->hits.resize_fill(ctx->hits.capacity(), false);
+	ctx->hits.resize_fill(0, false);
 	assert(power_set.size() >= 2);
 	size_t curr = dyn_root;
 	const byte_t* pos = text.udata();
@@ -1372,7 +1372,7 @@ DenseDFA_DynDFA_256::full_match_all_with_tr_sort_uniq(
 		fstring text, valvec<int>* matched, DynDFA_Context* ctx)
 {
 	matched->erase_all();
-	ctx->hits.resize_fill(ctx->hits.capacity(), false);
+	ctx->hits.resize_fill(0, false);
 	assert(power_set.size() >= 2);
 	size_t curr = dyn_root;
 	const byte_t* pos = text.udata();
@@ -1435,7 +1435,7 @@ DenseDFA_DynDFA_256::full_match_all_with_tr_bitmap(TR tr, const DFA* nfa,
 		fstring text, valvec<int>* matched, DynDFA_Context* ctx)
 {
 	matched->erase_all();
-	ctx->hits.resize_fill(ctx->hits.capacity(), false);
+	ctx->hits.resize_fill(0, false);
 	assert(power_set.size() >= 2);
 	size_t curr = dyn_root;
 	const byte_t* pos = text.udata();
@@ -1473,7 +1473,7 @@ DenseDFA_DynDFA_256::full_match_all_with_tr_bitmap(TR tr, const VirtualMachineDF
 		fstring text, valvec<int>* matched, DynDFA_Context* ctx)
 {
 	matched->erase_all();
-	ctx->hits.resize_fill(ctx->hits.capacity(), false);
+	ctx->hits.resize_fill(0, false);
 	assert(power_set.size() >= 2);
 	size_t curr = dyn_root;
 	const byte_t* pos = text.udata();
