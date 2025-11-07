@@ -231,3 +231,7 @@ void write_dot_file(const char* fname) const {
 	write_dot_file(fp);
 }
 
+void write_dot_file(fstring fname) const {
+	TERARK_ASSERT_EQ(*fname.end(), '\0');
+	write_dot_file(fname.c_str());
+}
