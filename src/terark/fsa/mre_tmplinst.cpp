@@ -788,9 +788,9 @@ void DenseDFA_DynDFA_256::warm_up_aux(const DFA* nfa) {
 
 // discover DynDFA states near initial_state...
 //
-	size_t my_sigma = this->get_sigma();
-	smallmap<OneCharSubSet<state_id_t> > chmap(my_sigma);
-	terark::AutoFree<CharTarget<size_t> > allmove(my_sigma);
+	size_t src_sigma = nfa->get_sigma();
+	smallmap<OneCharSubSet<state_id_t> > chmap(src_sigma);
+	terark::AutoFree<CharTarget<size_t> > allmove(src_sigma);
 	// this loop is an implicit BFS search
 	// states.size() is increasing during the loop execution
 	for(size_t dcurr = 0; dcurr < states.size()-1; ++dcurr) {
@@ -800,10 +800,11 @@ void DenseDFA_DynDFA_256::warm_up_aux(const DFA* nfa) {
 		for(size_t j = sub_beg; j < sub_end; ++j) {
 			size_t snfa = power_set[j];
 			size_t nmove = nfa->get_all_move(snfa, allmove.p);
-			assert(nmove <= my_sigma);
+			TERARK_VERIFY_LE(nmove, src_sigma);
 			for(size_t k = 0; k < nmove; ++k) {
 				auto  ct = allmove.p[k];
-				if (ct.ch < 256)
+				static_assert(FULL_MATCH_DELIM == 257);
+				if (ct.ch < 256 || ct.ch == FULL_MATCH_DELIM)
 					chmap.bykey(ct.ch).push_back(ct.target);
 			}
 		}
@@ -816,6 +817,12 @@ void DenseDFA_DynDFA_256::warm_up_aux(const DFA* nfa) {
 			state_id_t dnext = add_next_set(nfa, oldsize, dcurr, false);
 			if (nil_state == dnext) {
 				THROW_STD(runtime_error, "out of memory on warming up");
+			}
+			if (subset.ch >= 256) {
+				if (subset.ch == FULL_MATCH_DELIM) {
+					states[dcurr].full_match_dest_state = dnext;
+				}
+				continue; // don't i++
 			}
 			states[dcurr].has_dnext.set1(subset.ch);
 			allmove.p[i].ch = subset.ch;
