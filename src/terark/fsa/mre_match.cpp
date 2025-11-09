@@ -9,7 +9,8 @@
 namespace terark {
 
 MultiRegexMatchOptions::~MultiRegexMatchOptions() {
-	delete m_dfa;
+	if (m_owns_dfa)
+		delete m_dfa;
 }
 
 MultiRegexMatchOptions::MultiRegexMatchOptions() {
@@ -30,8 +31,19 @@ void MultiRegexMatchOptions::load_dfa(fstring _dfaFilePath) {
 		THROW_STD(invalid_argument, "dfaFilePath is empty");
 	}
 	dfaFilePath.assign(_dfaFilePath.data(), _dfaFilePath.size());
-	delete m_dfa;
+	if (m_owns_dfa) {
+	    delete m_dfa;
+	}
+	m_owns_dfa = true;
 	m_dfa = BaseDFA::load_from(dfaFilePath);
+}
+
+void MultiRegexMatchOptions::load_dfa_user_mem(fstring user_mem) {
+	if (m_owns_dfa) {
+	    delete m_dfa;
+	}
+	m_owns_dfa = false;
+	m_dfa = BaseDFA::load_mmap_user_mem(user_mem);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

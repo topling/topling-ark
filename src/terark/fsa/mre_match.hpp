@@ -23,9 +23,10 @@ struct TERARK_DLL_EXPORT MultiRegexMatchOptions {
 
 	void load_dfa();
 	void load_dfa(fstring dfaFilePath);
+	void load_dfa_user_mem(fstring user_mem);
 	BaseDFA* get_dfa() const { return m_dfa; }
-
 private:
+	bool m_owns_dfa = true;
 	BaseDFA* m_dfa;
 private: // disable copy
 	MultiRegexMatchOptions(const MultiRegexMatchOptions&) = delete;
