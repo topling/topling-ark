@@ -15,6 +15,7 @@ class BaseDFA;
 struct TERARK_DLL_EXPORT MultiRegexMatchOptions {
 	std::string dfaFilePath;
 	std::string regexMetaFilePath;
+	size_t maxBitmapSize;
 	bool enableDynamicDFA;
 
 	~MultiRegexMatchOptions();
@@ -125,6 +126,7 @@ protected:
 	valvec<PosLenRegexID> m_all_match;
 	const BaseDFA*  m_dfa;
 	class DenseDFA_DynDFA_256* m_dyn;
+	const MultiRegexMatchOptions* m_options;
 	size_t m_max_partial_match_len;
 	MultiRegexFullMatch();
 	MultiRegexFullMatch(const MultiRegexFullMatch&);

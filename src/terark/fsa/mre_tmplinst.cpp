@@ -398,7 +398,7 @@ public:
 	size_t match_all_with_tr(fstring text, TR tr) {
 		m_regex_idvec.erase_all();
 		const DFA* au = static_cast<const DFA*>(m_dfa);
-        if (au->m_atom_dfa_num < 4*1024) {
+        if (au->m_atom_dfa_num < m_options->maxBitmapSize) {
             return match_all_with_tr_bitmap<TR>(text, tr);
         }
         else {
@@ -1556,7 +1556,7 @@ public:
 	size_t match_all_with_tr(fstring text, TR tr) {
 		size_t num;
         const DFA* au = static_cast<const DFA*>(m_dfa);
-        if (au->m_atom_dfa_num < 4*1024) {
+        if (au->m_atom_dfa_num < m_options->maxBitmapSize) {
             num = m_dyn->template full_match_all_with_tr_bitmap<TR>
 			                (tr, au, text, &m_regex_idvec, &m_ctx);
         }
@@ -1657,6 +1657,7 @@ MultiRegexFullMatch* MultiRegexFullMatch::create(const MultiRegexMatchOptions& o
 	} else {
 		DispatchConcreteDFA(MultiRegexFullMatchTmpl, CreateFullMatchTpl);
 	}
+	fm->m_options = &opt;
 	return fm.release();
 }
 

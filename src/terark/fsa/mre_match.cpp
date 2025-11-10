@@ -14,10 +14,12 @@ MultiRegexMatchOptions::~MultiRegexMatchOptions() {
 }
 
 MultiRegexMatchOptions::MultiRegexMatchOptions() {
+	maxBitmapSize = getEnvLong("MRE_MAX_BITMAP", 4*1024);
 	enableDynamicDFA = true;
 	m_dfa = NULL;
 }
 MultiRegexMatchOptions::MultiRegexMatchOptions(fstring _dfaFilePath) {
+	maxBitmapSize = getEnvLong("MRE_MAX_BITMAP", 4*1024);
 	enableDynamicDFA = true;
 	m_dfa = NULL;
 	load_dfa(_dfaFilePath);
