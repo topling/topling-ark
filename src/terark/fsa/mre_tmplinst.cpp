@@ -549,6 +549,15 @@ public:
 		return match_all_with_tr<TableTranslator>(text, tr);
 	}
 
+	bool has_hit(int regex_id) const override {
+		const DFA* au = static_cast<const DFA*>(m_dfa);
+		if (au->m_atom_dfa_num < m_options->maxBitmapSize) {
+			return size_t(regex_id) < m_hits.size() && m_hits.is1(regex_id);
+		} else {
+			return MultiRegexFullMatch::has_hit(regex_id);
+		}
+	}
+
 	MultiRegexFullMatch* clone() const override {
 		return new MultiRegexFullMatchTmpl(*this);
 	}
@@ -1605,6 +1614,15 @@ public:
 	terark_flatten
 	size_t match_all(fstring text, const byte_t* tr) override {
 		return match_all_with_tr<TableTranslator>(text, tr);
+	}
+
+	bool has_hit(int regex_id) const override {
+		const DFA* au = static_cast<const DFA*>(m_dfa);
+		if (au->m_atom_dfa_num < m_options->maxBitmapSize) {
+			return size_t(regex_id) < m_ctx.hits.size() && m_ctx.hits.is1(regex_id);
+		} else {
+			return MultiRegexFullMatch::has_hit(regex_id);
+		}
 	}
 
 	MultiRegexFullMatch* clone() const override {

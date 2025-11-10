@@ -253,6 +253,11 @@ size_t MultiRegexFullMatch::byte_find_all_len(fstring text, const byte_t* tr) {
 }
 //@}
 
+bool MultiRegexFullMatch::has_hit(int regex_id) const {
+	size_t lo = lower_bound_a(m_regex_idvec, regex_id);
+	return lo < m_regex_idvec.size() && m_regex_idvec[lo] == regex_id;
+}
+
 /////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////
 

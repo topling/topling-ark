@@ -210,6 +210,8 @@ public:
 	virtual size_t byte_find_all_len(fstring text, const ByteTR& tr);
 	virtual size_t byte_find_all_len(fstring text, const byte_t* tr);
 
+	virtual bool has_hit(int regex_id) const;
+
 	valvec<PosLenRegexID>& mutable_all_match() { return m_all_match; }
 	const valvec<PosLenRegexID>& all_match() const { return m_all_match; }
 	const PosLenRegexID& all_match(size_t i) const { return m_all_match[i]; }
