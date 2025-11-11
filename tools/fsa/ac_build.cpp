@@ -240,7 +240,9 @@ int run() {
 			realdfa.save_mmap(full_dfa_file);
 		}
 	}
-	malloc_stats();
+	if (getEnvBool("PRINT_MALLOC_STATS")) {
+		malloc_stats();
+	}
 	return 0;
 }
 
