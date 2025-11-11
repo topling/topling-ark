@@ -1449,7 +1449,8 @@ void VirtualMachineDFA::Builder::select_instruction(size_t state) {
 	switch (n_uniq) {
 	case 0:
 		assert(0 == n_char);
-		assert(n_matchid || initial_state == state);
+		// may be a dead state, initial_state may also be dead
+		// assert(n_matchid || initial_state == state);
 		op = leaf_final_state;
 		i_slot = 1;
 		id_bits = 23;
@@ -1685,7 +1686,8 @@ const {
 		break;
 	case leaf_final_state:
 	  {
-		assert(u->term_bit || initial_state == state);
+		// may be a dead state, initial_state may also be dead
+		// assert(u->term_bit || initial_state == state);
 		auto p = reinterpret_cast<Inst_leaf_final_state*>(u);
 		SetMatchID(p, 23);
 		break;

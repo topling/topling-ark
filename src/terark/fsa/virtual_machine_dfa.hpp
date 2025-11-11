@@ -686,7 +686,8 @@ public:
 			assert(0);
 			THROW_STD(logic_error, "invalid OpCode = %d", u->op);
 		case leaf_final_state:
-			assert(u->term_bit || initial_state == state);
+			// may be a dead state, initial_state may also be dead
+			// assert(u->term_bit || initial_state == state);
 			break;
 		case all_char_all_jump:
 		  {
@@ -1207,7 +1208,8 @@ public:
 			assert(0);
 			THROW_STD(logic_error, "invalid OpCode = %d", u->op);
 		case leaf_final_state:
-			assert(u->term_bit || initial_state == state);
+			// may be a dead state, initial_state may also be dead
+			// assert(u->term_bit || initial_state == state);
 			return nil_state;
 		case all_char_all_jump:
 			return state + 1;
