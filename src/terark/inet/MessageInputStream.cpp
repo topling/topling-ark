@@ -58,7 +58,7 @@ size_t MessageInputStream::read(void* vbuf, size_t length)
 		h2.convert();
 		if (0 == h2.length)
 		{
-			throw RequestCanceledException();
+			throw RequestCanceledException("0 == h2.length");
 		}
 		if (h2.seqid == curheader.seqid)
 		{
@@ -75,7 +75,7 @@ size_t MessageInputStream::read(void* vbuf, size_t length)
 	return n;
 }
 
-bool MessageInputStream::eof()
+bool MessageInputStream::eof() const
 {
 	return false;
 }

@@ -9,6 +9,7 @@ namespace terark { namespace rpc {
 class RequestCanceledException : public IOException
 {
 public:
+	using IOException::IOException;
 };
 
 struct MessageHeader
@@ -50,7 +51,7 @@ public:
 	~MessageInputStream();
 
 	virtual size_t read(void* vbuf, size_t length);
-	virtual bool eof();
+	virtual bool eof() const override;
 
 	virtual void read_hello();
 };
