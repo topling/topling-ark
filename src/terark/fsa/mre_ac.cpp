@@ -135,6 +135,18 @@ public:
     size_t match_all(fstring text, const byte_t* tr) override {
         return tpl_match_all(text, TableTranslator(tr));
     }
+    size_t match_all_len(fstring text) override {
+        // note: this does not fill m_cur_match
+        return match(text);
+    }
+    size_t match_all_len(fstring text, const ByteTR& tr) override {
+        // note: this does not fill m_cur_match
+        return match_all(text, tr);
+    }
+    size_t match_all_len(fstring text, const byte_t* tr) override {
+        // note: this does not fill m_cur_match
+        return match_all(text);
+    }
     ///@}
 
     template<class TR>

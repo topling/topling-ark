@@ -100,18 +100,18 @@ public:
     /// also fill m_regex_idvec, this is stronger than that for general regex
     template<class TR>
     size_t tpl_match_all(fstring text, TR tr) {
-        m_all_match.erase_all();
+        m_cur_match.erase_all();
         m_regex_idvec.erase_all();
         const Dawg* d = static_cast<const Dawg*>(m_dfa);
         MatchContext ctx;
         auto func = [this](size_t len, size_t nth) {
-            this->m_all_match.emplace_back(0, int(len), int(nth));
+            this->m_cur_match.emplace_back(int(len), int(nth));
         };
         d->tpl_match_dawg(ctx, 0, text, func, tr);
-        size_t n = m_all_match.size();
+        size_t n = m_cur_match.size();
         m_regex_idvec.resize_no_init(n);
         for (size_t i = 0; i < n; ++i)
-            m_regex_idvec[i] = m_all_match[i].regex_id;
+            m_regex_idvec[i] = m_cur_match[i].regex_id;
         return n;
     }
     size_t match_all(fstring text) override {
@@ -122,6 +122,15 @@ public:
     }
     size_t match_all(fstring text, const byte_t* tr) override {
         return tpl_match_all(text, TableTranslator(tr));
+    }
+    size_t match_all_len(fstring text) override {
+        return match_all(text);
+    }
+    size_t match_all_len(fstring text, const ByteTR& tr) override {
+        return match_all(text, tr);
+    }
+    size_t match_all_len(fstring text, const byte_t* tr) override {
+        return match_all(text, tr);
     }
     ///@}
 

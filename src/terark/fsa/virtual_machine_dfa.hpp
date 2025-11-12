@@ -496,7 +496,8 @@ public:
 		return fstring(p + 1, *p);
 	}
 
-	size_t read_matchid(size_t state, valvec<int>* vec) const {
+	template<class Collector>
+	size_t read_matchid(size_t state, Collector* vec) const {
 		assert(state < states.size());
 		const State* u = states.data() + state;
 		assert(u->term_bit);
@@ -2048,11 +2049,16 @@ template<class DFA>
 size_t dfa_matchid_root(const DFA* dfa, size_t state)
 { return dfa->state_move(state, FULL_MATCH_DELIM); }
 
-template<class DFA>
-size_t dfa_read_matchid(const DFA* dfa, size_t state, valvec<int>* vec)
+///@param Collector requires .append(const int*, num)
+///                          .push_back(int)
+///                          .size()
+///  (*vec)[i] != (*vec)[i+1]
+template<class DFA, class Collector>
+size_t dfa_read_matchid(const DFA* dfa, size_t state, Collector* vec)
 { return dfa_read_binary_int32(*dfa, state, vec); }
 
-size_t dfa_read_matchid(const VirtualMachineDFA* dfa, size_t state, valvec<int>* vec)
+template<class DFA, class Collector>
+size_t dfa_read_matchid(const VirtualMachineDFA* dfa, size_t state, Collector* vec)
 { return dfa->read_matchid(state, vec); }
 
 size_t dfa_matchid_root(const VirtualMachineDFA* dfa, size_t state)

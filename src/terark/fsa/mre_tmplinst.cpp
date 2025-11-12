@@ -1,5 +1,7 @@
 #include "tmplinst.hpp"
+#if defined(TERARK_INST_ALL_DFA_TYPES)
 #include "automata.hpp"
+#endif
 #include "dense_dfa.hpp"
 #include "dense_dfa_v2.hpp"
 #include "virtual_machine_dfa.hpp"
@@ -143,10 +145,30 @@ public:
 	size_t
 	shortest_full_match_with_tr(TR tr, const VirtualMachineDFA* nfa,
 		fstring text, valvec<int>* matched, DynDFA_Context*);
+
+	template<class TR, class DFA>
+	size_t
+	full_match_all_len_with_tr(
+			TR tr, const DFA* nfa, fstring text,
+			MultiRegexFullMatch::LenRegexID::Collector* matched,
+			DynDFA_Context* ctx);
+
+	template<class TR>
+	size_t
+	full_match_all_len_with_tr(
+			TR tr, const VirtualMachineDFA* nfa, fstring text,
+			MultiRegexFullMatch::LenRegexID::Collector* matched,
+			DynDFA_Context* ctx);
 };
 
 // instantiated these classes
-TMPL_INST_DFA_CLASS(Automata<State32_512>);
+#if TERARK_WORD_BITS >= 64 && defined(TERARK_INST_ALL_DFA_TYPES)
+#define Automata_State32_512_ Automata<State32_512>
+#else
+// this makes it check DenseDFA_uint32_320 2 times, but does not make harm,
+// just for pass compile
+#define Automata_State32_512_ DenseDFA_uint32_320
+#endif
 TMPL_INST_DFA_CLASS(DenseDFA_uint32_320);
 TMPL_INST_DFA_CLASS(DenseDFA_V2_uint32_288);
 TMPL_INST_DFA_CLASS(VirtualMachineDFA);
@@ -208,7 +230,7 @@ public:
 
 #define DispatchConcreteDFA(MyClassName, OnDFA) \
 	if (0) {} \
-	OnDFA(MyClassName, Automata<State32_512>) \
+	OnDFA(MyClassName, Automata_State32_512_) \
 	OnDFA(MyClassName, DenseDFA_uint32_320) \
 	OnDFA(MyClassName, DenseDFA_V2_uint32_288) \
 	OnDFA(MyClassName, VirtualMachineDFA) \
@@ -510,6 +532,60 @@ public:
 		} while (DFA::nil_state != curr);
 	}
 
+	template<class TR>
+	void match_all_len_with_tr_one(size_t root, fstring text, TR tr) {
+		const DFA* au = static_cast<const DFA*>(m_dfa);
+		size_t curr = root;
+		const byte_t* pos = text.udata();
+		const byte_t* end = pos + text.n;
+		LenRegexID::Collector collector = {&m_cur_match, 0};
+		do {
+			if (au->is_pzip(curr)) {
+				fstring zs = au->get_zpath_data(curr, NULL);
+				if (end - pos < zs.n)
+					return;
+				for (intptr_t j = 0; j < zs.n; ++j, ++pos) {
+					if (terark_unlikely((byte_t)tr(*pos) != zs[j]))
+						return;
+				}
+				size_t full = dfa_matchid_root(au, curr);
+				if (terark_unlikely(DFA::nil_state != full)) {
+					collector.len = int(pos - text.udata());
+                    dfa_read_matchid(au, full, &collector);
+				}
+				if (pos < end)
+					curr = au->state_move(curr, (byte_t)tr(*pos++));
+				else
+					break;
+			}
+			else if (pos < end) {
+				size_t next = dfa_loop_state_move<TR>(*au, curr, pos, end, tr);
+				size_t full = dfa_matchid_root(au, curr);
+				if (terark_unlikely(DFA::nil_state != full)) {
+					collector.len = int(pos - text.udata());
+                    dfa_read_matchid(au, full, &collector);
+				}
+				curr = next;
+			}
+			else {
+				size_t full = dfa_matchid_root(au, curr);
+				if (terark_unlikely(DFA::nil_state != full)) {
+					collector.len = int(pos - text.udata());
+                    dfa_read_matchid(au, full, &collector);
+				}
+				break;
+			}
+		} while (DFA::nil_state != curr);
+	}
+	template<class TR>
+	size_t match_all_len_with_tr(fstring text, TR tr) {
+		m_cur_match.erase_all();
+		for (size_t root : m_roots) {
+			match_all_len_with_tr_one<TR>(root, text, tr);
+		}
+		return m_cur_match.size();
+	}
+
 	terark_flatten
 	size_t match(fstring text) override {
 		return match_with_tr(text, IdentityTR());
@@ -547,6 +623,19 @@ public:
 	terark_flatten
 	size_t match_all(fstring text, const byte_t* tr) override {
 		return match_all_with_tr<TableTranslator>(text, tr);
+	}
+
+	terark_flatten
+	size_t match_all_len(fstring text) override {
+		return match_all_len_with_tr(text, IdentityTR());
+	}
+	terark_flatten
+	size_t match_all_len(fstring text, const ByteTR& tr) override {
+		return match_all_len_with_tr<const ByteTR&>(text, tr);
+	}
+	terark_flatten
+	size_t match_all_len(fstring text, const byte_t* tr) override {
+		return match_all_len_with_tr<TableTranslator>(text, tr);
 	}
 
 	bool has_hit(int regex_id) const override {
@@ -1536,6 +1625,106 @@ DenseDFA_DynDFA_256::full_match_all_with_tr_bitmap(TR tr, const VirtualMachineDF
 	return matched->size();
 }
 
+template<class TR, class DFA>
+size_t
+DenseDFA_DynDFA_256::full_match_all_len_with_tr(
+		TR tr, const DFA* nfa,
+		fstring text,
+		MultiRegexFullMatch::LenRegexID::Collector* matched,
+		DynDFA_Context* ctx)
+{
+	assert(power_set.size() >= 2);
+	size_t curr = dyn_root;
+	const byte_t* pos = text.udata();
+	const byte_t* end = pos + text.size();
+	do {
+		size_t full = dyn_full_match_root(nfa, curr);
+		if (nil_state != full) {
+			get_subset(full, &ctx->matchid_states);
+			matched->len = int(pos - text.udata());
+			for (size_t matchState: ctx->matchid_states)
+				dfa_read_matchid(nfa, matchState, matched);
+		}
+		if (pos < end) {
+			size_t next;
+			do next = dyn_state_move(nfa, curr, (byte_t)tr(*pos));
+			while (++pos < end && next == curr);
+			curr = next;
+		}
+		else {
+			assert(pos == end);
+			break;
+		}
+	} while (nil_state != curr);
+	m_max_partial_match_len = pos - text.udata();
+	if (terark_unlikely(dyn_mem_size() > maxmem)) {
+		dyn_discard_deep_cache();
+	}
+	return matched->size();
+}
+
+template<class TR>
+size_t
+DenseDFA_DynDFA_256::full_match_all_len_with_tr(
+		TR tr, const VirtualMachineDFA* nfa,
+		fstring text,
+		MultiRegexFullMatch::LenRegexID::Collector* matched,
+		DynDFA_Context* ctx)
+{
+	assert(power_set.size() >= 2);
+	size_t curr = dyn_root;
+	const byte_t* pos = text.udata();
+	const byte_t* end = pos + text.size();
+	BOOST_STATIC_ASSERT(VirtualMachineDFA::nil_state == nil_state);
+	do {
+		if (curr < dyn_root) {
+			if (pos < end) {
+				size_t next = nfa->loop_state_move<TR>(curr, pos, end, tr);
+				if (nfa->is_term(curr)) {
+					matched->len = int(pos - text.udata());
+					dfa_read_matchid(nfa, curr, matched);
+				}
+				curr = next;
+			}
+			else {
+				assert(pos == end);
+				if (nfa->is_term(curr)) {
+					matched->len = int(pos - text.udata());
+				    dfa_read_matchid(nfa, curr, matched);
+				}
+				break;
+			}
+		}
+		else {
+			auto try_hit_curr = [&]() {
+				if (this->is_term(curr - dyn_root)) {
+					get_subset(curr, &ctx->matchid_states);
+					matched->len = int(pos - text.udata());
+					for (size_t matchState : ctx->matchid_states)
+						dfa_read_matchid(nfa, matchState, matched);
+				}
+			};
+			if (pos < end) {
+				size_t next;
+				do next = dyn_state_move(nfa, curr, (byte_t)tr(*pos));
+				while (++pos < end && next == curr);
+				try_hit_curr();
+				curr = next;
+			}
+			else {
+				assert(pos == end);
+				try_hit_curr();
+				break;
+			}
+		}
+	} while (nil_state != curr);
+	m_max_partial_match_len = pos - text.udata();
+	if (terark_unlikely(dyn_mem_size() > maxmem)) {
+		dyn_discard_deep_cache();
+	}
+	return matched->size();
+}
+
 template<class DFA>
 class MultiRegexFullMatchDynamicDfaTmpl : public MultiRegexFullMatch {
 public:
@@ -1577,6 +1766,20 @@ public:
 		return num;
 	}
 
+	template<class TR>
+	size_t match_all_len_with_tr(fstring text, TR tr) {
+		const DFA* au = static_cast<const DFA*>(m_dfa);
+		m_ctx.hits.erase_all();
+		m_all_match.erase_all();
+		m_cur_match.erase_all();
+		m_regex_idvec.erase_all();
+		LenRegexID::Collector collector = {&m_cur_match, 0};
+		size_t num = m_dyn->template full_match_all_len_with_tr<TR>
+						(tr, au, text, &collector, &m_ctx);
+		m_max_partial_match_len = m_dyn->m_max_partial_match_len;
+		return num;
+	}
+
 	terark_flatten
 	size_t match(fstring text) override {
 		return match_with_tr(text, IdentityTR());
@@ -1614,6 +1817,19 @@ public:
 	terark_flatten
 	size_t match_all(fstring text, const byte_t* tr) override {
 		return match_all_with_tr<TableTranslator>(text, tr);
+	}
+
+	terark_flatten
+	size_t match_all_len(fstring text) override {
+		return match_all_len_with_tr(text, IdentityTR());
+	}
+	terark_flatten
+	size_t match_all_len(fstring text, const ByteTR& tr) override {
+		return match_all_len_with_tr<const ByteTR&>(text, tr);
+	}
+	terark_flatten
+	size_t match_all_len(fstring text, const byte_t* tr) override {
+		return match_all_len_with_tr<TableTranslator>(text, tr);
 	}
 
 	bool has_hit(int regex_id) const override {

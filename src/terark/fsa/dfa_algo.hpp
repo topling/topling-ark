@@ -502,9 +502,9 @@ struct DFA_Key2 {
 };
 
 ///@returns number of int32 readed
-template<class DFA>
+template<class DFA, class Collector>
 size_t
-dfa_read_binary_int32(const DFA& dfa, size_t state, valvec<int>* vec) {
+dfa_read_binary_int32(const DFA& dfa, size_t state, Collector* vec) {
 	auto read_int32 = [vec](size_t, fstring val, size_t) {
 		assert(val.size() == sizeof(int32_t));
 		int32_t regex_id;

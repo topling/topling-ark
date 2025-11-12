@@ -14,7 +14,6 @@ TMPL_INST_DFA_CLASS(Automata<State6B_512>)
 
 #if !defined(_MSC_VER)
 
-//TMPL_INST_DFA_CLASS(Automata<State32_512>) // inst in mre_tmplinst.cpp
 TMPL_INST_DFA_CLASS(Automata<State5B_448>)
 
 #if TERARK_WORD_BITS >= 64 && defined(TERARK_INST_ALL_DFA_TYPES)
@@ -22,6 +21,7 @@ TMPL_INST_DFA_CLASS(Automata<State34>)
 TMPL_INST_DFA_CLASS(Automata<State38>)
 TMPL_INST_DFA_CLASS(Automata<State7B>)
 TMPL_INST_DFA_CLASS(Automata<State7B_448>)
+TMPL_INST_DFA_CLASS(Automata<State32_512>); // move here from mre_tmplinst.cpp
 #endif
 #endif
 

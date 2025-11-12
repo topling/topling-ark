@@ -112,6 +112,27 @@ public:
 		PosLen(int pos1, int len1)
 			: pos(pos1), len(len1) {}
 	};
+	struct LenRegexID {
+		int len;
+		int regex_id;
+		LenRegexID() = default;
+		LenRegexID(int len1, int regex_id1) : len(len1), regex_id(regex_id1) {}
+		friend bool operator==(const LenRegexID& x, const LenRegexID& y)
+		  { return x.len == y.len && x.regex_id == y.regex_id; }
+		friend bool operator!=(const LenRegexID& x, const LenRegexID& y)
+		  { return x.len != y.len || x.regex_id != y.regex_id; }
+		struct Collector {
+			valvec<LenRegexID>* vec;
+			int len;
+			void push_back(int regex_id) { vec->push_back({len, regex_id}); }
+			void append(const int* src, size_t num) {
+				LenRegexID* dst = vec->grow(num);
+				for (size_t i = 0; i < num; i++) dst[i] = {len, src[i]};
+			}
+			size_t size() const { return vec->size(); } // for debug
+			const LenRegexID& operator[](size_t i) const { return (*vec)[i]; }
+		};
+	};
 	struct PosLenRegexID {
 		int pos;
 		int len;
@@ -124,6 +145,7 @@ protected:
 	typedef function<byte_t(byte_t)> ByteTR;
     valvec<int>  m_regex_idvec;
 	valvec<PosLenRegexID> m_all_match;
+	valvec<LenRegexID>    m_cur_match; // at pos 0
 	const BaseDFA*  m_dfa;
 	class DenseDFA_DynDFA_256* m_dyn;
 	const MultiRegexMatchOptions* m_options;
@@ -171,6 +193,14 @@ public:
 	virtual size_t match_all(fstring text, const byte_t* tr) = 0;
     ///@}
 
+    ///@{ match from start, get all id of all matched regex-es which
+    ///   may be ended at any position
+    ///@returns number of matched regex, same as this->size()
+	virtual size_t match_all_len(fstring text) = 0;
+	virtual size_t match_all_len(fstring text, const ByteTR& tr) = 0;
+	virtual size_t match_all_len(fstring text, const byte_t* tr) = 0;
+    ///@}
+
 	virtual PosLen utf8_find_first(fstring text);
 	virtual PosLen utf8_find_first(fstring text, const ByteTR& tr);
 	virtual PosLen utf8_find_first(fstring text, const byte_t* tr);
@@ -216,6 +246,7 @@ public:
 	const valvec<PosLenRegexID>& all_match() const { return m_all_match; }
 	const PosLenRegexID& all_match(size_t i) const { return m_all_match[i]; }
 	size_t all_match_size() const { return m_all_match.size(); }
+	const valvec<LenRegexID>& cur_match() const { return m_cur_match; }
 	size_t max_partial_match_len() const { return m_max_partial_match_len; }
 };
 
