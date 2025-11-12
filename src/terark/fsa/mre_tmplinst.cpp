@@ -586,6 +586,10 @@ public:
 		return m_cur_match.size();
 	}
 
+// terark_flatten here cause gcc hang, remove it
+#undef terark_flatten
+#define terark_flatten
+
 	terark_flatten
 	size_t match(fstring text) override {
 		return match_with_tr(text, IdentityTR());
