@@ -109,6 +109,7 @@ public:
 	struct PosLen {
 		int pos;
 		int len;
+		int endpos() const { return pos + len; }
 		PosLen(int pos1, int len1)
 			: pos(pos1), len(len1) {}
 	};
