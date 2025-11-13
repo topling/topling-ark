@@ -150,14 +150,14 @@ public:
 	size_t
 	full_match_all_len_with_tr(
 			TR tr, const DFA* nfa, fstring text,
-			MultiRegexFullMatch::LenRegexID::Collector* matched,
+			valvec<MultiRegexFullMatch::LenRegexID>* matched,
 			DynDFA_Context* ctx);
 
 	template<class TR>
 	size_t
 	full_match_all_len_with_tr(
 			TR tr, const VirtualMachineDFA* nfa, fstring text,
-			MultiRegexFullMatch::LenRegexID::Collector* matched,
+			valvec<MultiRegexFullMatch::LenRegexID>* matched,
 			DynDFA_Context* ctx);
 };
 
@@ -267,6 +267,51 @@ inline static void collect_hits(febitvec* hits, valvec<int>* matchVec) {
 		}
 	}
 }
+
+struct MatchStateThreadLocal {
+	gold_hash_set<int>           m_uniq_regex;
+	gold_hash_set<int>           m_uniq_states;
+	valvec<std::pair<int,int> >  m_pos_state_vec;
+	void clean_reset() {
+		m_uniq_regex.erase_all();
+		m_uniq_states.erase_all();
+		m_pos_state_vec.erase_all();
+	}
+
+	using LenRegexID = MultiRegexFullMatch::LenRegexID;
+	valvec<LenRegexID>* m_cur_match = nullptr;
+	int                 m_cur_len;
+
+	///@{ for dfa_read_matchid
+	terark_no_inline void push_back(int regex_id) {
+		if (m_uniq_regex.insert_i(regex_id).second)
+			m_cur_match->push_back({m_cur_len, regex_id});
+	}
+	terark_no_inline void append(const int* src, size_t num) {
+		LenRegexID* dst = m_cur_match->grow(num);
+		for (size_t idx = 0; idx < num; idx++) {
+			if (m_uniq_regex.insert_i(src[idx]).second)
+				*dst++ = { m_cur_len, src[idx] };
+		}
+		m_cur_match->trim(dst);
+	}
+	size_t size() const { return m_cur_match->size(); } // for debug
+	const LenRegexID& operator[](size_t i) const { return (*m_cur_match)[i]; }
+	///@}
+
+	template<class DFA>
+	void collect(DFA* au, valvec<LenRegexID>* cur_match) {
+		m_cur_match = cur_match;
+		while (!m_pos_state_vec.empty()) {
+			auto [pos, state] = m_pos_state_vec.pop_val();
+			if (m_uniq_states.insert_i(state).second) {
+				m_cur_len = pos;
+				dfa_read_matchid(au, state, this);
+			}
+		}
+	}
+};
+static thread_local MatchStateThreadLocal g_MatchStateThreadLocal;
 
 template<class DFA>
 class MultiRegexFullMatchTmpl : public MultiRegexFullMatch {
@@ -538,7 +583,8 @@ public:
 		size_t curr = root;
 		const byte_t* pos = text.udata();
 		const byte_t* end = pos + text.n;
-		LenRegexID::Collector collector = {&m_cur_match, 0};
+		auto& tls = g_MatchStateThreadLocal;
+		tls.clean_reset();
 		do {
 			if (au->is_pzip(curr)) {
 				fstring zs = au->get_zpath_data(curr, NULL);
@@ -550,8 +596,7 @@ public:
 				}
 				size_t full = dfa_matchid_root(au, curr);
 				if (terark_unlikely(DFA::nil_state != full)) {
-					collector.len = int(pos - text.udata());
-                    dfa_read_matchid(au, full, &collector);
+					tls.m_pos_state_vec.push_back({int(pos - text.udata()), full});
 				}
 				if (pos < end)
 					curr = au->state_move(curr, (byte_t)tr(*pos++));
@@ -562,20 +607,19 @@ public:
 				size_t next = dfa_loop_state_move<TR>(*au, curr, pos, end, tr);
 				size_t full = dfa_matchid_root(au, curr);
 				if (terark_unlikely(DFA::nil_state != full)) {
-					collector.len = int(pos - text.udata());
-                    dfa_read_matchid(au, full, &collector);
+					tls.m_pos_state_vec.push_back({int(pos - text.udata()), full});
 				}
 				curr = next;
 			}
 			else {
 				size_t full = dfa_matchid_root(au, curr);
 				if (terark_unlikely(DFA::nil_state != full)) {
-					collector.len = int(pos - text.udata());
-                    dfa_read_matchid(au, full, &collector);
+					tls.m_pos_state_vec.push_back({int(pos - text.udata()), full});
 				}
 				break;
 			}
 		} while (DFA::nil_state != curr);
+		tls.collect(au, &m_cur_match);
 	}
 	template<class TR>
 	size_t match_all_len_with_tr(fstring text, TR tr) {
@@ -1634,20 +1678,22 @@ size_t
 DenseDFA_DynDFA_256::full_match_all_len_with_tr(
 		TR tr, const DFA* nfa,
 		fstring text,
-		MultiRegexFullMatch::LenRegexID::Collector* matched,
+		valvec<MultiRegexFullMatch::LenRegexID>* matched,
 		DynDFA_Context* ctx)
 {
 	assert(power_set.size() >= 2);
 	size_t curr = dyn_root;
 	const byte_t* pos = text.udata();
 	const byte_t* end = pos + text.size();
+	auto& tls = g_MatchStateThreadLocal;
+	tls.clean_reset();
 	do {
 		size_t full = dyn_full_match_root(nfa, curr);
 		if (nil_state != full) {
 			get_subset(full, &ctx->matchid_states);
-			matched->len = int(pos - text.udata());
 			for (size_t matchState: ctx->matchid_states)
-				dfa_read_matchid(nfa, matchState, matched);
+				tls.m_pos_state_vec.push_back
+					({int(pos - text.udata()), int(matchState)});
 		}
 		if (pos < end) {
 			size_t next;
@@ -1664,6 +1710,7 @@ DenseDFA_DynDFA_256::full_match_all_len_with_tr(
 	if (terark_unlikely(dyn_mem_size() > maxmem)) {
 		dyn_discard_deep_cache();
 	}
+	tls.collect(nfa, matched);
 	return matched->size();
 }
 
@@ -1672,7 +1719,7 @@ size_t
 DenseDFA_DynDFA_256::full_match_all_len_with_tr(
 		TR tr, const VirtualMachineDFA* nfa,
 		fstring text,
-		MultiRegexFullMatch::LenRegexID::Collector* matched,
+		valvec<MultiRegexFullMatch::LenRegexID>* matched,
 		DynDFA_Context* ctx)
 {
 	assert(power_set.size() >= 2);
@@ -1680,21 +1727,23 @@ DenseDFA_DynDFA_256::full_match_all_len_with_tr(
 	const byte_t* pos = text.udata();
 	const byte_t* end = pos + text.size();
 	BOOST_STATIC_ASSERT(VirtualMachineDFA::nil_state == nil_state);
+	auto& tls = g_MatchStateThreadLocal;
+	tls.clean_reset();
 	do {
 		if (curr < dyn_root) {
 			if (pos < end) {
 				size_t next = nfa->loop_state_move<TR>(curr, pos, end, tr);
 				if (nfa->is_term(curr)) {
-					matched->len = int(pos - text.udata());
-					dfa_read_matchid(nfa, curr, matched);
+					tls.m_pos_state_vec.push_back
+						({int(pos - text.udata()), int(curr)});
 				}
 				curr = next;
 			}
 			else {
 				assert(pos == end);
 				if (nfa->is_term(curr)) {
-					matched->len = int(pos - text.udata());
-				    dfa_read_matchid(nfa, curr, matched);
+					tls.m_pos_state_vec.push_back
+						({int(pos - text.udata()), int(curr)});
 				}
 				break;
 			}
@@ -1703,9 +1752,9 @@ DenseDFA_DynDFA_256::full_match_all_len_with_tr(
 			auto try_hit_curr = [&]() {
 				if (this->is_term(curr - dyn_root)) {
 					get_subset(curr, &ctx->matchid_states);
-					matched->len = int(pos - text.udata());
 					for (size_t matchState : ctx->matchid_states)
-						dfa_read_matchid(nfa, matchState, matched);
+						tls.m_pos_state_vec.push_back
+							({int(pos - text.udata()), int(matchState)});
 				}
 			};
 			if (pos < end) {
@@ -1726,6 +1775,7 @@ DenseDFA_DynDFA_256::full_match_all_len_with_tr(
 	if (terark_unlikely(dyn_mem_size() > maxmem)) {
 		dyn_discard_deep_cache();
 	}
+	tls.collect(nfa, matched);
 	return matched->size();
 }
 
@@ -1777,9 +1827,8 @@ public:
 		m_all_match.erase_all();
 		m_cur_match.erase_all();
 		m_regex_idvec.erase_all();
-		LenRegexID::Collector collector = {&m_cur_match, 0};
 		size_t num = m_dyn->template full_match_all_len_with_tr<TR>
-						(tr, au, text, &collector, &m_ctx);
+						(tr, au, text, &m_cur_match, &m_ctx);
 		m_max_partial_match_len = m_dyn->m_max_partial_match_len;
 		return num;
 	}
