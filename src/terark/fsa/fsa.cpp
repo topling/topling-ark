@@ -1783,6 +1783,11 @@ fstring BaseDFA::get_mmap() const {
 	return fstring((byte_t*)mmap_base, mmap_base->file_size);
 }
 
+size_t BaseDFA::mmap_atomic_dfa_num() const {
+	assert(mmap_base != nullptr);
+	return mmap_base->atom_dfa_num;
+}
+
 size_t BaseDFA::zp_nest_level() const {
 	return 0;
 }

@@ -330,6 +330,8 @@ public:
 	inline bool is_mmap() const { return NULL != mmap_base; }
 	inline uint64_t adfa_total_words_len() const { return m_adfa_total_words_len; }
 
+	size_t mmap_atomic_dfa_num() const;
+
 protected:
 	void risk_swap(BaseDFA& y);
 	long stat_impl(DFA_MmapHeader*, const void** dataPtrs) const;

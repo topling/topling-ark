@@ -249,6 +249,7 @@ public:
 	size_t all_match_size() const { return m_all_match.size(); }
 	const valvec<LenRegexID>& cur_match() const { return m_cur_match; }
 	size_t max_partial_match_len() const { return m_max_partial_match_len; }
+	const BaseDFA* get_dfa() const { return m_dfa; }
 };
 
 inline
