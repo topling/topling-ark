@@ -243,6 +243,8 @@ public:
 
 	virtual bool has_hit(int regex_id) const;
 
+	virtual void clear_match_result();
+
 	valvec<PosLenRegexID>& mutable_all_match() { return m_all_match; }
 	const valvec<PosLenRegexID>& all_match() const { return m_all_match; }
 	const PosLenRegexID& all_match(size_t i) const { return m_all_match[i]; }

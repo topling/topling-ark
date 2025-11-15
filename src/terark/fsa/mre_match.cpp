@@ -258,6 +258,12 @@ bool MultiRegexFullMatch::has_hit(int regex_id) const {
 	return lo < m_regex_idvec.size() && m_regex_idvec[lo] == regex_id;
 }
 
+void MultiRegexFullMatch::clear_match_result() {
+	m_regex_idvec.erase_all();
+	m_all_match.erase_all();
+	m_cur_match.erase_all();
+}
+
 /////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////
 

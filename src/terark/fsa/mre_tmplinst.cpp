@@ -695,6 +695,11 @@ public:
 		}
 	}
 
+	void clear_match_result() override {
+		MultiRegexFullMatch::clear_match_result();
+		m_hits.erase_all();
+	}
+
 	MultiRegexFullMatch* clone() const override {
 		return new MultiRegexFullMatchTmpl(*this);
 	}
@@ -1892,6 +1897,11 @@ public:
 		} else {
 			return MultiRegexFullMatch::has_hit(regex_id);
 		}
+	}
+
+	void clear_match_result() override {
+		MultiRegexFullMatch::clear_match_result();
+		m_ctx.hits.erase_all();
 	}
 
 	MultiRegexFullMatch* clone() const override {
