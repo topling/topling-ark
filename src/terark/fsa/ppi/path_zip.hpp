@@ -12,6 +12,8 @@ public:
 		strp.resize0();
 		path.resize0();
 		path.push_back(s);
+		if (!au->has_children(s))
+			return;
 		if (au->is_term(s) || au->more_than_one_child(s))
 			return;
 		auchar_t prev_ch = au->get_single_child_char(s);
