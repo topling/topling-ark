@@ -608,7 +608,8 @@ public:
 				size_t next = dfa_loop_state_move<TR>(*au, curr, pos, end, tr);
 				size_t full = dfa_matchid_root(au, curr);
 				if (terark_unlikely(DFA::nil_state != full)) {
-					tls.m_pos_state_vec.push_back({int(pos - text.udata()), full});
+					auto hitpos = (curr == next) ? pos : pos-1;
+					tls.m_pos_state_vec.push_back({int(hitpos - text.udata()), full});
 				}
 				curr = next;
 			}
@@ -1740,8 +1741,9 @@ DenseDFA_DynDFA_256::full_match_all_len_with_tr(
 			if (pos < end) {
 				size_t next = nfa->loop_state_move<TR>(curr, pos, end, tr);
 				if (nfa->is_term(curr)) {
+					const byte_t* hitpos = next == curr ? pos : pos - 1;
 					tls.m_pos_state_vec.push_back
-						({int(pos - text.udata()), int(curr)});
+						({int(hitpos - text.udata()), int(curr)});
 				}
 				curr = next;
 			}
@@ -1755,7 +1757,7 @@ DenseDFA_DynDFA_256::full_match_all_len_with_tr(
 			}
 		}
 		else {
-			auto try_hit_curr = [&]() {
+			auto try_hit_curr = [&](const byte_t* pos) {
 				if (this->is_term(curr - dyn_root)) {
 					get_subset(curr, &ctx->matchid_states);
 					for (size_t matchState : ctx->matchid_states)
@@ -1767,12 +1769,12 @@ DenseDFA_DynDFA_256::full_match_all_len_with_tr(
 				size_t next;
 				do next = dyn_state_move(nfa, curr, (byte_t)tr(*pos));
 				while (++pos < end && next == curr);
-				try_hit_curr();
+				try_hit_curr(next == curr ? pos : pos - 1);
 				curr = next;
 			}
 			else {
 				assert(pos == end);
-				try_hit_curr();
+				try_hit_curr(pos);
 				break;
 			}
 		}
