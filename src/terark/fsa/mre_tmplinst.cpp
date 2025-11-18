@@ -283,6 +283,7 @@ struct MatchStateThreadLocal {
 	int                 m_cur_len;
 
 	///@{ for dfa_read_matchid
+	terark_no_inline void push(int regex_id) { push_back(regex_id); }
 	terark_no_inline void push_back(int regex_id) {
 		if (m_uniq_regex.insert_i(regex_id).second)
 			m_cur_match->push_back({m_cur_len, regex_id});
@@ -300,7 +301,7 @@ struct MatchStateThreadLocal {
 	///@}
 
 	template<class DFA>
-	void collect(DFA* au, valvec<LenRegexID>* cur_match) {
+	void collect(const DFA* au, valvec<LenRegexID>* cur_match) {
 		m_cur_match = cur_match;
 		while (!m_pos_state_vec.empty()) {
 			auto [pos, state] = m_pos_state_vec.pop_val();

@@ -110,6 +110,7 @@ public:
 		int pos;
 		int len;
 		int endpos() const { return pos + len; }
+		PosLen() = default;
 		PosLen(int pos1, int len1)
 			: pos(pos1), len(len1) {}
 	};
@@ -138,6 +139,7 @@ public:
 		int pos;
 		int len;
 		int regex_id;
+		PosLenRegexID() = default;
 		PosLenRegexID(int pos1, int len1, int regex_id1)
 			: pos(pos1), len(len1), regex_id(regex_id1) {}
 	};

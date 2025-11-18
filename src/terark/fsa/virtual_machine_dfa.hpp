@@ -2057,7 +2057,7 @@ template<class DFA, class Collector>
 size_t dfa_read_matchid(const DFA* dfa, size_t state, Collector* vec)
 { return dfa_read_binary_int32(*dfa, state, vec); }
 
-template<class DFA, class Collector>
+template<class Collector>
 size_t dfa_read_matchid(const VirtualMachineDFA* dfa, size_t state, Collector* vec)
 { return dfa->read_matchid(state, vec); }
 
