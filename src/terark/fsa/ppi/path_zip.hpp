@@ -91,8 +91,8 @@ void path_zip_imp(const size_t* pRoots, size_t nRoots
 				, const bm_uint_t* is_confluence, const SrcDFA& src, size_t min_zstr_len)
 {
 	typedef typename SrcDFA::state_id_t src_state_id_t;
-	assert(0 == src.num_zpath_states());
-	assert(nRoots < src.total_states());
+	TERARK_VERIFY_EQ(0, src.num_zpath_states());
+	TERARK_VERIFY_LE(nRoots, src.total_states());
 //	ASSERT_isNotFree(initial_state);
 	this->erase_all();
 	const size_t min_compress_path_len = min_zstr_len + 1;
@@ -102,6 +102,7 @@ void path_zip_imp(const size_t* pRoots, size_t nRoots
 	walker.resize(src.total_states());
 	for(size_t i = nRoots;  i > 0; ) {
 		size_t r = pRoots[--i];
+		TERARK_VERIFY_LT(r, src.total_states());
 		s2ds[r] = i;
 		walker.putRoot(r);
 	}

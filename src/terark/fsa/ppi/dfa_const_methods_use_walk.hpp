@@ -80,8 +80,8 @@ void compute_indegree(size_t RootState, valvec<state_id_t>& in) const {
 void
 compute_indegree(const size_t* pRoots, size_t nRoots, valvec<state_id_t>& in)
 const {
-	assert(nRoots >= 1);
-	assert(nRoots < total_states());
+	TERARK_VERIFY_GE(nRoots, 1);
+	TERARK_VERIFY_LE(nRoots, total_states());
 	in.resize(total_states(), 0);
 	febitvec color(total_states(), 0);
 	size_t initial_cap = nRoots + this->get_sigma();
