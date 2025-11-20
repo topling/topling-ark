@@ -12,6 +12,7 @@ public:
 
 	StringAsDFA() { m_dyn_sigma = sigma; }
 	explicit StringAsDFA(const std::string& s) : str(s) { m_dyn_sigma = 256; }
+	explicit StringAsDFA(std::string&& s) : str(std::move(s)) { m_dyn_sigma = 256; }
 
 	typedef unsigned state_id_t;
 	typedef unsigned transition_t;
