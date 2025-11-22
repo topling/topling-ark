@@ -2023,25 +2023,64 @@ public:
 		assert(this->m_fullmatch_regex.size() || 0 == match_len);
 		for(int  regex_id : this->m_fullmatch_regex) {
 			int* pcap = cap_pos_ptr[regex_id];
-			auto on_match = [&](size_t klen, size_t, fstring val) {
-				assert(val.size() == sizeof(uint32_t));
-				int32_t capture_id;
-				memcpy(&capture_id, val.data(), sizeof(capture_id));
-				pcap[capture_id] = klen;
-				assert(pcap + capture_id < this->cap_pos_ptr[regex_id+1]);
-			};
 			this->reset(regex_id);
-			MatchContext ctx;
+			size_t root;
 			if (this->cap_pos_ptr.size() == 2) // only 1 regex
-				ctx.root = initial_state; // regex[0] == regex[all]
+				root = initial_state; // regex[0] == regex[all]
 			else
-				ctx.root = regex_id + 1;
-			dfa->template tpl_match_key<decltype(on_match), TR>
-				(ctx, SUB_MATCH_DELIM, text, on_match, tr);
+				root = regex_id + 1;
+			// intentional not use return value
+			get_capture_pos_with_word_boundary<TR>(dfa, root, regex_id, text, tr);
 			pcap[0] = 0;
 			pcap[1] = match_len;
 		}
 		return match_len;
+	}
+
+	template<class TR>
+	size_t get_capture_pos_with_word_boundary
+	(const DFA* dfa, size_t root, int regex_id, fstring text, TR tr)
+	const {
+		int* const pcap = cap_pos_ptr[regex_id];
+		size_t curr = root;
+		size_t pos = 0;
+		auto set_capture_pos = [&](size_t, fstring val, size_t) {
+			TERARK_ASSERT_EQ(val.size(), sizeof(int32_t));
+			int32_t capture_id = unaligned_load<int32_t>(val.data());
+		//	printf("j=%zd capture_id=%d  text=%.*s\n", j, capture_id, text.ilen(), text.p);
+			TERARK_ASSERT_GE(capture_id, 2);
+			TERARK_ASSERT_LT(pcap + capture_id, this->cap_pos_ptr[regex_id+1]);
+			pcap[capture_id] = int(pos);
+		};
+		BOOST_STATIC_ASSERT(sizeof(size_t) >= 4);
+		const int Bufsize = sizeof(size_t); // CPU word size
+		ForEachWord_DFS_FixedBuffer<const DFA&, decltype(set_capture_pos), Bufsize>
+		vis(*dfa, NULL, set_capture_pos);
+		for (; ; ++pos) {
+			if (dfa->is_pzip(curr)) {
+				fstring zstr = dfa->get_zpath_data(curr, nullptr);
+				size_t minlen = std::min(zstr.size(), text.size() - pos);
+				for(size_t j = 0; j < minlen; ++j, ++pos) {
+					if ((byte_t)tr(text.uch(pos)) != zstr.uch(j))
+						return pos;
+				}
+			}
+			size_t value_start = dfa->state_move(curr, SUB_MATCH_DELIM);
+			if (DFA::nil_state != value_start) {
+				if (dfa_check_empty_width(dfa, text, curr, pos)) {
+					vis.start(value_start, 0); // will call set_capture_pos at least once
+				}
+			}
+			if (text.size() == pos)
+				return pos;
+			size_t next = dfa->state_move(curr, (byte_t)tr(text.uch(pos)));
+			if (DFA::nil_state == next)
+				return pos;
+			TERARK_ASSERT_LT(next, dfa->total_states());
+			ASSERT_isNotFree2(dfa, next);
+			curr = next;
+		}
+		TERARK_DIE("Should not goes here");
 	}
 
 	template<class TR>
