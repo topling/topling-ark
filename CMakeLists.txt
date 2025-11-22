@@ -6,6 +6,7 @@ SET(CMAKE_CXX_STANDARD 17)
 # Headers
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/src)
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/zstd)
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/re2)
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/boost-include)
 INCLUDE_DIRECTORIES(/usr/local/include)
 
@@ -37,7 +38,11 @@ endif()
 ADD_LIBRARY(terark-core SHARED ${CORE_SRC})
 
 # FSA LIB
-FILE(GLOB FSA_SRC src/terark/fsa/*.?pp)
+FILE(GLOB FSA_SRC src/terark/fsa/*.?pp
+                  src/terark/fsa/re2/*.?pp
+                  3rdparty/re2/re2/*.h
+                  3rdparty/re2/re2/*.cc
+     )
 ADD_LIBRARY(terark-fsa SHARED ${FSA_SRC})
 TARGET_LINK_LIBRARIES(terark-fsa terark-core)
 
