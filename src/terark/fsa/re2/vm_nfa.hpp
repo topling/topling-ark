@@ -3,6 +3,7 @@
 
 #include <terark/fsa/fsa.hpp>
 #include <terark/fsa/power_set.hpp>
+#include <terark/fsa/mre_delim.hpp>
 #include <terark/bitmap.hpp>
 #include <terark/util/autoclose.hpp>
 #include <terark/util/fstrvec.hpp>
@@ -26,7 +27,7 @@ namespace terark {
 		valvec<int> m_cap_ptrs;
 
 	public:
-		enum { sigma = 258 };
+		enum { sigma = REGEX_DFA_SIGMA };
 		typedef uint32_t state_id_t;
 
 		explicit RE2_VM_NFA(re2::Prog* prog);

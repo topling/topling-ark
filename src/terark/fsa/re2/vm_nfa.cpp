@@ -1,4 +1,5 @@
 #include "vm_nfa.hpp"
+#include <terark/fsa/mre_delim.hpp>
 #include <terark/bitmap.hpp>
 #include <terark/util/throw.hpp>
 #include <re2/prog.h> // virtual machine nfa of re2
@@ -241,6 +242,15 @@ const {
 		for (int c = lo; c <= hi; ++c)
 			if (c != m_exclude_char)
 				children->emplace_back(c, inst->out()+1);
+	} else if (inst->opcode() == re2::kInstEmptyWidth) {
+		const re2::EmptyOp eop = inst->empty();
+		if (re2::kEmptyWordBoundary == eop) {
+			children->emplace_back(REGEX_DFA_WORD_BOUNDARY, inst->out()+1);
+		} else if (re2::kEmptyNonWordBoundary == eop) {
+			children->emplace_back(REGEX_DFA_NON_WORD_BOUNDARY, inst->out()+1);
+		} else {
+			// do nothing
+		}
 	} else {
 	//	fprintf(stderr, "%s: s=%d opcode=%d\n", BOOST_CURRENT_FUNCTION, s, inst->opcode());
 	}
