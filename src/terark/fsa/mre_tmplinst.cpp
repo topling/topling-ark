@@ -597,7 +597,8 @@ public:
 				}
 				size_t full = dfa_matchid_root(au, curr);
 				if (terark_unlikely(DFA::nil_state != full)) {
-					tls.m_pos_state_vec.push_back({int(pos - text.udata()), full});
+					if (dfa_check_empty_width_p(au, text, full, pos))
+						tls.m_pos_state_vec.push_back({int(pos - text.udata()), full});
 				}
 				if (pos < end)
 					curr = au->state_move(curr, (byte_t)tr(*pos++));
@@ -609,14 +610,16 @@ public:
 				size_t full = dfa_matchid_root(au, curr);
 				if (terark_unlikely(DFA::nil_state != full)) {
 					auto hitpos = (curr == next) ? pos : pos-1;
-					tls.m_pos_state_vec.push_back({int(hitpos - text.udata()), full});
+					if (dfa_check_empty_width_p(au, text, full, hitpos))
+						tls.m_pos_state_vec.push_back({int(hitpos - text.udata()), full});
 				}
 				curr = next;
 			}
 			else {
 				size_t full = dfa_matchid_root(au, curr);
 				if (terark_unlikely(DFA::nil_state != full)) {
-					tls.m_pos_state_vec.push_back({int(pos - text.udata()), full});
+					if (dfa_check_empty_width_p(au, text, full, pos))
+						tls.m_pos_state_vec.push_back({int(pos - text.udata()), full});
 				}
 				break;
 			}
@@ -1699,8 +1702,9 @@ DenseDFA_DynDFA_256::full_match_all_len_with_tr(
 		if (nil_state != full) {
 			get_subset(full, &ctx->matchid_states);
 			for (size_t matchState: ctx->matchid_states)
-				tls.m_pos_state_vec.push_back
-					({int(pos - text.udata()), int(matchState)});
+				if (dfa_check_empty_width_p(nfa, text, full, pos))
+					tls.m_pos_state_vec.push_back
+						({int(pos - text.udata()), int(matchState)});
 		}
 		if (pos < end) {
 			size_t next;
@@ -1742,16 +1746,18 @@ DenseDFA_DynDFA_256::full_match_all_len_with_tr(
 				size_t next = nfa->loop_state_move<TR>(curr, pos, end, tr);
 				if (nfa->is_term(curr)) {
 					const byte_t* hitpos = next == curr ? pos : pos - 1;
-					tls.m_pos_state_vec.push_back
-						({int(hitpos - text.udata()), int(curr)});
+					if (dfa_check_empty_width_p(nfa, text, curr, hitpos))
+						tls.m_pos_state_vec.push_back
+							({int(hitpos - text.udata()), int(curr)});
 				}
 				curr = next;
 			}
 			else {
 				assert(pos == end);
 				if (nfa->is_term(curr)) {
-					tls.m_pos_state_vec.push_back
-						({int(pos - text.udata()), int(curr)});
+					if (dfa_check_empty_width_p(nfa, text, curr, pos))
+						tls.m_pos_state_vec.push_back
+							({int(pos - text.udata()), int(curr)});
 				}
 				break;
 			}
@@ -1761,8 +1767,9 @@ DenseDFA_DynDFA_256::full_match_all_len_with_tr(
 				if (this->is_term(curr - dyn_root)) {
 					get_subset(curr, &ctx->matchid_states);
 					for (size_t matchState : ctx->matchid_states)
-						tls.m_pos_state_vec.push_back
-							({int(pos - text.udata()), int(matchState)});
+						if (dfa_check_empty_width_p(nfa, text, curr, pos))
+							tls.m_pos_state_vec.push_back
+								({int(pos - text.udata()), int(matchState)});
 				}
 			};
 			if (pos < end) {
