@@ -240,7 +240,7 @@ dot_escape_aux(const Char* ibuf, size_t ilen, char* obuf, size_t olen) {
 					break;
 				}
 			}
-			if (isgraph(ch))
+			if (ch < 256 && isgraph(ch))
 				*q++ = ch;
 			else {
 				CheckBufferOverRun(5);
@@ -405,7 +405,7 @@ void cclabel2(const CharTarget<size_t>* p
 					else
 						sbuf.append(buf, dot_escape(&ch, 1, buf, sizeof(buf)));
 				} else {
-					sprintf(buf, "\\\\%03X", (int)k->ch);
+					sprintf(buf, "\\\\x%03X", (int)k->ch);
 					sbuf.append(buf);
 				}
 			}
