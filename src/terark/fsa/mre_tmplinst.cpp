@@ -2120,10 +2120,22 @@ public:
 					///        ^^----------- here capture cnt == 2
 					const byte_t* capt = dfa->get_capture(curr);
 					const size_t cnt = capt[0] + 1;
-					for(size_t j = 0; j < cnt; ++j) {
-						size_t capture_id = capt[1+j] + 2;
-						assert(pcap + capture_id < cap_pos_ptr[regex_id+1]);
-						pcap[capture_id] = (int)offset;
+					size_t j = 0;
+					bool pos_check_ok = true;
+					if (255 == capt[1+j]) { // REGEX_DFA_WORD_BOUNDARY
+						pos_check_ok = text.is_word_boundary(offset);
+						j++;
+					}
+					else if (254 == capt[1+j]) { // REGEX_DFA_NON_WORD_BOUNDARY
+						pos_check_ok = !text.is_word_boundary(offset);
+						j++;
+					}
+					if (pos_check_ok) {
+						for(; j < cnt; ++j) {
+							size_t capture_id = capt[1+j] + 2;
+							assert(pcap + capture_id < cap_pos_ptr[regex_id+1]);
+							pcap[capture_id] = (int)offset;
+						}
 					}
 				}
 				curr = next;
