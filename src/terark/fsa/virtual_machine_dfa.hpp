@@ -2061,6 +2061,7 @@ template<class Collector>
 size_t dfa_read_matchid(const VirtualMachineDFA* dfa, size_t state, Collector* vec)
 { return dfa->read_matchid(state, vec); }
 
+inline
 size_t dfa_matchid_root(const VirtualMachineDFA* dfa, size_t state)
 { return dfa->is_term(state) ? state : dfa->nil_state; }
 
