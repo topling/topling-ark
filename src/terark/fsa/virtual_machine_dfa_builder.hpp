@@ -236,12 +236,32 @@ VirtualMachineDFA::Builder::Builder(const Au& au, valvec<State>* states)
 		assert(!au.is_free(i));
 		if (Au::sigma > 256) {
 			size_t s = au.state_move(i, SUB_MATCH_DELIM);
-			if (au.nil_state != s) {
+			size_t wb = au.state_move(i, REGEX_DFA_WORD_BOUNDARY);
+			size_t nwb = au.state_move(i, REGEX_DFA_NON_WORD_BOUNDARY);
+			if (au.nil_state != s || au.nil_state != wb || au.nil_state != nwb) {
 				capture.rank.set1(i);
 				capture.dpos.push(capture.data.size());
-				size_t n = dfa_read_binary_int32(au, s, &capture.data);
+				const char* boundary = "no";
+				if (au.nil_state != wb) {
+					capture.data.push_back(-1); // indicate word boundary
+					boundary = "word";
+				}
+				else if (au.nil_state != nwb) {
+					capture.data.push_back(-2); // indicate non-word boundary
+					boundary = "nonword";
+				}
+				size_t n = 0;
+				if (au.nil_state != s) {
+					n = dfa_read_binary_int32(au, s, &capture.data);
+					for (size_t i = 1; i <= n; i++) {
+						if (int id = capture.data.ende(i); id >= 254) {
+							THROW_STD(out_of_range,
+								"capture.data.ende(%zd) = %d(must < 254)", i, id);
+						}
+					}
+				}
 				if (m_show_stat >= 3)
-					printf("state[%05zd]: n_caputure=%zd\n", i, n);
+					printf("state[%05zd]: n_caputure=%zd, boundary=%s\n", i, n, boundary);
 			}
 		}
 		size_t f = dfa_matchid_root(&au, i);
@@ -1288,7 +1308,12 @@ check_state(const VirtualMachineDFA& self, const Au& au, size_t state) const {
 		const byte_t* pc2 = self.get_capture(ip);
 		size_t nc2 = *pc2++ + 1;
 		assert(nc2 == nc1);
-		for (size_t i = 0; i < nc2; ++i) {
+		size_t i = 0;
+		if (-1 == pc1[0] || -2 == pc1[0]) {
+			TERARK_VERIFY_EQ(byte_t(pc1[0]), pc2[0]);
+			i++;
+		}
+		for (; i < nc2; ++i) {
 			assert(pc2[i]+2 == pc1[i]);
 		}
 	}
@@ -2110,7 +2135,10 @@ const {
 		assert(n_capture <= 256);
 		computed_n_slots += (n_capture+1+3)/4;
 		capture_ptr[0] = n_capture-1;
-		for (size_t i = 0; i < n_capture; ++i) {
+		// -1: word boundary, -2: non word boundary
+		TERARK_ASSERT_GE(p_capture[0], -2);
+		capture_ptr[1] = p_capture[0];
+		for (size_t i = 1; i < n_capture; ++i) {
 			assert(p_capture[i] >= 2);
 			assert(p_capture[i] <= 257);
 			capture_ptr[i+1] = p_capture[i] - 2;
