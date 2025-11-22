@@ -2065,4 +2065,36 @@ inline
 size_t dfa_matchid_root(const VirtualMachineDFA* dfa, size_t state)
 { return dfa->is_term(state) ? state : dfa->nil_state; }
 
+template<class DFA>
+bool dfa_check_empty_width(const DFA* dfa, fstring text, size_t state, size_t pos) {
+	if (dfa->state_move(state, REGEX_DFA_WORD_BOUNDARY) != DFA::nil_state) {
+		return text.is_word_boundary(pos);
+	} else if (dfa->state_move(state, REGEX_DFA_NON_WORD_BOUNDARY) != DFA::nil_state) {
+		return !text.is_word_boundary(pos);
+	} else {
+		return true;
+	}
+}
+
+inline
+bool dfa_check_empty_width(const VirtualMachineDFA* dfa, fstring text,
+						   size_t state, size_t pos) {
+	if (dfa->has_capture(state)) {
+		const byte_t* capt = dfa->get_capture(state);
+		//size_t nc2 = capt[0] + 1;
+		if (capt[1] == 255) { // REGEX_DFA_WORD_BOUNDARY
+			return text.is_word_boundary(pos);
+		} else if (capt[1] == 254) { // REGEX_DFA_NON_WORD_BOUNDARY
+			return !text.is_word_boundary(pos);
+		}
+	}
+	return true;
+}
+
+template<class DFA, class CharT>
+bool dfa_check_empty_width_p(const DFA* dfa, fstring text, size_t state, const CharT* ptr) {
+	static_assert(sizeof(*ptr) == 1);
+	return dfa_check_empty_width(dfa, text, state, (const char*)ptr - text.p);
+}
+
 } // namespace terark
