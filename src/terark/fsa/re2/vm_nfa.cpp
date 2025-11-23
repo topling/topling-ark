@@ -232,12 +232,6 @@ const {
 		assert(lo >= 0);
 		assert(lo <= hi);
 		assert(hi - lo <= 255);
-	/* // DO NOT uncomment the code, re2 has handled all case folding
-		if (inst->foldcase()) {
-			lo = tolower(lo);
-			hi = tolower(hi);
-		}
-	*/
 		int exclude_char = m_exclude_char;
 		int foldcase = inst->foldcase();
 		int target = inst->out()+1;
