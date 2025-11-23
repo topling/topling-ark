@@ -240,7 +240,12 @@ const {
 	*/
 		for (int c = lo; c <= hi; ++c)
 			if (c != m_exclude_char)
+			{
+				if (inst->foldcase() && c >= 'a' && c <= 'z') {
+					children->emplace_back(c - ('a' - 'A'), inst->out()+1);
+				}
 				children->emplace_back(c, inst->out()+1);
+			}
 	} else {
 	//	fprintf(stderr, "%s: s=%d opcode=%d\n", BOOST_CURRENT_FUNCTION, s, inst->opcode());
 	}
