@@ -434,6 +434,13 @@ dfa_difference(const Src1& s1, size_t r1, size_t m1,
 
 template<class DFA2>
 const MyType& operator|=(const DFA2& y) {
+	if (y.total_states() == 0) {
+		return *this; // do nothing
+	}
+	else if (this->total_states() == 0) {
+		this->fast_copy(y);
+		return *this;
+	}
 	MyType z; z.dfa_union(*this, y);
 	this->swap(z);
 	return *this;
@@ -441,6 +448,13 @@ const MyType& operator|=(const DFA2& y) {
 
 template<class DFA2>
 const MyType& operator&=(const DFA2& y) {
+	if (y.total_states() == 0) {
+		this->erase_all();
+		return *this;
+	}
+	else if (this->total_states() == 0) {
+		return *this;
+	}
 	MyType z; z.dfa_intersection(*this, y);
 	this->swap(z);
 	return *this;
@@ -448,6 +462,9 @@ const MyType& operator&=(const DFA2& y) {
 
 template<class DFA2>
 const MyType& operator-=(const DFA2& y) {
+	if (y.total_states() == 0 || this->total_states() == 0) {
+		return *this;
+	}
 	MyType z; z.dfa_difference(*this, y);
 	this->swap(z);
 	return *this;
@@ -457,7 +474,21 @@ template<class DFA2>
 auto operator|(const DFA2& y) const
 -> std::remove_reference_t<decltype(y.total_states(), std::declval<MyType>())>
 {
-	MyType z; z.dfa_union(*this, y);
+	MyType z;
+	if (y.total_states() == 0) {
+		z = *this;
+	}
+	else if (this->total_states() == 0) {
+		if constexpr (std::is_same_v<MyType, DFA2>) {
+			z = y;
+		} else {
+			z.erase_all();
+			z.fast_copy(y);
+		}
+	}
+	else {
+		z.dfa_union(*this, y);
+	}
 	return z;
 }
 
@@ -465,7 +496,12 @@ template<class DFA2>
 auto operator&(const DFA2& y) const
 -> std::remove_reference_t<decltype(y.total_states(), std::declval<MyType>())>
 {
-	MyType z; z.dfa_intersection(*this, y);
+	MyType z;
+	if (y.total_states() == 0 || this->total_states() == 0) {
+		z.erase_all();
+	} else {
+		z.dfa_intersection(*this, y);
+	}
 	return z;
 }
 
@@ -473,7 +509,16 @@ template<class DFA2>
 auto operator-(const DFA2& y) const
 -> std::remove_reference_t<decltype(y.total_states(), std::declval<MyType>())>
 {
-	MyType z; z.dfa_difference(*this, y);
+	MyType z;
+	if (y.total_states() == 0) {
+		z = *this;
+	}
+	else if (this->total_states() == 0) {
+		z.erase_all();
+	}
+	else {
+		z.dfa_difference(*this, y);
+	}
 	return z;
 }
 
