@@ -40,7 +40,7 @@ namespace terark {
 
 		size_t get_sigma() const { return sigma; }
 
-		void compile();
+		void translate_captures();
 
 		size_t captures() const { return m_captures.size(); }
 		size_t total_states() const;

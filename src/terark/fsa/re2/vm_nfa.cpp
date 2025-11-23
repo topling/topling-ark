@@ -35,7 +35,7 @@ back_append_str(basic_fstrvec<auchar_t>& sv, fstring str) {
 	back_append_bytes(sv, str.p, str.n);
 }
 
-void RE2_VM_NFA::compile() {
+void RE2_VM_NFA::translate_captures() {
 	assert(NULL != m_prog);
 	assert(-1 != m_exclude_char);
 	if (-1 == m_exclude_char) {

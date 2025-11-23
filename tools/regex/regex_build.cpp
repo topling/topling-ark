@@ -1030,7 +1030,7 @@ bool parse_regex(fstring regex1, MyDFA& mdfa) {
 		vmnfa.m_do_capture   = do_capture;
 		vmnfa.m_use_bin_val  = true; // now is always binary mode
 		vmnfa.m_val_prefix.assign(reinterpret_cast<char*>(&regex_id), 4);
-		vmnfa.compile();
+		vmnfa.translate_captures();
 	}
 	if (!be_quiet) {
 		fprintf(stderr, "line:%ld: make_dfa[%d]: nfa-states=%zd ... "
