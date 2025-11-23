@@ -238,13 +238,16 @@ const {
 			hi = tolower(hi);
 		}
 	*/
+		int exclude_char = m_exclude_char;
+		int foldcase = inst->foldcase();
+		int target = inst->out()+1;
 		for (int c = lo; c <= hi; ++c)
-			if (c != m_exclude_char)
+			if (c != exclude_char)
 			{
-				if (inst->foldcase() && c >= 'a' && c <= 'z') {
-					children->emplace_back(c - ('a' - 'A'), inst->out()+1);
+				if (foldcase && c >= 'a' && c <= 'z') {
+					children->emplace_back(c - ('a' - 'A'), target);
 				}
-				children->emplace_back(c, inst->out()+1);
+				children->emplace_back(c, target);
 			}
 	} else {
 	//	fprintf(stderr, "%s: s=%d opcode=%d\n", BOOST_CURRENT_FUNCTION, s, inst->opcode());
