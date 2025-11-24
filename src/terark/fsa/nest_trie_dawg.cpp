@@ -553,7 +553,7 @@ struct DictRankMetaData {
 	uint64_t m_max_layer_id;
 	uint64_t m_max_layer_size;
 	bool has_dict_rank_block() const {
-		 return m_num_layer && m_max_layer_id && m_max_layer_size;
+		 return m_num_layer && m_max_layer_size;
 	}
 };
 
