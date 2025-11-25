@@ -1262,6 +1262,7 @@ static bool ParseEscape(StringPiece* s, Rune* rp,
   int code;
   switch (c) {
     default:
+    DefaultLabel:
       if (c < Runeself && !isalpha(c) && !isdigit(c)) {
         // Escaped non-word characters are always themselves.
         // PCRE is not quite so rigorous: it accepts things like
@@ -1271,6 +1272,30 @@ static bool ParseEscape(StringPiece* s, Rune* rp,
         return true;
       }
       goto BadEscape;
+
+    case 'i':
+      if ('{' == (*s)[0]) {
+        const char* decimal_beg = s->data() + 1;
+        char* decimal_end = NULL;
+        long val = strtoul(decimal_beg, &decimal_end, 10);
+        if (decimal_end == decimal_beg) {
+          goto BadEscape;
+        }
+        if ('}' != *decimal_end) {
+          goto BadEscape;
+        }
+        if (val < 0 || val > 0x10FFFF) {
+          goto BadEscape;
+        }
+        *rp = Rune(val);
+        // `\i` has been consumed, so
+        // `\i{12345}`, extra number of chars `{}` is --- 2
+        s->remove_prefix(int(decimal_end - decimal_beg) + 2);
+        return true;
+      }
+      else {
+        goto DefaultLabel;
+      }
 
     // Octal escapes.
     case '1':
