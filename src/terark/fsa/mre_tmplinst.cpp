@@ -333,6 +333,7 @@ public:
 
 	template<class TR>
 	size_t match_with_tr(fstring text, TR tr) {
+		m_hits.erase_all();
 		m_idlist2.erase_all();
 		valvec<int>& idlist1 = m_regex_idvec;
 		size_t maxlen = 0;
@@ -347,6 +348,7 @@ public:
 			}
 		}
 		idlist1.swap(m_idlist2);
+		sort_a(idlist1);
 		return maxlen;
 	}
 	template<class TR>
@@ -402,6 +404,7 @@ public:
 
 	template<class TR>
 	size_t shortest_match_with_tr(fstring text, TR tr) {
+		m_hits.erase_all();
 		m_idlist2.erase_all();
 		valvec<int>& idlist1 = m_regex_idvec;
 		size_t minlen = size_t(-1); // size_t max
@@ -416,6 +419,7 @@ public:
 			}
 		}
 		idlist1.swap(m_idlist2);
+		sort_a(idlist1);
 		return minlen;
 	}
 	template<class TR>
@@ -465,6 +469,7 @@ public:
 	template<class TR>
 	size_t match_all_with_tr(fstring text, TR tr) {
 		m_regex_idvec.erase_all();
+		m_hits.erase_all();
 		const DFA* au = static_cast<const DFA*>(m_dfa);
         if (au->m_atom_dfa_num < m_options->maxBitmapSize) {
             return match_all_with_tr_bitmap<TR>(text, tr);
@@ -529,7 +534,6 @@ public:
 
     template<class TR>
 	size_t match_all_with_tr_bitmap(fstring text, TR tr) {
-		this->m_hits.erase_all();
 		for (size_t root : m_roots) {
 			match_all_with_tr_bitmap_one<TR>(root, text, tr);
 		}
@@ -626,6 +630,7 @@ public:
 	template<class TR>
 	size_t match_all_len_with_tr(fstring text, TR tr) {
 		m_cur_match.erase_all();
+		m_hits.erase_all();
 		for (size_t root : m_roots) {
 			match_all_len_with_tr_one<TR>(root, text, tr);
 		}
@@ -689,8 +694,7 @@ public:
 	}
 
 	bool has_hit(int regex_id) const override {
-		const DFA* au = static_cast<const DFA*>(m_dfa);
-		if (au->m_atom_dfa_num < m_options->maxBitmapSize) {
+		if (!m_hits.empty()) {
 			return size_t(regex_id) < m_hits.size() && m_hits.is1(regex_id);
 		} else {
 			return MultiRegexFullMatch::has_hit(regex_id);
@@ -1263,7 +1267,6 @@ size_t
 DenseDFA_DynDFA_256::full_match_with_tr(TR tr, const DFA* nfa,
 		fstring text, valvec<int>* matched, DynDFA_Context* ctx)
 {
-	matched->erase_all();
 	assert(power_set.size() >= 2);
 	size_t curr = dyn_root;
 	const byte_t* last_pos = NULL;
@@ -1309,7 +1312,6 @@ size_t
 DenseDFA_DynDFA_256::full_match_with_tr(TR tr, const VirtualMachineDFA* nfa,
 	   	fstring text, valvec<int>* matched, DynDFA_Context* ctx)
 {
-	matched->erase_all();
 	assert(power_set.size() >= 2);
 	size_t curr = dyn_root;
 	const byte_t* last_pos = NULL;
@@ -1380,7 +1382,6 @@ size_t
 DenseDFA_DynDFA_256::shortest_full_match_with_tr(TR tr, const DFA* nfa,
 		fstring text, valvec<int>* matched, DynDFA_Context* ctx)
 {
-	matched->erase_all();
 	assert(power_set.size() >= 2);
 
 	if (terark_unlikely(dyn_mem_size() > maxmem)) {
@@ -1423,7 +1424,6 @@ size_t
 DenseDFA_DynDFA_256::shortest_full_match_with_tr(TR tr, const VirtualMachineDFA* nfa,
 		fstring text, valvec<int>* matched, DynDFA_Context* ctx)
 {
-	matched->erase_all();
 	assert(power_set.size() >= 2);
 
 	if (terark_unlikely(dyn_mem_size() > maxmem)) {
@@ -1482,8 +1482,6 @@ DenseDFA_DynDFA_256::full_match_all_with_tr_sort_uniq(
         TR tr, const DFA* nfa,
 	   	fstring text, valvec<int>* matched, DynDFA_Context* ctx)
 {
-	matched->erase_all();
-	ctx->hits.resize_fill(0, false);
 	assert(power_set.size() >= 2);
 	size_t curr = dyn_root;
 	const byte_t* pos = text.udata();
@@ -1524,8 +1522,6 @@ DenseDFA_DynDFA_256::full_match_all_with_tr_sort_uniq(
         TR tr, const VirtualMachineDFA* nfa,
 		fstring text, valvec<int>* matched, DynDFA_Context* ctx)
 {
-	matched->erase_all();
-	ctx->hits.resize_fill(0, false);
 	assert(power_set.size() >= 2);
 	size_t curr = dyn_root;
 	const byte_t* pos = text.udata();
@@ -1587,8 +1583,6 @@ size_t
 DenseDFA_DynDFA_256::full_match_all_with_tr_bitmap(TR tr, const DFA* nfa,
 		fstring text, valvec<int>* matched, DynDFA_Context* ctx)
 {
-	matched->erase_all();
-	ctx->hits.resize_fill(0, false);
 	assert(power_set.size() >= 2);
 	size_t curr = dyn_root;
 	const byte_t* pos = text.udata();
@@ -1625,8 +1619,6 @@ size_t
 DenseDFA_DynDFA_256::full_match_all_with_tr_bitmap(TR tr, const VirtualMachineDFA* nfa,
 		fstring text, valvec<int>* matched, DynDFA_Context* ctx)
 {
-	matched->erase_all();
-	ctx->hits.resize_fill(0, false);
 	assert(power_set.size() >= 2);
 	size_t curr = dyn_root;
 	const byte_t* pos = text.udata();
@@ -1799,6 +1791,8 @@ public:
 	DynDFA_Context m_ctx;
 	template<class TR>
 	size_t match_with_tr(fstring text, TR tr) {
+		m_regex_idvec.erase_all();
+		m_ctx.hits.erase_all();
 		size_t fmlen = m_dyn->template full_match_with_tr<TR>
 			(tr, static_cast<const DFA*>(m_dfa), text, &m_regex_idvec, &m_ctx);
 		m_max_partial_match_len = m_dyn->m_max_partial_match_len;
@@ -1806,6 +1800,8 @@ public:
 	}
 	template<class TR>
 	size_t shortest_match_with_tr(fstring text, TR tr) {
+		m_regex_idvec.erase_all();
+		m_ctx.hits.erase_all();
 		size_t fmlen = m_dyn->template shortest_full_match_with_tr<TR>
 			(tr, static_cast<const DFA*>(m_dfa), text, &m_regex_idvec, &m_ctx);
 		m_max_partial_match_len = m_dyn->m_max_partial_match_len;
@@ -1814,6 +1810,8 @@ public:
 
 	template<class TR>
 	size_t match_all_with_tr(fstring text, TR tr) {
+		m_regex_idvec.erase_all();
+		m_ctx.hits.erase_all();
 		size_t num;
         const DFA* au = static_cast<const DFA*>(m_dfa);
         if (au->m_atom_dfa_num < m_options->maxBitmapSize) {
@@ -1894,8 +1892,7 @@ public:
 	}
 
 	bool has_hit(int regex_id) const override {
-		const DFA* au = static_cast<const DFA*>(m_dfa);
-		if (au->m_atom_dfa_num < m_options->maxBitmapSize) {
+		if (!m_ctx.hits.empty()) {
 			return size_t(regex_id) < m_ctx.hits.size() && m_ctx.hits.is1(regex_id);
 		} else {
 			return MultiRegexFullMatch::has_hit(regex_id);
