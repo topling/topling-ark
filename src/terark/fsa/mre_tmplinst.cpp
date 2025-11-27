@@ -337,18 +337,24 @@ public:
 		m_idlist2.erase_all();
 		valvec<int>& idlist1 = m_regex_idvec;
 		size_t maxlen = 0;
+		size_t num_match_states = 0;
 		for (size_t root : m_roots) {
 			size_t curlen = match_with_tr_for(root, text, tr);
 			if (curlen == maxlen) {
+				num_match_states++;
 				m_idlist2.append(idlist1);
 			}
 			else if (curlen > maxlen) {
+				num_match_states = 1;
 				maxlen = curlen;
 				m_idlist2.swap(idlist1);
 			}
 		}
 		idlist1.swap(m_idlist2);
-		sort_a(idlist1);
+		// regex_id vec of a VirtualMachineDFA final state is already sorted
+		if (!std::is_same_v<DFA, VirtualMachineDFA> || num_match_states > 1) {
+			sort_a(idlist1);
+		}
 		return maxlen;
 	}
 	template<class TR>
@@ -408,18 +414,24 @@ public:
 		m_idlist2.erase_all();
 		valvec<int>& idlist1 = m_regex_idvec;
 		size_t minlen = size_t(-1); // size_t max
+		size_t num_match_states = 0;
 		for (size_t root : m_roots) {
 			size_t curlen = shortest_match_with_tr_for(root, text, tr);
 			if (curlen == minlen) {
+				num_match_states++;
 				m_idlist2.append(idlist1);
 			}
 			else if (curlen < minlen) {
 				minlen = curlen;
+				num_match_states = 1;
 				m_idlist2.swap(idlist1);
 			}
 		}
 		idlist1.swap(m_idlist2);
-		sort_a(idlist1);
+		// regex_id vec of a VirtualMachineDFA final state is already sorted
+		if (!std::is_same_v<DFA, VirtualMachineDFA> || num_match_states > 1) {
+			sort_a(idlist1);
+		}
 		return minlen;
 	}
 	template<class TR>

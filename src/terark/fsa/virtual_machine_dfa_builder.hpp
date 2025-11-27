@@ -239,7 +239,9 @@ VirtualMachineDFA::Builder::Builder(const Au& au, valvec<State>* states)
 			if (au.nil_state != s) {
 				capture.rank.set1(i);
 				capture.dpos.push(capture.data.size());
+				size_t oldsize = capture.data.size();
 				size_t n = dfa_read_binary_int32(au, s, &capture.data);
+				sort_0(capture.data.data() + oldsize, n);
 				if (m_show_stat >= 3)
 					printf("state[%05zd]: n_caputure=%zd\n", i, n);
 			}
@@ -248,7 +250,9 @@ VirtualMachineDFA::Builder::Builder(const Au& au, valvec<State>* states)
 		if (au.nil_state != f) {
 			matchid.rank.set1(i);
 			matchid.dpos.push(matchid.data.size());
+			size_t oldsize = capture.data.size();
 			size_t n = dfa_read_matchid(&au, f, &matchid.data);
+			sort_0(matchid.data.data() + oldsize, n);
 			if (m_show_stat >= 3)
 				printf("state[%05zd]: n_matchid=%zd\n", i, n);
 		}
