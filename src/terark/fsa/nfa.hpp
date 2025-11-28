@@ -59,6 +59,8 @@ public:
 	size_t get_sigma() const { return sigma; }
 
 	size_t total_states() const { return states.size(); }
+	void erase_all() { states.erase_all(); }
+	void resize_states(size_t n) { states.resize(n); }
 
 	state_id_t new_state() {
 	   	state_id_t s = states.size();
