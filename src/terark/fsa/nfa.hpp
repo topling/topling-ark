@@ -32,6 +32,7 @@ template<class Transition = NFA_Transition4B>
 class GenericNFA {
 public:
 	typedef typename Transition::state_id_t state_id_t;
+	static constexpr state_id_t nil_state = state_id_t(-1);
 protected:
 	struct CharLess {
 		bool operator()(const Transition& x, state_id_t y) const { return x.ch < y; }
@@ -139,6 +140,7 @@ class NFA_BaseOnDFA {
 public:
 	typedef typename DFA::state_id_t state_id_t;
 	enum { sigma = DFA::sigma };
+	static constexpr state_id_t nil_state = DFA::nil_state;
 
 	DFA* dfa;
 	gold_hash_map<state_id_t, valvec<state_id_t> > epsilon;
@@ -343,6 +345,7 @@ struct CompactReverseNFA {
 	size_t get_sigma() const { return sigma; }
 
 	typedef StateID state_id_t;
+	static constexpr state_id_t nil_state = state_id_t(-1);
 
 	void clear() {
 		index.clear();

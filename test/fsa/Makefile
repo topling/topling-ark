@@ -14,5 +14,6 @@ EXE_SRCS += $(wildcard src/benchmark/*.cpp)
 
 TERARK_EXT_LIBS := fsa
 
+COMMON_C_FLAGS += -Wno-nonnull
 include ../../tools/fsa/Makefile.common
 
