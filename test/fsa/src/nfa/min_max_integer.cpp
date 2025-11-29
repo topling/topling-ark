@@ -188,6 +188,133 @@ void generate_test_set(string min, string max, vector<string>* accept_set, vecto
     *reject_set = clean_reject;
 }
 
+// 辅助：大数加法
+string str_add(string num, int val) {
+    string res = "";
+    int carry = val;
+    for (int i = num.length() - 1; i >= 0; i--) {
+        int d = num[i] - '0';
+        int sum = d + carry;
+        res += to_string(sum % 10);
+        carry = sum / 10;
+    }
+    while (carry) {
+        res += to_string(carry % 10);
+        carry /= 10;
+    }
+    reverse(res.begin(), res.end());
+    return res;
+}
+
+// 辅助：生成指定长度的随机数字串 (首位不为0，除非len=1且允许0)
+string random_num_str(int len) {
+    if (len <= 0) return "";
+    string s = "";
+    for (int i = 0; i < len; ++i) {
+        int d = rand() % 10;
+        if (i == 0 && len > 1 && d == 0) d = 1; // 保证无前导0
+        s += to_string(d);
+    }
+    return s;
+}
+
+void generate_min_info_test_set(string min, vector<string>* accept_set, vector<string>* reject_set) {
+    // 初始化随机种子
+    static bool seeded = false;
+    if (!seeded) { srand(time(NULL)); seeded = true; }
+
+    size_t n = min.length();
+
+    // ===========================
+    // 1. 生成 Reject Set (应被拒绝)
+    // ===========================
+
+    // R1. 长度比 min 小的数字 (如果 min 长度 > 1)
+    if (n > 1) {
+        reject_set->push_back(random_num_str(n - 1)); // 随机 n-1 位数
+        reject_set->push_back("0"); // 0 肯定比 n>1 的数小
+        if (n > 2) reject_set->push_back(random_num_str(1));
+    } else {
+        // 如果 min 长度为 1 (例如 "5")
+        // 如果 min 是 "0"，没有非负整数比它小，忽略
+        // 如果 min > "0"，添加比它小的个位数
+        if (min != "0") {
+            int val = min[0] - '0';
+            for (int i = 0; i < val; ++i) {
+                reject_set->push_back(to_string(i));
+            }
+        }
+    }
+
+    // R2. 长度相同，但数值比 min 小
+    // 只有当 min > 10^(n-1) 时才存在同长度更小的数
+    // 我们尝试构造 min - 1
+    if (min != "0") {
+        string smaller = BigIntUtils::sub_one_abs(min);
+        // 只有当减1后长度没变，才算同长度测试 (如果 "10" 变 "9"，归类到 R1 了，但也应该拒绝)
+        reject_set->push_back(smaller);
+
+        // 生成几个随机的同长度更小的数
+        // 方法：随机改小高位
+        string rand_small = min;
+        if (n > 0) {
+            int first_digit = min[0] - '0';
+            if (first_digit > 1) {
+                rand_small[0] = (char)('1' + (rand() % (first_digit - 1)));
+                // 后面的位随便置换
+                for(int i=1; i<n; ++i) rand_small[i] = (char)('0' + rand()%10);
+                if (GenericNFA<>::compare_int_str(rand_small, min) < 0)
+                    reject_set->push_back(rand_small);
+            }
+        }
+    }
+
+    // R3. 非法格式 (前导0, 前导+)
+    reject_set->push_back("0" + min);
+    reject_set->push_back("+"); // 纯符号
+    reject_set->push_back("+" + min);
+    if (n > 1) reject_set->push_back("0" + min.substr(1)); // "0" + 后缀
+    reject_set->push_back(""); // 空串
+
+    // ===========================
+    // 2. 生成 Accept Set (应被接受)
+    // ===========================
+
+    // A1. 边界值：min 本身
+    accept_set->push_back(min);
+
+    // A2. 边界值：min + 1
+    accept_set->push_back(BigIntUtils::add_one_abs(min));
+
+    // A3. 长度相同，但数值比 min 大
+    // 方法：修改第一位使其更大，或者保留前缀修改后缀
+    if (n > 0) {
+        size_t first = min[0] - '0';
+        if (first < 9) {
+            string larger = min;
+            larger[0] = (char)(min[0] + 1 + (rand() % (9 - first)));
+            // 后续位随机
+            for(size_t i=1; i<n; ++i) larger[i] = (char)('0' + rand()%10);
+            accept_set->push_back(larger);
+        } else {
+            // 如果第一位是9，尝试找后面位更大的
+             string larger = str_add(min, rand() % 100 + 2);
+             if (larger.length() == n) accept_set->push_back(larger);
+        }
+    }
+
+    // A4. 长度比 min 大的数字
+    accept_set->push_back(random_num_str(n + 1));
+    accept_set->push_back(random_num_str(n + 2));
+    accept_set->push_back("1" + string(n, '0')); // 最小的 n+1 位数
+
+    // 去重操作 (可选，为了整洁)
+    sort(accept_set->begin(), accept_set->end());
+    accept_set->erase(unique(accept_set->begin(), accept_set->end()), accept_set->end());
+    sort(reject_set->begin(), reject_set->end());
+    reject_set->erase(unique(reject_set->begin(), reject_set->end()), reject_set->end());
+}
+
 void test(fstring min, fstring max) {
     terark::profiling pf;
     typedef Automata<State32> DFA;
@@ -237,6 +364,55 @@ void test(fstring min, fstring max) {
     dfa1.write_dot_file(stem + ".dot");
 }
 
+void test_min_inf(fstring min) {
+    terark::profiling pf;
+    typedef Automata<State32> DFA;
+    typedef GenericNFA<> NFA;
+    NFA nfa1;
+    DFA dfa1;
+    nfa1.erase_all();
+    size_t root = nfa1.create_min_decimal(min);
+    TERARK_VERIFY_EQ(root, initial_state);
+    {
+        long t0 = pf.now();
+        size_t ps_size = nfa1.make_dfa(&dfa1, SIZE_MAX, SIZE_MAX);
+        long t1 = pf.now();
+        printf("min-info nfa.make_dfa time = %f'ms dfa states=%zd transition=%zd mem=%zd power_set.size=%zd\n",
+                pf.mf(t0, t1), dfa1.total_states(), dfa1.total_transitions(),
+                dfa1.mem_size(), ps_size);
+        long t2 = pf.now();
+        dfa1.graph_dfa_minimize();
+        long t3 = pf.now();
+        printf("min-info dfa.minimize time = %f'ms dfa states=%zd transition=%zd mem=%zd\n",
+                pf.mf(t2, t3), dfa1.total_states(), dfa1.total_transitions(),
+                dfa1.mem_size());
+    }
+    {
+        vector<string> accept_set, reject_set;
+        long t0 = pf.now();
+        generate_min_info_test_set(min.str(), &accept_set, &reject_set);
+        string accept_all, reject_all;
+        for (auto& val : accept_set) {
+            TERARK_VERIFY_S(dfa1.accept(val), "%s", val);
+            accept_all += val;
+            accept_all += " ";
+        }
+        for (auto& val : reject_set) {
+            TERARK_VERIFY_S(!dfa1.accept(val), "%s", val);
+            reject_all += val;
+            reject_all += " ";
+        }
+        long t1 = pf.now();
+        printf("min-info test time = %f'ms\n", pf.mf(t0, t1));
+        printf("min-info accept = %s\n", accept_all.c_str());
+        printf("min-info reject = %s\n", reject_all.c_str());
+    }
+    std::string stem = "min-inf-min-" + min;
+    dfa1.write_dot_file(stem + ".txt");
+    dfa1.path_zip("DFS");
+    dfa1.write_dot_file(stem + ".dot");
+}
+
 int main(int argc, char* argv[]) {
     if (argc < 3) {
         test("123", "123");
@@ -248,9 +424,20 @@ int main(int argc, char* argv[]) {
         test("0", "+321");
         test("0", "0");
         test("-23423345342", "721389479182374981274");
+
+        test_min_inf("0");
+        test_min_inf("1");
+        test_min_inf("9");
+        test_min_inf("111");
+        test_min_inf("999");
+        test_min_inf("9991");
+        test_min_inf("1999");
+
         return 0;
     }
     test(argv[1], argv[2]);
+    test_min_inf(argv[1]);
+    test_min_inf(argv[2]);
     return 0;
 }
 

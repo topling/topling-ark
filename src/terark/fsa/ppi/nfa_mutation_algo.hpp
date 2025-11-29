@@ -58,6 +58,83 @@ void add_range_move(state_id_t src, state_id_t dst, byte_t lo, byte_t hi) {
 	}
 }
 
+state_id_t create_min_decimal(fstring min) {
+    size_t len = min.length();
+    state_id_t start_node = new_state();
+
+    // ==========================================
+    // 1. 构建共享后缀链 (Suffix Chain)
+    // suf_states[k] 表示：从这里开始，必须精确接受 k 个 '0'-'9' 才能到达终态
+    // 用于处理 "位数相同但当前位更大" 的情况
+    // ==========================================
+    std::vector<state_id_t> suf_states(len + 1);
+    suf_states[0] = this->new_state();
+    this->set_final(suf_states[0]); // 接受 0 个字符即为终态
+
+    for (size_t k = 1; k <= len; ++k) {
+        suf_states[k] = new_state();
+        add_range_move(suf_states[k], suf_states[k-1], '0', '9');
+    }
+
+    // ==========================================
+    // 2. 分支 A：处理位数更多的情况 (Length > len)
+    // 逻辑：首位 [1-9] -> 接着至少 len 个 [0-9] -> 之后任意个 [0-9]
+    // ==========================================
+    state_id_t long_path_start = this->new_state();
+
+    // 如果 min 是 "0"，长度为 1。位数更多意味着长度 >= 2。
+    // 如果 min 是 "100"，长度为 3。位数更多意味着长度 >= 4。
+    // 路径结构： Start --(1-9)--> S1 --(0-9)--> S2 ... --(0-9)--> S_FinalLoop
+
+    // 只有当 min 不是空字符串时才生成此路径 (min是整数所以非空)
+    // 创建一条长度为 len 的链，用来消耗掉比 min 长度多出来的那些位数
+    state_id_t curr = long_path_start;
+    for (size_t i = 0; i < len; ++i) {
+        state_id_t next = this->new_state();
+        add_range_move(curr, next, '0', '9');
+        curr = next;
+    }
+    // 链条末端是终态，并且可以自环（接受更更长的数字）
+    this->set_final(curr);
+    add_range_move(curr, curr, '0', '9');
+
+    // 将 Start 连接到这个长数字逻辑的入口
+    // 注意：长数字不能有前导0，所以第一步只能是 '1'-'9'
+    add_range_move(start_node, long_path_start, '1', '9');
+
+    // ==========================================
+    // 3. 分支 B：处理位数相同的情况 (Length == len)
+    // 逻辑：逐位比较
+    // ==========================================
+    state_id_t match_curr = start_node;
+
+    for (size_t i = 0; i < len; ++i) {
+        byte_t digit = min[i];
+        size_t remaining_len = len - 1 - i;
+
+        // 情况 B.1: 当前位数字 > digit
+        // 如果当前位我们选了一个比 min[i] 大的数字 d
+        // 那么剩下的 remaining_len 位可以是任意数字。
+        // 我们直接转移到 suf_states[remaining_len]。
+        if (digit < '9') {
+            // 如果是首位，不能是前导0。但 min[0] 本身 >= '0' (若min="0") 或 '1'。
+            // 只要 digit < '9'，那么 digit+1 一定是 '1'~'9' 之间的，不可能是 '0'。
+            // 所以这里直接添加转移即可。
+            add_range_move(match_curr, suf_states[remaining_len], digit + 1, '9');
+        }
+
+        // 情况 B.2: 当前位数字 == digit
+        // 我们需要继续匹配下一位。
+        state_id_t match_next = this->new_state();
+
+        this->add_move(match_curr, match_next, digit);
+        match_curr = match_next;
+    }
+    this->set_final(match_curr);
+
+    return start_node;
+}
+
 state_id_t create_min_max_decimal(fstring min, fstring max) {
 	// 1. 规范化输入
 	// 移除 + 号
