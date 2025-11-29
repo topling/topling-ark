@@ -20,20 +20,20 @@ void add_path(state_id_t source, state_id_t target, const basic_fstring<Char> st
 	}
 }
 
-void add_word(const fstring word) {
-	add_word_aux(initial_state, word);
+state_id_t add_word(const fstring word) {
+	return add_word_aux(initial_state, word);
 }
-void add_word(state_id_t RootState, const fstring word) {
-	add_word_aux(RootState, word);
+state_id_t add_word(state_id_t RootState, const fstring word) {
+	return add_word_aux(RootState, word);
 }
-void add_word16(const fstring16 word) {
-	add_word_aux(initial_state, word);
+state_id_t add_word16(const fstring16 word) {
+	return add_word_aux(initial_state, word);
 }
-void add_word16(state_id_t RootState, const fstring16 word) {
-	add_word_aux(RootState, word);
+state_id_t add_word16(state_id_t RootState, const fstring16 word) {
+	return add_word_aux(RootState, word);
 }
 template<class Char>
-void add_word_aux(state_id_t RootState, const basic_fstring<Char> word) {
+state_id_t add_word_aux(state_id_t RootState, const basic_fstring<Char> word) {
 	state_id_t curr = RootState;
 	for (size_t i = 0; i < word.size(); ++i) {
 		state_id_t next = this->new_state();
@@ -43,6 +43,7 @@ void add_word_aux(state_id_t RootState, const basic_fstring<Char> word) {
 		curr = next;
 	}
 	this->set_final(curr);
+	return curr;
 }
 
 state_id_t create_min_max_decimal(fstring min, fstring max) {
