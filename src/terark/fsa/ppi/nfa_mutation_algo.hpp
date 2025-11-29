@@ -46,6 +46,18 @@ state_id_t add_word_aux(state_id_t RootState, const basic_fstring<Char> word) {
 	return curr;
 }
 
+state_id_t new_final_state() {
+	state_id_t s = this->new_state();
+	this->set_final(s);
+	return s;
+}
+
+void add_range_move(state_id_t src, state_id_t dst, byte_t lo, byte_t hi) {
+	for (byte_t c = lo; c <= hi; ++c) {
+		this->add_move(src, dst, c);
+	}
+}
+
 state_id_t create_min_max_decimal(fstring min, fstring max) {
 	// 1. 规范化输入
 	// 移除 + 号
