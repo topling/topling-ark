@@ -1596,8 +1596,10 @@ public:
 				for (InIter pos = beg; pos != end; ) {
 					unsigned ch = (byte_t)tr(byte_t(*pos));
 					++pos;
-					if (!(ch >= minch && ch <= maxch))
+					if (!(ch >= minch && ch <= maxch)) {
+						beg = pos;
 						return nil_state;
+					}
 				}
 				break;
 			}
