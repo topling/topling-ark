@@ -226,6 +226,8 @@ public:
 	valvec<MatchEntry> stack;
 	valvec<uint32_t> matchid_states;
 	febitvec hits;
+	class MatchStateThreadLocal* m_tls;
+	DynDFA_Context();
 };
 
 #define DispatchConcreteDFA(MyClassName, OnDFA) \
@@ -313,6 +315,9 @@ struct MatchStateThreadLocal {
 	}
 };
 static thread_local MatchStateThreadLocal g_MatchStateThreadLocal;
+DynDFA_Context::DynDFA_Context() {
+	m_tls = &g_MatchStateThreadLocal;
+}
 
 template<class DFA>
 class MultiRegexFullMatchTmpl : public MultiRegexFullMatch {
@@ -320,6 +325,7 @@ public:
 	febitvec m_hits;
 	valvec<uint32_t> m_roots;
 	valvec<int> m_idlist2;
+	MatchStateThreadLocal* m_tls = &g_MatchStateThreadLocal;
 
 	MultiRegexFullMatchTmpl(const DFA* au, bool isDyna) {
 		if (isDyna) {
@@ -600,7 +606,8 @@ public:
 		size_t curr = root;
 		const byte_t* pos = text.udata();
 		const byte_t* end = pos + text.n;
-		auto& tls = g_MatchStateThreadLocal;
+		TERARK_ASSERT_EQ(&g_MatchStateThreadLocal, m_tls);
+		auto& tls = *m_tls;
 		tls.clean_reset();
 		do {
 			if (au->is_pzip(curr)) {
@@ -716,6 +723,7 @@ public:
 	void clear_match_result() override {
 		MultiRegexFullMatch::clear_match_result();
 		m_hits.erase_all();
+		m_tls = &g_MatchStateThreadLocal;
 	}
 
 	MultiRegexFullMatch* clone() const override {
@@ -1696,7 +1704,8 @@ DenseDFA_DynDFA_256::full_match_all_len_with_tr(
 	size_t curr = dyn_root;
 	const byte_t* pos = text.udata();
 	const byte_t* end = pos + text.size();
-	auto& tls = g_MatchStateThreadLocal;
+	TERARK_ASSERT_EQ(&g_MatchStateThreadLocal, ctx->m_tls);
+	auto& tls = *ctx->m_tls;
 	tls.clean_reset();
 	do {
 		size_t full = dyn_full_match_root(nfa, curr);
@@ -1738,7 +1747,8 @@ DenseDFA_DynDFA_256::full_match_all_len_with_tr(
 	const byte_t* pos = text.udata();
 	const byte_t* end = pos + text.size();
 	BOOST_STATIC_ASSERT(VirtualMachineDFA::nil_state == nil_state);
-	auto& tls = g_MatchStateThreadLocal;
+	TERARK_ASSERT_EQ(&g_MatchStateThreadLocal, ctx->m_tls);
+	auto& tls = *ctx->m_tls;
 	tls.clean_reset();
 	do {
 		if (curr < dyn_root) {
@@ -1914,6 +1924,7 @@ public:
 	void clear_match_result() override {
 		MultiRegexFullMatch::clear_match_result();
 		m_ctx.hits.erase_all();
+		m_ctx.m_tls = &g_MatchStateThreadLocal;
 	}
 
 	MultiRegexFullMatch* clone() const override {
