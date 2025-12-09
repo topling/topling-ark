@@ -246,6 +246,7 @@ public:
 	virtual bool has_hit(int regex_id) const;
 
 	virtual void clear_match_result();
+	virtual const valvec<uint32_t>* get_roots() const;
 
 	valvec<PosLenRegexID>& mutable_all_match() { return m_all_match; }
 	const valvec<PosLenRegexID>& all_match() const { return m_all_match; }

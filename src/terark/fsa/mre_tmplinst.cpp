@@ -726,6 +726,10 @@ public:
 		m_tls = &g_MatchStateThreadLocal;
 	}
 
+	const valvec<uint32_t>* get_roots() const override {
+		return &m_roots;
+	}
+
 	MultiRegexFullMatch* clone() const override {
 		return new MultiRegexFullMatchTmpl(*this);
 	}
