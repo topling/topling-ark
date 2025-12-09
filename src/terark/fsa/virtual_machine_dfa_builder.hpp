@@ -519,6 +519,7 @@ void VirtualMachineDFA::Builder::build(VirtualMachineDFA& self, const Au& au
 	self.m_transition_num = au.total_transitions();
 }
 
+inline // this `inline' is just for producing weak symbol
 bool VirtualMachineDFA::Builder::reduce_pointer_width
 	(VirtualMachineDFA& self, state_id_t* dst_roots, size_t num_roots, bool enable_direct_map)
 {
