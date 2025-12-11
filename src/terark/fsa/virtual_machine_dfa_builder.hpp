@@ -2,6 +2,7 @@
 
 #include "virtual_machine_dfa.hpp"
 #include <terark/hash_strmap.hpp>
+#include <terark/sso.hpp>
 #include <terark/succinct/rank_select_simple.hpp>
 
 namespace terark {
@@ -252,9 +253,10 @@ VirtualMachineDFA::Builder::Builder(const Au& au, valvec<State>* states)
 			matchid.dpos.push(matchid.data.size());
 			size_t oldsize = matchid.data.size();
 			size_t n = dfa_read_matchid(&au, f, &matchid.data);
-			sort_0(matchid.data.data() + oldsize, n);
+			int* d = matchid.data.data() + oldsize;
+			sort_0(d, n);
 			if (m_show_stat >= 3)
-				printf("state[%05zd]: n_matchid=%zd\n", i, n);
+				printf("state[%05zd]: matchid: %s\n", i, *ssojoin(d, n));
 		}
 	}
 	capture.complete();
