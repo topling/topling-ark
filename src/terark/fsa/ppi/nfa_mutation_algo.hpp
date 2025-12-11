@@ -58,6 +58,44 @@ void add_range_move(state_id_t src, state_id_t dst, byte_t lo, byte_t hi) {
 	}
 }
 
+template<class SrcNFA>
+state_id_t fast_copy_nfa(const SrcNFA& src) {
+	size_t root = this->total_states();
+	this->resize_states(root + src.total_states());
+	valvec<state_id_t> epsilon;
+	valvec<CharTarget<size_t> > non_eps;
+	for (size_t i = 0; i < src.total_states(); i++) {
+		src.get_epsilon_targets(i, &epsilon);
+		src.get_non_epsilon_targets(i, non_eps);
+		for (state_id_t t : epsilon) {
+			this->add_epsilon(root + i, root + t);
+		}
+		for (CharTarget<size_t> t : non_eps) {
+			this->add_move(root + i, root + t.target, t.ch);
+		}
+		if (src.is_final(i)) {
+			this->set_final(root + i);
+		}
+	}
+	return root;
+}
+template<class SrcDFA>
+state_id_t fast_copy_dfa(const SrcDFA& src) {
+	size_t root = this->total_states();
+	this->resize_states(root + src.total_states());
+	valvec<CharTarget<size_t> > children;
+	for (size_t i = 0; i < src.total_states(); i++) {
+		src.get_all_move(i, &children);
+		for (CharTarget<size_t> t : children) {
+			this->add_move(root + i, root + t.target, t.ch);
+		}
+		if (src.is_term(i)) {
+			this->set_final(root + i);
+		}
+	}
+	return root;
+}
+
 state_id_t create_min_decimal(fstring min) {
     size_t len = min.length();
     state_id_t start_node = new_state();
