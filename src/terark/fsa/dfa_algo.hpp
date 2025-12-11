@@ -505,11 +505,12 @@ struct DFA_Key2 {
 template<class DFA, class Collector>
 size_t
 dfa_read_binary_int32(const DFA& dfa, size_t state, Collector* vec) {
-	auto read_int32 = [vec](size_t, fstring val, size_t) {
+	auto read_int32 = [vec,state](size_t nth, fstring val, size_t ts) {
 		assert(val.size() == sizeof(int32_t));
 		int32_t regex_id;
 		memcpy(&regex_id, val.data(), sizeof(regex_id));
-	//	printf("j=%zd regex_id=%d  text=%.*s\n", j, regex_id, text.ilen(), text.p);
+		if (0) // avoid used param warn
+			printf("dfa_read_binary_int32: state %zd, nth %zd, ts %zd, regex_id %d\n", state, nth, ts, regex_id);
 		vec->push_back(regex_id);
 	};
 	BOOST_STATIC_ASSERT(sizeof(size_t) >= 4);
