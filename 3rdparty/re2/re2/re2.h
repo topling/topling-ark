@@ -617,10 +617,10 @@ class RE2_DLL_EXPORT RE2 {
     void set_dot_nl(bool b) { dot_nl_ = b; }
 
     bool never_capture() const { return never_capture_; }
-    void set_never_capture(bool b) { never_capture_ = b; }
+    Options& set_never_capture(bool b) { never_capture_ = b; return *this; }
 
     bool case_sensitive() const { return case_sensitive_; }
-    void set_case_sensitive(bool b) { case_sensitive_ = b; }
+    Options& set_case_sensitive(bool b) { case_sensitive_ = b; return *this; }
 
     bool perl_classes() const { return perl_classes_; }
     void set_perl_classes(bool b) { perl_classes_ = b; }
@@ -671,6 +671,7 @@ class RE2_DLL_EXPORT RE2 {
 
   // Returns the options set in the constructor.
   const Options& options() const { return options_; };
+  const Prog* get_prog() const { return prog_; }
 
   // Argument converters; see below.
   static inline Arg CRadix(short* x);
