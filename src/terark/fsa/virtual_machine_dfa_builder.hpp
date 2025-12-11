@@ -250,7 +250,7 @@ VirtualMachineDFA::Builder::Builder(const Au& au, valvec<State>* states)
 		if (au.nil_state != f) {
 			matchid.rank.set1(i);
 			matchid.dpos.push(matchid.data.size());
-			size_t oldsize = capture.data.size();
+			size_t oldsize = matchid.data.size();
 			size_t n = dfa_read_matchid(&au, f, &matchid.data);
 			sort_0(matchid.data.data() + oldsize, n);
 			if (m_show_stat >= 3)
