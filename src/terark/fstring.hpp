@@ -203,7 +203,9 @@ struct TERARK_DLL_EXPORT basic_fstring {
 	explicit operator AnyStringType
 	() const { return AnyStringType(p, n); }
 
-//	std::basic_string<Char> operator*() const { return str(); }
+	const Char* operator*() const { return p; } // shorter .data()
+	size_t      operator+() const { return n; } // shorter .size()
+	int         operator~() const { return int(n); } // for %.*s, same as .ilen()
 
 	typedef ptrdiff_t difference_type;
 	typedef    size_t       size_type;
