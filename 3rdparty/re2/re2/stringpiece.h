@@ -63,6 +63,11 @@ class RE2_DLL_EXPORT StringPiece {
   int length() const { return length_; }
   bool empty() const { return length_ == 0; }
 
+  const char* operator*() const { return ptr_;    } // shorter .data()
+  size_t      operator+() const { return length_; } // shorter .size()
+  int         operator~() const { return length_; } // for %.*s, same as .ilen()
+  int         ilen()      const { return length_; }
+
   void clear() { ptr_ = NULL; length_ = 0; }
   void set(const char* data, int len) { ptr_ = data; length_ = len; }
   void set(const char* str) {
