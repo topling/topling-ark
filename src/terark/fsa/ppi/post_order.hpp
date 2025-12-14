@@ -11,7 +11,7 @@ bool has_cycle_loop(state_id_t curr, Color* mark) const {
 		return false;
 	mark[curr] = Color::Grey;
 	bool hasCycle = false;
-	for_each_dest(curr, [=,&hasCycle](state_id_t t) {
+	for_each_dest(curr, [this,mark,&hasCycle](state_id_t t) {
 		hasCycle = hasCycle || this->has_cycle_loop(t, mark);
 	});
 	mark[curr] = Color::Black;

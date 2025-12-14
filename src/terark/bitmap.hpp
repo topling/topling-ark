@@ -13,6 +13,10 @@ namespace terark {
 template<int TotalBitsMaybeUnaligned, class BlockT = bm_uint_t>
 class static_bitmap {
 public:
+#if defined(__GNUC__) && __cplusplus >= 202002
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-enum-enum-conversion"
+#endif
     enum { BlockBits = sizeof(BlockT) * 8 };
 	enum { TotalBits = TotalBitsMaybeUnaligned };
     enum { TotalBitsAligned = (TotalBits + BlockBits - 1) & ~(BlockBits - 1)};
@@ -20,6 +24,9 @@ public:
     enum { BlockCount = BlockN };
 	enum { ExtraBits = TotalBitsAligned - TotalBitsMaybeUnaligned };
 	enum {  LastBits = ExtraBits ? BlockBits - ExtraBits : 0 };
+#if defined(__GNUC__) && __cplusplus >= 202002
+#pragma GCC diagnostic pop
+#endif
 	static const BlockT ExtraMax = (BlockT(1) << ExtraBits) - 1;
 	static const BlockT LastMask = (BlockT(1) <<  LastBits) - 1;
     typedef BlockT block_t;
