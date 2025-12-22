@@ -206,7 +206,7 @@ int run() {
 		Aho_Corasick_DoubleArray_8B da_ac;
 		double_array_ac_build_from_au(da_ac, au_ac, "DFS");
 		t1 = pf.now();
-		fprintf(stderr, "double_array_trie: states=%ld, transition=%ld, mem_size=%ld, time=%f's\n",
+		printf("double_array_trie: states=%ld, transition=%ld, mem_size=%ld, time=%f's\n",
 				(long)da_ac.total_states(),
 				(long)da_ac.total_transitions(),
 				(long)da_ac.mem_size(),
