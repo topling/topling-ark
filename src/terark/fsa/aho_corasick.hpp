@@ -274,8 +274,8 @@ public:
 		assert(!output.empty());
 		size_t curr = initial_state;
 		auto loutput = output.data();
-		for(size_t pos = 0; pos < size_t(str.n); ++pos) {
-			size_t c = (byte_t)tr((byte_t)str.p[pos]);
+		for(size_t pos = 0; pos < size_t(str.n);) {
+			size_t c = (byte_t)tr((byte_t)str.p[pos++]);
 			size_t next;
 			while (lstates[next = lstates[curr].child0() + c].parent() != curr) {
 				if (initial_state == curr)
@@ -292,7 +292,7 @@ public:
 				assert(oBeg <= oEnd);
 				assert(oEnd <= output.size());
 				if (oBeg < oEnd) {
-					size_t end_pos_of_hit = pos + 1;
+					size_t end_pos_of_hit = pos;
 					on_hit_word(end_pos_of_hit, loutput + oBeg, oEnd - oBeg, curr);
 				}
 			}
@@ -308,8 +308,8 @@ public:
 	const {
 		assert(!output.empty());
 		size_t curr = initial_state;
-		for(size_t pos = 0; pos < size_t(str.n); ++pos) {
-			byte_t c = (byte_t)tr((byte_t)str.p[pos]);
+		for(size_t pos = 0; pos < size_t(str.n);) {
+			byte_t c = (byte_t)tr((byte_t)str.p[pos++]);
 			size_t next;
 			while ((next = this->state_move(curr, c)) == nil_state) {
 				if (initial_state == curr)
@@ -326,7 +326,7 @@ public:
 				assert(oBeg <= oEnd);
 				assert(oEnd <= output.size());
 				if (oBeg < oEnd) {
-					size_t end_pos_of_hit = pos + 1;
+					size_t end_pos_of_hit = pos;
 					on_hit_word(end_pos_of_hit, output.data() + oBeg, oEnd - oBeg, curr);
 				}
 			}
@@ -451,8 +451,9 @@ public:
     void scan_stream(InputStream input, OnHitWord on_hit_word, TR tr) const {
 		assert(!output.empty());
         state_id_t curr = initial_state;
-		for (size_t pos = 0; !input.empty(); ++pos) {
+		for (size_t pos = 0; !input.empty();) {
             byte_t c = tr(*input); ++input;
+            pos++;
             state_id_t next;
             while ((next = this->state_move(curr, c)) == nil_state) {
                 if (initial_state == curr)
@@ -469,7 +470,7 @@ public:
 				assert(oBeg <= oEnd);
 				assert(oEnd <= output.size());
 				if (oBeg < oEnd) {
-					size_t end_pos_of_hit = pos + 1;
+					size_t end_pos_of_hit = pos;
 					on_hit_word(end_pos_of_hit, output.data() + oBeg, oEnd-oBeg, curr);
 				}
 			}
