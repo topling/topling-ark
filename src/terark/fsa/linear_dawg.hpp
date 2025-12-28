@@ -559,11 +559,26 @@ private:
 				idx += j+1;
 			}
 			if (au.is_pzip(curr)) {
+
+				#if defined(__clang__)
+					#pragma clang diagnostic push
+					#pragma clang diagnostic ignored "-Wstringop-overflow="
+				#elif defined(__GNUC__)
+					#pragma GCC diagnostic push
+					#pragma GCC diagnostic ignored "-Wstringop-overflow="
+				#endif // Fuck GCC LTO
+
 				const unsigned char* zd = au.get_zpath_data(curr, NULL).udata()-1;
 				int zlen = *zd;
 				size_t zp_slots = slots_of_bytes(zlen+1);
 				memcpy(states[idx].u.z.data, zd, zlen+1);
 				idx += zp_slots;
+
+				#if defined(__clang__)
+					#pragma clang diagnostic pop
+				#elif defined(__GNUC__)
+					#pragma GCC diagnostic pop
+				#endif // Fuck GCC LTO
 			}
 			walker.putChildren(&au, curr);
 		}
