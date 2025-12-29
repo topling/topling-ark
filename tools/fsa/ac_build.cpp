@@ -56,6 +56,9 @@ Options:
       input order
    -R
       Reverse pattern, for matching by MultiRegexFullMatch
+   -s separator
+      word is before separator in each line of Input-Pattern-File, for example
+	  each line is word \t freq, but we just need word
 
 Notes:
    word_id will be set as bytes lexicalgraphical ordinal number.
@@ -79,6 +82,8 @@ bool save_as_mmap = true;
 // 1: save word length
 // 2: save word length and content
 int  ac_word_ext = 0;
+
+int word_sepa = -1;
 
 template<class Au>
 int run() {
@@ -106,6 +111,12 @@ int run() {
 	while (line.getline(finput.self_or(stdin)) >= 0) {
 		lineno++;
 		line.chomp();
+		if (word_sepa >= 0) {
+			if (auto sepa_ptr = fstring(line).strchr(byte_t(word_sepa))) {
+				const_cast<char*>(sepa_ptr)[0] = '\0';
+				line.n = sepa_ptr - line.p;
+			}
+		}
 		if (0 == line.n) continue;
         if (reverse_pattern) {
             std::reverse(line.begin(), line.end());
@@ -249,7 +260,7 @@ int run() {
 int main(int argc, char* argv[]) {
 	int state_bytes = 16;
 	for (;;) {
-		int opt = getopt(argc, argv, "b:d:e:O:F:htm::LR");
+		int opt = getopt(argc, argv, "b:d:e:O:F:htm::LRs:");
 		switch (opt) {
 		default:
 			usage(argv[0]);
@@ -292,6 +303,18 @@ int main(int argc, char* argv[]) {
         case 'R':
             reverse_pattern = true;
             break;
+		case 's': {
+			bool has_error = false;
+			std::string sepa = unescape(optarg, [&](size_t pos) {
+				has_error = true;
+				return false;
+			});
+			if (has_error || sepa.size() != 1) {
+				fprintf(stderr, "invalid escape -s %s\n", optarg);
+				return 1;
+			}
+			word_sepa = byte_t(sepa[0]);
+			break; }
 		}
 	}
 GetoptDone:
