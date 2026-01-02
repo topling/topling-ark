@@ -50,10 +50,12 @@ struct Hopcroft {
             std::sort(this->begin(), this->end());
         }
         void resize0() {
-            this->ch = -1;
-            this->resize(0);
-            if (this->capacity() > 8*1024)
+            if (terark_unlikely(this->capacity() > 1024*1024)) {
+                this->trim(4*1024);
                 this->shrink_to_fit();
+            }
+            this->erase_all();
+            this->ch = -1;
         }
         void insert(StateID x) { this->push_back(x); }
         ptrdiff_t ch; // for better alignment
