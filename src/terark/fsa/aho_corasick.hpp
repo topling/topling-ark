@@ -263,6 +263,23 @@ public:
 		tpl_ac_scan_aux<OnHitWord, TR>(str, on_hit_word, tr, states.data());
 	}
 
+	template<class OnHitWord>
+	terark_no_alias
+	void tpl_ac_scan(fstring str, size_t beg, size_t len, OnHitWord on_hit_word) const {
+		TERARK_ASSERT_LE(beg, str.size());
+		TERARK_ASSERT_LE(len, str.size());
+		TERARK_ASSERT_LE(beg + len, str.size());
+		tpl_ac_scan<OnHitWord, IdentityTR>(str, beg, len, on_hit_word, IdentityTR());
+	}
+	template<class OnHitWord, class TR>
+	terark_no_alias
+	void tpl_ac_scan(fstring str, size_t beg, size_t len, OnHitWord on_hit_word, TR tr) const {
+		TERARK_ASSERT_LE(beg, str.size());
+		TERARK_ASSERT_LE(len, str.size());
+		TERARK_ASSERT_LE(beg + len, str.size());
+		tpl_ac_scan_aux<OnHitWord, TR>(str.p, beg, len, on_hit_word, tr, states.data());
+	}
+
 	// specialized for DoubleArray, this function is extremely fast
 	// 720MB/s on i7-4790, msvc2013 x86_32bit, 1000 patterns
 	template<class OnHitWord, class TR>
@@ -271,11 +288,21 @@ public:
 	void tpl_ac_scan_aux(const fstring str, OnHitWord on_hit_word, TR tr,
 						 const AC_State<DA_State8B>* lstates)
 	const {
+		tpl_ac_scan_aux<OnHitWord, TR>(str.p, 0, str.n, on_hit_word, tr, lstates);
+	}
+	template<class OnHitWord, class TR>
+	inline
+	terark_no_alias
+	void tpl_ac_scan_aux(const char* str_p, size_t beg, size_t len,
+						 OnHitWord on_hit_word, TR tr,
+						 const AC_State<DA_State8B>* lstates)
+	const {
 		assert(!output.empty());
 		size_t curr = initial_state;
 		auto loutput = output.data();
-		for(size_t pos = 0; pos < size_t(str.n);) {
-			size_t c = (byte_t)tr((byte_t)str.p[pos++]);
+		size_t endpos = beg + len;
+		for(size_t pos = beg; pos < endpos;) {
+			size_t c = (byte_t)tr((byte_t)str_p[pos++]);
 			size_t next;
 			while (lstates[next = lstates[curr].child0() + c].parent() != curr) {
 				if (initial_state == curr)
