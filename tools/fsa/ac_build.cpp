@@ -8,6 +8,7 @@
 #include <terark/util/profiling.hpp>
 #include <terark/util/autoclose.hpp>
 #include <getopt.h>
+#include <filesystem>
 
 #if defined(__DARWIN_C_ANSI)
 	#define malloc_stats() (void)(0)
@@ -230,6 +231,30 @@ int run() {
 		else {
 			printf("write double array AC DFA file: %s\n", daac_outfile);
 			da_ac.save_to(daac_outfile);
+		}
+	}
+	if (getEnvBool("AC_BUILD_PRINT_STAT")) {
+		valvec<unsigned> fail_refcnt(au_ac.total_states());
+		DFS_TreeWalker<uint32_t> walker;
+		walker.putRoot(initial_state);
+		while (!walker.is_finished()) {
+			uint32_t curr = walker.next();
+			uint32_t fail = au_ac.internal_get_states()[curr].lfail;
+			TERARK_ASSERT_LT(fail, au_ac.total_states());
+			fail_refcnt[fail]++;
+			walker.putChildren(&au_ac, curr);
+		}
+		sort_a(fail_refcnt, std::greater<unsigned>());
+		double total_div100 = au_ac.total_states() / 100.0;
+		std::filesystem::path fname(outfile ? outfile : daac_outfile);
+		fname.replace_extension(".stat");
+		Auto_close_fp fp(fopen(fname.c_str(), "w"));
+		for(size_t i = 0; i < fail_refcnt.size(); ) {
+			size_t j = i;
+			auto cnt = fail_refcnt[i];
+			do j++; while (j < fail_refcnt.size() && fail_refcnt[j] == cnt);
+			fprintf(fp, "%u\t%zd\t%.3f%%\n", cnt, j - i, (j-i)/total_div100);
+			i = j;
 		}
 	}
 	if (full_dfa_file) {
