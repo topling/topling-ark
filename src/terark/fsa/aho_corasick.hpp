@@ -66,6 +66,9 @@ BOOST_STATIC_ASSERT(sizeof(AC_State<DA_State8B>) == 16);
 
 #pragma pack(pop)
 
+// to be customized at call side
+inline bool adl_ac_scan_should_prefetch(...) { return false; }
+
 // Aho-Corasick implementation
 template<class BaseAutomata>
 class Aho_Corasick : public BaseAutomata, public BaseAC {
@@ -319,6 +322,11 @@ public:
 				assert(oBeg <= oEnd);
 				assert(oEnd <= output.size());
 				if (oBeg < oEnd) {
+					// to be customized at call side, should be a real constexpr
+					if (adl_ac_scan_should_prefetch(&on_hit_word)) {
+						size_t xc = (byte_t)str_p[pos];
+						_mm_prefetch((const char*)(&lstates[lstates[curr].child0() + xc]), _MM_HINT_T0);
+					}
 					size_t end_pos_of_hit = pos;
 					on_hit_word(end_pos_of_hit, loutput + oBeg, oEnd - oBeg, curr);
 				}
