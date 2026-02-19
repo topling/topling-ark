@@ -19,6 +19,7 @@ struct AC_State<State32> : State32 {
     uint32_t output; // start index to total output set
     uint32_t lfail;  // link to fail state
 	const static uint32_t max_output = max_state;
+	const static uint32_t max_zpath_offset = 0;
 };
 BOOST_STATIC_ASSERT(sizeof(AC_State<State32>) == 16);
 
@@ -34,6 +35,7 @@ BOOST_STATIC_ASSERT(sizeof(AC_State<State32>) == 16);
 		unsigned output : 30; // start index to total output set
 		unsigned lfail  : 26; // link to fail state
 		const static uint32_t max_output = max_state;
+		const static uint32_t max_zpath_offset = 0;
 	};
 	BOOST_STATIC_ASSERT(sizeof(AC_State<State5B>) == 12);
 #endif
@@ -49,6 +51,7 @@ struct AC_State<State4B> : State4B {
 	const static uint32_t max_state = 0x1FFFE; // 128K-2
 //	const static uint32_t nil_state = 0x1FFFF; // 128K-1, Don't override nil_state
 	const static uint32_t max_output = 0x07FFF; //  32K-1
+	const static uint32_t max_zpath_offset = 0;
 };
 BOOST_STATIC_ASSERT(sizeof(AC_State<State4B>) == 8);
 
@@ -61,8 +64,42 @@ struct AC_State<DA_State8B> : DA_State8B {
     uint32_t output; // start index to total output set
     uint32_t lfail;  // link to fail state
 	const static uint32_t max_output = max_state;
+	const static uint32_t max_zpath_offset = 0;
 };
 BOOST_STATIC_ASSERT(sizeof(AC_State<DA_State8B>) == 16);
+
+template<class State> struct PZ_AC_State;
+
+template<>
+struct PZ_AC_State<DA_State8B> : DA_State8B {
+    PZ_AC_State() {
+        output = 0;
+        lfail  = 0; // initial_state
+		pzpos  = 0;
+		pzlen1 = 0;
+		pzlen2 = 0;
+		pzlen3 = 0;
+    }
+	void set_pzip(uint32_t pzpos1, uint32_t pzlen) {
+		TERARK_ASSERT_LE(pzlen, 254u);
+		pzpos = pzpos1;
+		pzlen1 = (pzlen >> 5) & 7;
+		pzlen2 = (pzlen >> 3) & 3;
+		pzlen3 = (pzlen >> 0) & 7;
+	}
+	size_t get_zlen() const { return pzlen1 << 5 | pzlen2 << 3 | pzlen3; }
+	bool    is_pzip() const { return (pzlen1 | pzlen2 | pzlen3) != 0; }
+
+    uint32_t output : 29; // start index to total output set
+	uint32_t pzlen1 :  3;
+    uint32_t lfail  : 30; // link to fail state
+	uint32_t pzlen2 :  2;
+	uint32_t pzpos  : 29;
+	uint32_t pzlen3 :  3;
+	const static uint32_t max_output = (1u << 29) - 1;
+	const static uint32_t max_zpath_offset = (1u << 29) - 1;
+};
+BOOST_STATIC_ASSERT(sizeof(PZ_AC_State<DA_State8B>) == 20);
 
 #pragma pack(pop)
 
@@ -79,6 +116,8 @@ private:
 //	word_id_t is typedef'ed in BaseAC
     typedef valvec<word_id_t> output_t;
 	output_t output; // compacted output
+
+	valvec<byte_t> m_zpool;
 
     void set_fail(state_id_t s, state_id_t f) { states[s].lfail = f; }
     state_id_t  ffail(state_id_t s) const { return states[s].lfail; }
@@ -167,6 +206,7 @@ public:
 		assert(typeid(*this) == typeid(y));
 		super::risk_swap(y);
 		output.swap(y.output);
+		m_zpool.swap(y.m_zpool);
 		BaseAC::swap(y);
 	}
 	using super::total_states;
@@ -505,6 +545,46 @@ public:
         }
     }
 
+	// for path_zip
+	void compute_indegree(size_t RootState, valvec<state_id_t>& in) const {
+		compute_indegree(&RootState, 1, in);
+	}
+	void
+	compute_indegree(const size_t* pRoots, size_t nRoots, valvec<state_id_t>& in)
+	const {
+		TERARK_VERIFY_GE(nRoots, 1);
+		TERARK_VERIFY_LE(nRoots, this->total_states());
+		size_t initial_cap = nRoots + this->get_sigma();
+		valvec<state_id_t> stack(initial_cap, valvec_reserve());
+		for(size_t i = 0; i < nRoots; ++i) {
+			size_t root = pRoots[i];
+			assert(root < this->total_states());
+			ASSERT_isNotFree(root);
+			stack.unchecked_push_back(root);
+		}
+		in.resize_fill(this->total_states(), 0);
+		auto in_data = in.data();
+		auto lstates = this->states.data();
+		while (!stack.empty()) {
+			state_id_t curr = stack.pop_val();
+			auto lfail = lstates[curr].lfail;
+			TERARK_ASSERT_LT(lfail, this->total_states());
+			in_data[lfail]++;
+			this->for_each_dest_rev(curr, [&stack](state_id_t child) {
+				in_data[child]++;
+				stack.push_back(child);
+			});
+		}
+	}
+	template<class Source, class StateIdmap> // do nothing
+	friend void adl_add_other_link(Aho_Corasick* self, const Source& src_trie,
+								   size_t src_state, const StateIdmap& map) {
+		auto dst_state = map[src_state];
+		auto src_lfail = src_trie.internal_get_states()[src_state].lfail;
+		self->states[dst_state].lfail = map[src_lfail];
+	}
+	// end for path_zip
+
 private:
 	template<class DoubleArrayAC, class Y_AC>
 	friend void double_array_ac_build_from_au(DoubleArrayAC& x_ac, const Y_AC& y_ac, const char* BFS_or_DFS);
@@ -575,6 +655,13 @@ void double_array_ac_build_from_au(DoubleArrayAC& x_ac, const Y_AC& y_ac, const 
 	assert(x_ac.output.size() == 0);
 	x_ac.output.reserve(y_ac.output.size());
 	x_ac.states[0].output = 0;
+	if (X_AC::state_t::max_zpath_offset) {
+		TERARK_VERIFY_EQ(x_ac.m_zpool.size(), 0); // must be empty
+		TERARK_VERIFY_LE(y_ac.total_zpath_len(), X_AC::state_t::max_zpath_offset);
+		x_ac.m_zpool.reserve(y_ac.total_zpath_len());
+	} else {
+		TERARK_VERIFY_EQ(y_ac.total_zpath_len(), 0);
+	}
 	for (size_t x = 0; x < map_x2y.size()-extra; ++x) {
 		typename Y_AC::state_id_t y = map_x2y[x];
 		if (Y_AC::nil_state != y) {
@@ -583,6 +670,15 @@ void double_array_ac_build_from_au(DoubleArrayAC& x_ac, const Y_AC& y_ac, const 
 			size_t out0 = y_ac.states[y+0].output;
 			size_t out1 = y_ac.states[y+1].output;
 			x_ac.output.append(y_ac.output.data()+out0, y_ac.output.data()+out1);
+			if constexpr (Y_AC::state_t::max_zpath_offset) {
+				if (y_ac.is_pzip(y)) {
+					fstring zp = y_ac.get_zpath_data(y);
+					x_ac.set_pzip(x_ac.m_zpool.size(), zp.size());
+					x_ac.m_zpool.append(zp.data(), zp.size());
+				}
+			} else {
+				TERARK_ASSERT_F(!y_ac.is_pzip(y), "%u", y);
+			}
 		}
 		x_ac.states[x+1].output = x_ac.output.size();
 	}
@@ -590,6 +686,8 @@ void double_array_ac_build_from_au(DoubleArrayAC& x_ac, const Y_AC& y_ac, const 
 	x_ac.n_words = y_ac.n_words;
 	x_ac.offsets = y_ac.offsets;
 	x_ac.strpool = y_ac.strpool;
+	x_ac.m_zpath_states = y_ac.num_zpath_states();
+	x_ac.m_total_zpath_len = y_ac.total_zpath_len();
 }
 
 template<class BaseAutomata>

@@ -346,6 +346,9 @@ protected:
 	uint64_t m_adfa_total_words_len;
 };
 
+template<class StateIdmap> // do nothing
+void adl_add_other_link(BaseDFA*, const BaseDFA&, size_t, const StateIdmap&) {}
+
 // The whole DFA is not required to be acyclic, only require acylic from 'root'
 class TERARK_DLL_EXPORT AcyclicPathDFA : public BaseDFA {
 public:

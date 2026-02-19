@@ -140,6 +140,7 @@ void path_zip_imp(const size_t* pRoots, size_t nRoots
 		    assert(s2ds[t] < ds);
 			allmove.emplace_back(c, s2ds[t]);
 		});
+		adl_add_other_link(this, src, xparent, s2ds);
 		auto zs = s2ds[xparent];
 		this->add_all_move(zs, allmove);
 		if (walker.path.size() >= min_compress_path_len) {
@@ -154,6 +155,7 @@ void path_zip_imp(const size_t* pRoots, size_t nRoots
 				auto ychild  = s2ds[path[j+1]];
 				assert(yparent < ds);
 				assert(ychild  < ds);
+				adl_add_other_link(this, src, path[j+0], s2ds);
 				this->add_move_checked(yparent, ychild, walker.strp[j]);
 				assert(!this->more_than_one_child(yparent));
 			}
