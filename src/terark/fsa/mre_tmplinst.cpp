@@ -270,7 +270,8 @@ inline static void collect_hits(febitvec* hits, valvec<int>* matchVec) {
 	}
 }
 
-struct MatchStateThreadLocal {
+class MatchStateThreadLocal {
+public:
 	gold_hash_set<int>           m_uniq_regex;
 	gold_hash_set<int>           m_uniq_states;
 	valvec<std::pair<int,int> >  m_pos_state_vec;
