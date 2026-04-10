@@ -707,7 +707,7 @@ ComposedRegex<MyDFA>* parse() {
 	} else {
 		m_pos = 0; force_capture = false;
 	}
-	const char* open1 = m_code.strstr(m_pos, "{{");
+	const char* open1 = m_code.strstr("{{", m_pos);
 	if (open1) {
 		const char* open0 = open1;
 		while (open0 > m_code.begin() && open0[-1] == '\\') --open0;
