@@ -14,6 +14,7 @@
 #include "fsa.hpp"
 #include "graph_walker.hpp"
 #include "power_set.hpp"
+#include <terark/sso.hpp>
 
 namespace terark {
 
