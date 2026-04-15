@@ -561,8 +561,6 @@ private:
 			if (au.is_pzip(curr)) {
 
 				#if defined(__clang__)
-					#pragma clang diagnostic push
-					#pragma clang diagnostic ignored "-Wstringop-overflow="
 				#elif defined(__GNUC__)
 					#pragma GCC diagnostic push
 					#pragma GCC diagnostic ignored "-Wstringop-overflow="
@@ -575,7 +573,6 @@ private:
 				idx += zp_slots;
 
 				#if defined(__clang__)
-					#pragma clang diagnostic pop
 				#elif defined(__GNUC__)
 					#pragma GCC diagnostic pop
 				#endif // Fuck GCC LTO
