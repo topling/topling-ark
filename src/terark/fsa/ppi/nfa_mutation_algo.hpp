@@ -20,6 +20,20 @@ void add_path(state_id_t source, state_id_t target, const basic_fstring<Char> st
 	}
 }
 
+template<class Char>
+state_id_t add_path(state_id_t source, const basic_fstring<Char> str) {
+	TERARK_ASSERT_LT(source, this->total_states());
+	state_id_t curr = source;
+	for (size_t i = 0; i < str.size(); ++i) {
+		auchar_t ch = str.uch(i);
+		assert(ch < this->get_sigma());
+		state_id_t next = this->new_state();
+		this->add_move(curr, next, ch);
+		curr = next;
+	}
+	return curr;
+}
+
 state_id_t add_word(const fstring word) {
 	return add_word_aux(initial_state, word);
 }
@@ -34,16 +48,9 @@ state_id_t add_word16(state_id_t RootState, const fstring16 word) {
 }
 template<class Char>
 state_id_t add_word_aux(state_id_t RootState, const basic_fstring<Char> word) {
-	state_id_t curr = RootState;
-	for (size_t i = 0; i < word.size(); ++i) {
-		state_id_t next = this->new_state();
-		auchar_t ch = word.uch(i);
-		assert(ch < this->get_sigma());
-		this->add_move(curr, next, ch);
-		curr = next;
-	}
-	this->set_final(curr);
-	return curr;
+	state_id_t tail = add_path(RootState, word);
+	this->set_final(tail);
+	return tail;
 }
 
 state_id_t new_final_state() {
