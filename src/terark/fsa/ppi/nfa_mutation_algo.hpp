@@ -115,6 +115,7 @@ state_id_t create_min_decimal(fstring min) {
     std::vector<state_id_t> suf_states(len + 1);
     suf_states[0] = this->new_state();
     this->set_final(suf_states[0]); // 接受 0 个字符即为终态
+    m_tmp_finalstates.push_back(suf_states[0]);
 
     for (size_t k = 1; k <= len; ++k) {
         suf_states[k] = new_state();
@@ -141,6 +142,7 @@ state_id_t create_min_decimal(fstring min) {
     }
     // 链条末端是终态，并且可以自环（接受更更长的数字）
     this->set_final(curr);
+    m_tmp_finalstates.push_back(curr);
     add_range_move(curr, curr, '0', '9');
 
     // 将 Start 连接到这个长数字逻辑的入口
@@ -176,6 +178,7 @@ state_id_t create_min_decimal(fstring min) {
         match_curr = match_next;
     }
     this->set_final(match_curr);
+    m_tmp_finalstates.push_back(match_curr);
 
     return start_node;
 }
@@ -487,149 +490,30 @@ state_id_t _create_any_fraction_state() {
 	add_range_move(s, s, '0', '9');
 	return s;
 }
+state_id_t create_min_realnum_ge_int(fstring int_part) {
+	m_tmp_finalstates.erase_all(); // for create_min_decimal
+	state_id_t root = this->create_min_decimal(int_part);
+	state_id_t xdot = this->new_state();
+	state_id_t tail = this->_create_any_fraction_state(); // [0-9]*
+	this->add_range_move(xdot, tail, '0', '9'); // [0-9]+
+	for (state_id_t s : m_tmp_finalstates) {
+		this->add_move(s, xdot, '.'); // [.][0-9]+
+	}
+	return root;
+}
 public:
 state_id_t create_min_realnum(fstring min) {
 	if (min.empty())
 		return nil_state;
-
-	fstring int_part, frac_part;
-	if (const char* dot_pos = min.strchr('.')) {
-		int_part = fstring(min.begin(), dot_pos);
-		frac_part = fstring(dot_pos + 1, min.end());
-	} else {
-		int_part = min;
-		frac_part = "";
-	}
-
+	const char* dot_pos = min.strchr('.');
+	if (!dot_pos)
+		return create_min_realnum_ge_int(min);
+	fstring	int_part(min.begin(), dot_pos),	frac_part(dot_pos + 1, min.end());
 	state_id_t root = this->new_state();
-
-	// 用于“数值已经胜出”的通用终态（接受后续任意数字）
-	state_id_t any_valid_suffix = this->_create_any_fraction_state();
-
-	size_t n_len = int_part.length();
-
-	// =========================================================
-	// 路径 A: 整数位数更多 (Strictly Longer Integers)
-	// =========================================================
-	// 逻辑：如果输入整数位数 > min 的整数位数，则数值一定更大。
-	// 例如 min="93"，我们接受 "100", "1000" 等。
-	// 必须避免前导0 (例如 min="5", 不接受 "06")。
-
-	state_id_t longer_curr = this->new_state();
-	// 首位只能是 1-9 (除了 0 本身，但 0 的长度只有1，这里处理长度>1的情况，所以首位必定非0)
-	this->add_range_move(root, longer_curr, '1', '9');
-
-	// 既然首位已经消耗了1个长度，我们需要再消耗 n_len 个长度才能确保总长度 > n_len
-	// 例如 min="5" (len=1). Root ->(1-9)-> S1. S1已经是长度1。
-	// 我们需要长度 >= 2。所以 S1 ->(0-9)-> S2(终态)。总长度2。
-	for (size_t i = 0; i < n_len; ++i) {
-		state_id_t next = this->new_state();
-		this->add_range_move(longer_curr, next, '0', '9');
-		longer_curr = next;
-	}
-
-	// longer_curr 此时代表“整数部分长度已经超过 min”，它是合法的
-	this->set_final(longer_curr);
-	this->add_range_move(longer_curr, longer_curr, '0', '9'); // 整数可以更长
-	this->add_move(longer_curr, any_valid_suffix, '.'); // 允许接小数
-
-	// =========================================================
-	// 准备工作：构建 exact_suffix 链
-	// =========================================================
-	// 当我们在“相同长度”比较中发现某一位更大时（例如 min=500, input=6..），
-	// 我们不需要再比较数值，但必须强制要求剩余的整数位数正确，以保持位权。
-	// exact_suffix[k] 表示：接受 k 个 [0-9] 后，整数结束，进入“胜出”状态。
-
-	std::vector<state_id_t> exact_suffix(n_len + 1);
-
-	// exact_suffix[0]: 整数部分刚好读完，且数值已胜出。
-	exact_suffix[0] = this->new_state();
-	this->set_final(exact_suffix[0]); // 既然数值胜出，整数结束即为接受
-	this->add_move(exact_suffix[0], any_valid_suffix, '.'); // 允许任意小数
-
-	for (size_t k = 1; k <= n_len; ++k) {
-		exact_suffix[k] = this->new_state();
-		this->add_range_move(exact_suffix[k], exact_suffix[k - 1], '0', '9');
-	}
-
-	// =========================================================
-	// 路径 B: 整数位数相同 (Same Length Integers)
-	// =========================================================
-	state_id_t curr = root;
-
-	for (size_t i = 0; i < n_len; ++i) {
-		char d = int_part[i]; // min 在该位的数字
-
-		// 1. 输入位 > min位 (胜出)
-		// 跳转到 exact_suffix 链，消耗掉剩余的位数 (n_len - 1 - i)
-		char start_ch = (char)(d + 1);
-
-		// 特殊处理 i=0 时的前导0约束：
-		// 如果 min="0" (i=0, d='0')，胜出范围 '1'-'9' (OK)。
-		// 如果 min="50" (i=0, d='5')，胜出范围 '6'-'9' (OK)。
-		// 如果 min 很大，i=0 时 start_ch 依然遵循 1-9 约束。
-		// 由于 min 本身无前导0，如果 n_len > 1，则 min[0] >= '1'。
-		// 所以 start_ch >= '2'，自然不包含 '0'。
-		// 只有当 min="0" 时，d='0'，start_ch='1'。
-		// 结论：直接使用 d+1 即可，不用特判前导0，因为 d+1 肯定 > 0。
-
-		if (start_ch <= '9') {
-			this->add_range_move(curr, exact_suffix[n_len - 1 - i], start_ch, '9');
-		}
-
-		// 2. 输入位 == min位 (继续)
-		// 创建新节点继续下一位比较
-		state_id_t next_comp = this->new_state();
-		this->add_move(curr, next_comp, (unsigned char)d);
-		curr = next_comp;
-	}
-
-	// 此时 curr 处于“整数部分完全匹配 min 的整数部分”的状态。
-
-	// =========================================================
-	// 路径 C: 小数部分比较 (Fractional Part)
-	// =========================================================
-
-	if (frac_part.empty()) {
-		// Case 1: min 没有小数 (e.g., "93")
-		// 此时输入 "93" (curr) 是合法的 (93 >= 93)
-		this->set_final(curr);
-		// 输入 "93.xxx" 也是合法的，且任何小数都比 "无小数" 大
-		this->add_move(curr, any_valid_suffix, '.');
-	}
-	else {
-		// Case 2: min 有小数 (e.g., "93.58")
-		// 此时输入 "93" (curr) 是不合法的 (93 < 93.58)，所以 curr 不是终态。
-		// 必须读取小数点
-		state_id_t frac_start = this->new_state();
-		this->add_move(curr, frac_start, '.');
-		curr = frac_start;
-
-		size_t f_len = frac_part.length();
-
-		for (size_t j = 0; j < f_len; ++j) {
-			char c = frac_part[j];
-
-			// 1. 小数位 > min位 (胜出)
-			// 小数没有位权长度限制，一旦某位更大，后面跟什么都行
-			if (c < '9') {
-				this->add_range_move(curr, any_valid_suffix, (char)(c + 1), '9');
-			}
-
-			// 2. 小数位 == min位 (继续)
-			state_id_t next_f = this->new_state();
-			this->add_move(curr, next_f, (unsigned char)c);
-			curr = next_f;
-		}
-
-		// 循环结束，意味着小数部分完全匹配 (e.g. 输入 "93.58")
-		// 这是合法的
-		this->set_final(curr);
-
-		// 如果输入还有更多小数位 (e.g. "93.581" > "93.58")，这也是合法的
-		this->add_range_move(curr, any_valid_suffix, '0', '9');
-	}
-
+	add_move(add_path(root, int_part), create_lexical_ge(frac_part), '.');
+	minimal_sso<32> int_part_plus_1(int_part);
+	increment_as_bignum_allow_carry(int_part_plus_1, '0', '9');
+	add_epsilon(root, create_min_realnum_ge_int(int_part_plus_1));
 	return root;
 }
 
