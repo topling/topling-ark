@@ -441,14 +441,13 @@ state_id_t build_range_same_len(fstring min_s, fstring max_s) {
 // 构造正数区间 [min_s, max_s] 的 NFA
 // 处理不同长度的情况，并确保不含前导0 (除非是 "0"，但此函数处理正整数，"0"由上层特殊处理或作为长度1处理)
 state_id_t create_positive_range(fstring min_s, fstring max_s) {
-	state_id_t root = this->new_state();
-
 	// 预处理：去掉前面的 + 号（如果有）
 	if (!min_s.empty() && min_s[0] == '+') min_s = min_s.substr(1);
 	if (!max_s.empty() && max_s[0] == '+') max_s = max_s.substr(1);
 
-	if (str_num_greater(min_s, max_s)) return root; // 空
+	if (str_num_greater(min_s, max_s)) return nil_state;
 
+	state_id_t root = this->new_state();
 	size_t min_len = min_s.length();
 	size_t max_len = max_s.length();
 
