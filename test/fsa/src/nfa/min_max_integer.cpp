@@ -263,7 +263,7 @@ void generate_min_info_test_set(string min, vector<string>* accept_set, vector<s
                 rand_small[0] = (char)('1' + (rand() % (first_digit - 1)));
                 // 后面的位随便置换
                 for(int i=1; i<n; ++i) rand_small[i] = (char)('0' + rand()%10);
-                if (GenericNFA<>::compare_int_str(rand_small, min) < 0)
+                if (decimal_strcmp(rand_small, min) < 0)
                     reject_set->push_back(rand_small);
             }
         }

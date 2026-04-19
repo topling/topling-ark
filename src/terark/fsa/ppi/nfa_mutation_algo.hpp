@@ -256,46 +256,11 @@ state_id_t create_min_max_decimal(fstring min, fstring max) {
 	return final_root;
 }
 
-static int compare_int_str(fstring min, fstring max) {
-	if (min.empty() || max.empty()) {
-		return -2;
-	}
-	bool min_neg = false, max_neg = false;
-	if (min[0] == '+')
-		min = min.substr(1);
-	else if (min[0] == '-')
-		min = min.substr(1), min_neg = true;
-
-	if (max[0] == '+')
-		max = max.substr(1);
-	else if (max[0] == '-')
-		max = max.substr(1), max_neg = true;
-
-	if (min.empty() || max.empty()) {
-		return -2;
-	}
-
-	for (byte_t c : min) {
-		if (c < '0' || c > '9')
-			return -2;
-	}
-	for (byte_t c : max) {
-		if (c < '0' || c > '9')
-			return -2;
-	}
-
-	return compare_val(min, min_neg, max, max_neg);
-}
-
 private:
 // 辅助结构：用于比较整数字符串大小
 static bool str_num_less(const fstring& a, const fstring& b) {
 	if (a.length() != b.length()) return a.length() < b.length();
 	return a < b;
-}
-
-static bool str_num_greater(const fstring& a, const fstring& b) {
-	return str_num_less(b, a);
 }
 
 // 比较 min 和 max 的数值大小，如果 min > max，返回空接受状态
@@ -388,8 +353,8 @@ state_id_t build_le(fstring max_s) {
 
 // 构造接受区间 [min_s, max_s] 的 NFA，前提：len(min_s) == len(max_s)
 state_id_t build_range_same_len(fstring min_s, fstring max_s) {
-	if (str_num_greater(min_s, max_s))
-		return new_state(); // 死状态
+	if (min_s > max_s) // lexical compare
+		return nil_state;
 
 	state_id_t start = this->new_state();
 	state_id_t current = start;
@@ -445,7 +410,7 @@ state_id_t create_positive_range(fstring min_s, fstring max_s) {
 	if (!min_s.empty() && min_s[0] == '+') min_s = min_s.substr(1);
 	if (!max_s.empty() && max_s[0] == '+') max_s = max_s.substr(1);
 
-	if (str_num_greater(min_s, max_s)) return nil_state;
+	if (str_num_less(max_s, min_s)) return nil_state;
 
 	state_id_t root = this->new_state();
 	size_t min_len = min_s.length();
