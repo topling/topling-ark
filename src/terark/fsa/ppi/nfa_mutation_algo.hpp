@@ -519,28 +519,26 @@ state_id_t create_min_realnum(fstring min) {
 
 template<class TmpDFA>
 state_id_t create_min_max_realnum(fstring min, fstring max) {
-	// 0. 基础校验
-	// 这里假设 min 和 max 格式正确。若需比较 min > max，需解析字符串数值。
-	// 为简化，假设外部调用者保证 min <= max (numerical)。
-	// 若 min > max, 返回一个无终态的死节点
 	if (min.empty() || max.empty())
 		return nil_state;
 	if (min[0] == '-' && max[0] == '-') {
+		state_id_t root = new_state(); // root first, tolerate leak on fail
 		state_id_t neg_root = non_neg_min_max_realnum<TmpDFA>(max.substr(1), min.substr(1));
-		state_id_t root = new_state();
+		if (nil_state == neg_root)
+			return nil_state;
 		add_move(root, neg_root, '-');
 		return root;
 	}
 	if (max[0] == '-') // invalid: min is positive but max is negtive
 		return nil_state;
 	if (min[0] == '-') {
+		state_id_t root = new_state(); // root first, tolerate leak on fail
 		state_id_t root0max = non_neg_min_max_realnum<TmpDFA>("0", max);
 		if (nil_state == root0max)
 			return nil_state;
 		state_id_t neg_root = non_neg_min_max_realnum<TmpDFA>("0", min.substr(1));
 		if (nil_state == neg_root)
 			return nil_state;
-		state_id_t root = new_state();
 		this->add_move(root, neg_root, '-');
 		this->add_move(root, root0max, '+');
 		this->add_epsilon(root, root0max);
