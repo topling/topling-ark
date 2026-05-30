@@ -96,7 +96,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_ENABLE_ATOMIC_ALIGNMENT_FIX;_CRT_NONSTDC_NO_DEPRECATE;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;__SSE4_2__;DIVSUFSORT_API=;WIN32;_DEBUG;_WINDOWS;_USRDLL;TERARK_CREATE_DLL;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;NO_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_ENABLE_ATOMIC_ALIGNMENT_FIX;_CRT_NONSTDC_NO_DEPRECATE;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;__SSE4_2__;DIVSUFSORT_API=;WIN32;_DEBUG;_WINDOWS;_USRDLL;TERARK_CREATE_DLL;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;RE2_NO_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
       <BrowseInformation>true</BrowseInformation>
@@ -117,7 +117,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>BOOST_ALL_DYN_LINK;_ENABLE_ATOMIC_ALIGNMENT_FIX;_CRT_NONSTDC_NO_DEPRECATE;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;__AVX2__;__SSE4_2__;TERARK_CREATE_DLL;ZSTD_DLL_EXPORT=1;WIN32;_DEBUG;_WINDOWS;_USRDLL;TERARK_CREATE_DLL;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;NO_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>BOOST_ALL_DYN_LINK;_ENABLE_ATOMIC_ALIGNMENT_FIX;_CRT_NONSTDC_NO_DEPRECATE;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;__AVX2__;__SSE4_2__;TERARK_CREATE_DLL;ZSTD_DLL_EXPORT=1;WIN32;_DEBUG;_WINDOWS;_USRDLL;TERARK_CREATE_DLL;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;RE2_NO_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
       <BrowseInformation>true</BrowseInformation>
@@ -144,7 +144,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>_ENABLE_ATOMIC_ALIGNMENT_FIX;_CRT_NONSTDC_NO_DEPRECATE;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;__SSE4_2__;DIVSUFSORT_API=;WIN32;NDEBUG;_WINDOWS;_USRDLL;TERARK_CREATE_DLL;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;NO_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_ENABLE_ATOMIC_ALIGNMENT_FIX;_CRT_NONSTDC_NO_DEPRECATE;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;__SSE4_2__;DIVSUFSORT_API=;WIN32;NDEBUG;_WINDOWS;_USRDLL;TERARK_CREATE_DLL;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;RE2_NO_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
       <LanguageStandard>stdcpplatest</LanguageStandard>
@@ -166,7 +166,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>BOOST_ALL_DYN_LINK;_ENABLE_ATOMIC_ALIGNMENT_FIX;_CRT_NONSTDC_NO_DEPRECATE;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;__AVX2__;__SSE4_2__;TERARK_CREATE_DLL;__BMI2__;ZSTD_DLL_EXPORT=1;WIN32;NDEBUG;_WINDOWS;_USRDLL;TERARK_CREATE_DLL;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;NO_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>BOOST_ALL_DYN_LINK;_ENABLE_ATOMIC_ALIGNMENT_FIX;_CRT_NONSTDC_NO_DEPRECATE;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;__AVX2__;__SSE4_2__;TERARK_CREATE_DLL;__BMI2__;ZSTD_DLL_EXPORT=1;WIN32;NDEBUG;_WINDOWS;_USRDLL;TERARK_CREATE_DLL;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;RE2_NO_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <StringPooling>true</StringPooling>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>

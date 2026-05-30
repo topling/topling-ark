@@ -94,7 +94,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_ENABLE_ATOMIC_ALIGNMENT_FIX;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;__SSE4_2__;DIVSUFSORT_API=;WIN32;_DEBUG;_WINDOWS;_USRDLL;TERARK_CREATE_DLL;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;NO_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_ENABLE_ATOMIC_ALIGNMENT_FIX;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;__SSE4_2__;DIVSUFSORT_API=;WIN32;_DEBUG;_WINDOWS;_USRDLL;TERARK_CREATE_DLL;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;RE2_NO_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
       <BrowseInformation>true</BrowseInformation>
@@ -142,7 +142,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>_ENABLE_ATOMIC_ALIGNMENT_FIX;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;__SSE4_2__;DIVSUFSORT_API=;WIN32;NDEBUG;_WINDOWS;_USRDLL;TERARK_CREATE_DLL;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;NO_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_ENABLE_ATOMIC_ALIGNMENT_FIX;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;__SSE4_2__;DIVSUFSORT_API=;WIN32;NDEBUG;_WINDOWS;_USRDLL;TERARK_CREATE_DLL;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_WARNINGS;RE2_NO_THREADS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
       <LanguageStandard>stdcpp17</LanguageStandard>
