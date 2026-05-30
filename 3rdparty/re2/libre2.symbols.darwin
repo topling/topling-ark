@@ -5,9 +5,11 @@ __ZNK3re23RE2*
 # re2::StringPiece*
 __ZN3re211StringPiece*
 __ZNK3re211StringPiece*
-# operator<<(std::ostream&, re2::StringPiece const&)
-__ZlsRNSt3__113basic_ostreamIcNS_11char_traitsIcEEEERKN3re211StringPieceE
+# re2::operator<<*
+__ZN3re2ls*
 # re2::FilteredRE2*
 __ZN3re211FilteredRE2*
-__ZNK3re211FilteredRE210AllMatches*
-
+__ZNK3re211FilteredRE2*
+# re2::re2_internal*
+__ZN3re212re2_internal*
+__ZNK3re212re2_internal*

@@ -5,13 +5,17 @@
 // Test parse.cc, dump.cc, and tostring.cc.
 
 #include <string>
-#include <vector>
+
 #include "util/test.h"
+#include "util/logging.h"
 #include "re2/regexp.h"
 
 namespace re2 {
 
-static const Regexp::ParseFlags TestZeroFlags = Regexp::ParseFlags(1<<30);
+// In the past, we used 1<<30 here and zeroed the bit later, but that
+// has undefined behaviour, so now we use an internal-only flag because
+// otherwise we would have to introduce a new flag value just for this.
+static const Regexp::ParseFlags TestZeroFlags = Regexp::WasDollar;
 
 struct Test {
   const char* regexp;
@@ -49,7 +53,7 @@ static Test tests[] = {
   { "a{2,3}?", "nrep{2,3 lit{a}}" },
   { "a{2,}?", "nrep{2,-1 lit{a}}" },
   { "", "emp{}" },
-  { "|", "emp{}" },  // alt{emp{}emp{}} but got factored
+  { "|", "alt{emp{}emp{}}" },
   { "|x|", "alt{emp{}lit{x}emp{}}" },
   { ".", "dot{}" },
   { "^", "bol{}" },
@@ -114,18 +118,39 @@ static Test tests[] = {
   { "ab|cd", "alt{str{ab}str{cd}}" },
   { "a(b|c)d", "cat{lit{a}cap{cc{0x62-0x63}}lit{d}}" },
 
+  // Test squashing of **, ++, ?? et cetera.
+  { "(?:(?:a)*)*", "star{lit{a}}" },
+  { "(?:(?:a)+)+", "plus{lit{a}}" },
+  { "(?:(?:a)?)?", "que{lit{a}}" },
+  { "(?:(?:a)*)+", "star{lit{a}}" },
+  { "(?:(?:a)*)?", "star{lit{a}}" },
+  { "(?:(?:a)+)*", "star{lit{a}}" },
+  { "(?:(?:a)+)?", "star{lit{a}}" },
+  { "(?:(?:a)?)*", "star{lit{a}}" },
+  { "(?:(?:a)?)+", "star{lit{a}}" },
+
   // Test flattening.
   { "(?:a)", "lit{a}" },
   { "(?:ab)(?:cd)", "str{abcd}" },
   { "(?:a|b)|(?:c|d)", "cc{0x61-0x64}" },
+  { "a|c", "cc{0x61 0x63}" },
+  { "a|[cd]", "cc{0x61 0x63-0x64}" },
   { "a|.", "dot{}" },
-  { ".|a", "dot{}" },
+  { "[ab]|c", "cc{0x61-0x63}" },
+  { "[ab]|[cd]", "cc{0x61-0x64}" },
+  { "[ab]|.", "dot{}" },
+  { ".|c", "dot{}" },
+  { ".|[cd]", "dot{}" },
+  { ".|.", "dot{}" },
 
   // Test Perl quoted literals
   { "\\Q+|*?{[\\E", "str{+|*?{[}" },
   { "\\Q+\\E+", "plus{lit{+}}" },
   { "\\Q\\\\E", "lit{\\}" },
   { "\\Q\\\\\\E", "str{\\\\}" },
+  { "\\Qa\\E*", "star{lit{a}}" },
+  { "\\Qab\\E*", "cat{lit{a}star{lit{b}}}" },
+  { "\\Qabc\\E*", "cat{str{ab}star{lit{c}}}" },
 
   // Test Perl \A and \z
   { "(?m)^", "bol{}" },
@@ -139,6 +164,7 @@ static Test tests[] = {
 
   // Test named captures
   { "(?P<name>a)", "cap{name:lit{a}}" },
+  { "(?P<中文>a)", "cap{中文:lit{a}}" },
 
   // Case-folded literals
   { "[Aa]", "litfold{a}" },
@@ -192,6 +218,10 @@ static Test tests[] = {
     Regexp::PerlClasses | Regexp::NeverNL },
   { "\\S", "cc{0-0x8 0xb 0xe-0x1f 0x21-0x10ffff}",
     Regexp::PerlClasses | Regexp::NeverNL | Regexp::FoldCase },
+
+  // Bug in Regexp::ToString() that emitted [^], which
+  // would (obviously) fail to parse when fed back in.
+  { "[\\s\\S]", "cc{0-0x10ffff}" },
 };
 
 bool RegexpEqualTestingOnly(Regexp* a, Regexp* b) {
@@ -199,7 +229,7 @@ bool RegexpEqualTestingOnly(Regexp* a, Regexp* b) {
 }
 
 void TestParse(const Test* tests, int ntests, Regexp::ParseFlags flags,
-               const string& title) {
+               const std::string& title) {
   Regexp** re = new Regexp*[ntests];
   for (int i = 0; i < ntests; i++) {
     RegexpStatus status;
@@ -208,16 +238,18 @@ void TestParse(const Test* tests, int ntests, Regexp::ParseFlags flags,
       f = tests[i].flags & ~TestZeroFlags;
     }
     re[i] = Regexp::Parse(tests[i].regexp, f, &status);
-    CHECK(re[i] != NULL) << " " << tests[i].regexp << " "
-                         << status.Text();
-    string s = re[i]->Dump();
-    EXPECT_EQ(string(tests[i].parse), s) << "Regexp: " << tests[i].regexp
-      << "\nparse: " << tests[i].parse << " s: " << s << " flag=" << f;
+    ASSERT_TRUE(re[i] != NULL)
+      << " " << tests[i].regexp << " " << status.Text();
+    std::string s = re[i]->Dump();
+    EXPECT_EQ(std::string(tests[i].parse), s)
+        << "Regexp: " << tests[i].regexp
+        << "\nparse: " << std::string(tests[i].parse)
+        << " s: " << s << " flag=" << f;
   }
 
   for (int i = 0; i < ntests; i++) {
     for (int j = 0; j < ntests; j++) {
-      EXPECT_EQ(string(tests[i].parse) == tests[j].parse,
+      EXPECT_EQ(std::string(tests[i].parse) == std::string(tests[j].parse),
                 RegexpEqualTestingOnly(re[i], re[j]))
         << "Regexp: " << tests[i].regexp << " " << tests[j].regexp;
     }
@@ -293,17 +325,55 @@ Test prefix_tests[] = {
   { "abc|x|abd", "alt{str{abc}lit{x}str{abd}}" },
   { "(?i)abc|ABD", "cat{strfold{ab}cc{0x43-0x44 0x63-0x64}}" },
   { "[ab]c|[ab]d", "cat{cc{0x61-0x62}cc{0x63-0x64}}" },
-  { "(?:xx|yy)c|(?:xx|yy)d",
-    "cat{alt{str{xx}str{yy}}cc{0x63-0x64}}" },
+  { ".c|.d", "cat{cc{0-0x9 0xb-0x10ffff}cc{0x63-0x64}}" },
+  { "\\Cc|\\Cd", "cat{byte{}cc{0x63-0x64}}" },
   { "x{2}|x{2}[0-9]",
     "cat{rep{2,2 lit{x}}alt{emp{}cc{0x30-0x39}}}" },
   { "x{2}y|x{2}[0-9]y",
     "cat{rep{2,2 lit{x}}alt{lit{y}cat{cc{0x30-0x39}lit{y}}}}" },
+  { "n|r|rs",
+    "alt{lit{n}cat{lit{r}alt{emp{}lit{s}}}}" },
+  { "n|rs|r",
+    "alt{lit{n}cat{lit{r}alt{lit{s}emp{}}}}" },
+  { "r|rs|n",
+    "alt{cat{lit{r}alt{emp{}lit{s}}}lit{n}}" },
+  { "rs|r|n",
+    "alt{cat{lit{r}alt{lit{s}emp{}}}lit{n}}" },
+  { "a\\C*?c|a\\C*?b",
+    "cat{lit{a}alt{cat{nstar{byte{}}lit{c}}cat{nstar{byte{}}lit{b}}}}" },
+  { "^/a/bc|^/a/de",
+    "cat{bol{}cat{str{/a/}alt{str{bc}str{de}}}}" },
+  // In the past, factoring was limited to kFactorAlternationMaxDepth (8).
+  { "a|aa|aaa|aaaa|aaaaa|aaaaaa|aaaaaaa|aaaaaaaa|aaaaaaaaa|aaaaaaaaaa",
+    "cat{lit{a}alt{emp{}" "cat{lit{a}alt{emp{}" "cat{lit{a}alt{emp{}"
+    "cat{lit{a}alt{emp{}" "cat{lit{a}alt{emp{}" "cat{lit{a}alt{emp{}"
+    "cat{lit{a}alt{emp{}" "cat{lit{a}alt{emp{}" "cat{lit{a}alt{emp{}"
+    "lit{a}}}}}}}}}}}}}}}}}}}" },
+  { "a|aardvark|aardvarks|abaci|aback|abacus|abacuses|abaft|abalone|abalones",
+    "cat{lit{a}alt{emp{}cat{str{ardvark}alt{emp{}lit{s}}}"
+    "cat{str{ba}alt{cat{lit{c}alt{cc{0x69 0x6b}cat{str{us}alt{emp{}str{es}}}}}"
+    "str{ft}cat{str{lone}alt{emp{}lit{s}}}}}}}" },
 };
 
 // Test that prefix factoring works.
 TEST(TestParse, Prefix) {
   TestParse(prefix_tests, arraysize(prefix_tests), Regexp::PerlX, "prefix");
+}
+
+Test nested_tests[] = {
+  { "((((((((((x{2}){2}){2}){2}){2}){2}){2}){2}){2}))",
+    "cap{cap{rep{2,2 cap{rep{2,2 cap{rep{2,2 cap{rep{2,2 cap{rep{2,2 cap{rep{2,2 cap{rep{2,2 cap{rep{2,2 cap{rep{2,2 lit{x}}}}}}}}}}}}}}}}}}}}" },
+  { "((((((((((x{1}){2}){2}){2}){2}){2}){2}){2}){2}){2})",
+    "cap{rep{2,2 cap{rep{2,2 cap{rep{2,2 cap{rep{2,2 cap{rep{2,2 cap{rep{2,2 cap{rep{2,2 cap{rep{2,2 cap{rep{2,2 cap{rep{1,1 lit{x}}}}}}}}}}}}}}}}}}}}}" },
+  { "((((((((((x{0}){2}){2}){2}){2}){2}){2}){2}){2}){2})",
+    "cap{rep{2,2 cap{rep{2,2 cap{rep{2,2 cap{rep{2,2 cap{rep{2,2 cap{rep{2,2 cap{rep{2,2 cap{rep{2,2 cap{rep{2,2 cap{rep{0,0 lit{x}}}}}}}}}}}}}}}}}}}}}" },
+  { "((((((x{2}){2}){2}){5}){5}){5})",
+    "cap{rep{5,5 cap{rep{5,5 cap{rep{5,5 cap{rep{2,2 cap{rep{2,2 cap{rep{2,2 lit{x}}}}}}}}}}}}}" },
+};
+
+// Test that nested repetition works.
+TEST(TestParse, Nested) {
+  TestParse(nested_tests, arraysize(nested_tests), Regexp::PerlX, "nested");
 }
 
 // Invalid regular expressions
@@ -329,6 +399,9 @@ const char* badtests[] = {
   "(?i)[a-Z]",
   "a{100000}",
   "a{100000,}",
+  "((((((((((x{2}){2}){2}){2}){2}){2}){2}){2}){2}){2})",
+  "(((x{7}){11}){13})",
+  "\\Q\\E*",
 };
 
 // Valid in Perl, bad in POSIX
@@ -355,55 +428,58 @@ const char* only_posix[] = {
 
 // Test that parser rejects bad regexps.
 TEST(TestParse, InvalidRegexps) {
-  for (int i = 0; i < arraysize(badtests); i++) {
-    CHECK(Regexp::Parse(badtests[i], Regexp::PerlX, NULL) == NULL)
+  for (size_t i = 0; i < arraysize(badtests); i++) {
+    ASSERT_TRUE(Regexp::Parse(badtests[i], Regexp::PerlX, NULL) == NULL)
       << " " << badtests[i];
-    CHECK(Regexp::Parse(badtests[i], Regexp::NoParseFlags, NULL) == NULL)
+    ASSERT_TRUE(Regexp::Parse(badtests[i], Regexp::NoParseFlags, NULL) == NULL)
       << " " << badtests[i];
   }
-  for (int i = 0; i < arraysize(only_posix); i++) {
-    CHECK(Regexp::Parse(only_posix[i], Regexp::PerlX, NULL) == NULL)
+  for (size_t i = 0; i < arraysize(only_posix); i++) {
+    ASSERT_TRUE(Regexp::Parse(only_posix[i], Regexp::PerlX, NULL) == NULL)
       << " " << only_posix[i];
     Regexp* re = Regexp::Parse(only_posix[i], Regexp::NoParseFlags, NULL);
-    CHECK(re) << " " << only_posix[i];
+    ASSERT_TRUE(re != NULL) << " " << only_posix[i];
     re->Decref();
   }
-  for (int i = 0; i < arraysize(only_perl); i++) {
-    CHECK(Regexp::Parse(only_perl[i], Regexp::NoParseFlags, NULL) == NULL)
+  for (size_t i = 0; i < arraysize(only_perl); i++) {
+    ASSERT_TRUE(Regexp::Parse(only_perl[i], Regexp::NoParseFlags, NULL) == NULL)
       << " " << only_perl[i];
     Regexp* re = Regexp::Parse(only_perl[i], Regexp::PerlX, NULL);
-    CHECK(re) << " " << only_perl[i];
+    ASSERT_TRUE(re != NULL) << " " << only_perl[i];
     re->Decref();
   }
 }
 
 // Test that ToString produces original regexp or equivalent one.
 TEST(TestToString, EquivalentParse) {
-  for (int i = 0; i < arraysize(tests); i++) {
+  for (size_t i = 0; i < arraysize(tests); i++) {
     RegexpStatus status;
     Regexp::ParseFlags f = kTestFlags;
     if (tests[i].flags != 0) {
       f = tests[i].flags & ~TestZeroFlags;
     }
     Regexp* re = Regexp::Parse(tests[i].regexp, f, &status);
-    CHECK(re != NULL) << " " << tests[i].regexp << " " << status.Text();
-    string s = re->Dump();
-    EXPECT_EQ(string(tests[i].parse), s) << " " << tests[i].regexp << " " << string(tests[i].parse) << " " << s;
-    string t = re->ToString();
+    ASSERT_TRUE(re != NULL) << " " << tests[i].regexp << " " << status.Text();
+    std::string s = re->Dump();
+    EXPECT_EQ(std::string(tests[i].parse), s)
+        << "Regexp: " << tests[i].regexp
+        << "\nparse: " << std::string(tests[i].parse)
+        << " s: " << s << " flag=" << f;
+    std::string t = re->ToString();
     if (t != tests[i].regexp) {
       // If ToString didn't return the original regexp,
       // it must have found one with fewer parens.
       // Unfortunately we can't check the length here, because
       // ToString produces "\\{" for a literal brace,
       // but "{" is a shorter equivalent.
-      // CHECK_LT(t.size(), strlen(tests[i].regexp))
+      // ASSERT_LT(t.size(), strlen(tests[i].regexp))
       //     << " t=" << t << " regexp=" << tests[i].regexp;
 
       // Test that if we parse the new regexp we get the same structure.
       Regexp* nre = Regexp::Parse(t, Regexp::MatchNL | Regexp::PerlX, &status);
-      CHECK(nre != NULL) << " reparse " << t << " " << status.Text();
-      string ss = nre->Dump();
-      string tt = nre->ToString();
+      ASSERT_TRUE(nre != NULL) << " reparse " << t << " " << status.Text();
+      std::string ss = nre->Dump();
+      std::string tt = nre->ToString();
       if (s != ss || t != tt)
         LOG(INFO) << "ToString(" << tests[i].regexp << ") = " << t;
       EXPECT_EQ(s, ss);

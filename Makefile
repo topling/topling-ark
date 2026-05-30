@@ -340,13 +340,9 @@ endif
 core_src := $(filter-out ${trbxx_src} ${zip_src}, ${core_src})
 
 re2_src := \
-    3rdparty/re2/util/arena.cc \
-    3rdparty/re2/util/hash.cc \
     3rdparty/re2/util/rune.cc \
-    3rdparty/re2/util/stringpiece.cc \
-    3rdparty/re2/util/stringprintf.cc \
     3rdparty/re2/util/strutil.cc \
-    3rdparty/re2/util/valgrind.cc \
+    3rdparty/re2/re2/bitmap256.cc \
     3rdparty/re2/re2/bitstate.cc \
     3rdparty/re2/re2/compile.cc \
     3rdparty/re2/re2/dfa.cc \
@@ -363,6 +359,7 @@ re2_src := \
     3rdparty/re2/re2/regexp.cc \
     3rdparty/re2/re2/set.cc \
     3rdparty/re2/re2/simplify.cc \
+    3rdparty/re2/re2/stringpiece.cc \
     3rdparty/re2/re2/tostring.cc \
     3rdparty/re2/re2/unicode_casefold.cc \
     3rdparty/re2/re2/unicode_groups.cc
