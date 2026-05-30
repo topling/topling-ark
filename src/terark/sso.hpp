@@ -830,17 +830,44 @@ public:
     }
     return s;
   }
+#if defined(_MSC_VER)
+  template<class T>
+  static minimal_sso join(T* arr, size_t len)
+  { return join(fstring(","), arr, len); }
+  template<class T, class ToString>
+  static minimal_sso join(T* arr, size_t len, ToString&& cvt)
+  { return join(fstring(","), arr, len, cvt); }
+  template<class Range>
+  static minimal_sso join(const Range& rng)
+  { return join(fstring(","), rng); }
+#else
   template<class... Args>
   inline static auto join(Args&&... args) ->
   decltype(join(fstring(","), std::forward<Args>(args)...))
   { return join(fstring(","), std::forward<Args>(args)...);}
+#endif
 };
 #pragma pack(pop)
 
+#if defined(_MSC_VER)
+template<class T>
+inline minimal_sso<32> ssojoin(T* arr, size_t len) {
+  return minimal_sso<32>::join(arr, len);
+}
+template<class T, class ToString>
+inline minimal_sso<32> ssojoin(T* arr, size_t len, ToString&& cvt) {
+  return minimal_sso<32>::join(arr, len, std::forward<ToString>(cvt));
+}
+template<class Delim, class T, class ToString>
+inline minimal_sso<32> ssojoin(Delim&& delim, T* arr, size_t len, ToString&& cvt) {
+  return minimal_sso<32>::join(std::forward<Delim>(delim), arr, len, std::forward<ToString>(cvt));
+}
+#else
 template<class... Args>
 inline auto ssojoin(Args&&... args) ->
 decltype(minimal_sso<32>::join(std::forward<Args>(args)...))
 { return minimal_sso<32>::join(std::forward<Args>(args)...);}
+#endif
 
 template<size_t SizeSSO, bool WithEOS, size_t Align>
 int stoi(const minimal_sso<SizeSSO, WithEOS, Align>& s,
