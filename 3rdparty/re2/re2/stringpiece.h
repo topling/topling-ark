@@ -25,10 +25,16 @@
 #include <string>
 #include <algorithm>
 
-#if defined(_WIN32) | defined(_WIN64)
-#define RE2_DLL_EXPORT __declspec(dllexport)
+#if defined(_MSC_VER)
+#  if defined(TERARK_CREATE_DLL) || defined(RE2_BUILD_DLL)
+#    define RE2_DLL_EXPORT __declspec(dllexport)
+#  elif defined(TERARK_USE_DLL) || defined(RE2_USE_DLL)
+#    define RE2_DLL_EXPORT __declspec(dllimport)
+#  else
+#    define RE2_DLL_EXPORT
+#  endif
 #else
-#define RE2_DLL_EXPORT
+#  define RE2_DLL_EXPORT
 #endif
 
 #ifdef _MSC_VER
