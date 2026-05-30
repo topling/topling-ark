@@ -568,6 +568,8 @@ vfork_cmd(fstring cmd, function<void(ProcPipeStream&)> write,
 
 ///////////////////////////////////////////////////////////////////////////
 
+#if defined(__linux__)
+
 bool process_mem_read(pid_t pid, void* data, size_t len, size_t r_addr) {
   iovec local, remote;
   local.iov_base = data;
@@ -596,5 +598,7 @@ bool process_mem_write(pid_t pid, const void* data, size_t len, size_t r_addr) {
   */
   return size_t(n_write) == len;
 }
+
+#endif // defined(__linux__)
 
 } // namespace terark

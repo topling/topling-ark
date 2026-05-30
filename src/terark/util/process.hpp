@@ -12,7 +12,9 @@
 #include <memory>
 #include <utility>
 #include <future>
+#if defined(__linux__)
 #include <sys/uio.h> // linux process_vm_readv/process_vm_writev
+#endif
 
 namespace terark {
 
@@ -109,6 +111,7 @@ vfork_cmd(fstring cmd, function<void(ProcPipeStream&)> write,
 // these functions are for easy use, so the return value are narrowed to bool
 // if you want more accurate control, use process_vm_readv/process_vm_writev
 //
+#if defined(__linux__)
 
 bool process_mem_read(pid_t pid, void* data, size_t len, size_t r_addr);
 bool process_mem_write(pid_t pid, const void* data, size_t len, size_t r_addr);
@@ -157,5 +160,7 @@ bool process_obj_write(pid_t pid, const ArgList&... args) {
 */
     return size_t(n_write) == to_write;
 }
+
+#endif // defined(__linux__)
 
 } // namespace terark
