@@ -248,7 +248,7 @@ int run() {
 		double total_div100 = au_ac.total_states() / 100.0;
 		std::filesystem::path fname(outfile ? outfile : daac_outfile);
 		fname.replace_extension(".stat");
-		Auto_close_fp fp(fopen(fname.c_str(), "w"));
+		Auto_close_fp fp(fopen(fname.string().c_str(), "w"));
 		for(size_t i = 0; i < fail_refcnt.size(); ) {
 			size_t j = i;
 			auto cnt = fail_refcnt[i];
