@@ -1481,6 +1481,26 @@ static bool ParseEscape(StringPiece* s, Rune* rp,
       }
       goto BadEscape;
 
+    case 'i':
+      if ('{' == (*s)[0]) {
+        const char* decimal_beg = s->data() + 1;
+        char* decimal_end = NULL;
+        long val = strtoul(decimal_beg, &decimal_end, 10);
+        if (decimal_end == decimal_beg) {
+          goto BadEscape;
+        }
+        if ('}' != *decimal_end) {
+          goto BadEscape;
+        }
+        if (val < 0 || val > 0x10FFFF) {
+          goto BadEscape;
+        }
+        *rp = Rune(val);
+        s->remove_prefix(static_cast<size_t>(decimal_end - decimal_beg) + 2);
+        return true;
+      }
+      goto BadEscape;
+
     // Octal escapes.
     case '1':
     case '2':

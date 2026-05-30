@@ -79,6 +79,11 @@ class StringPiece {
   const_reference operator[](size_type i) const { return data_[i]; }
   const_pointer data() const { return data_; }
 
+  const char* operator*() const { return data(); }
+  size_t      operator+() const { return size(); }
+  int         operator~() const { return static_cast<int>(size()); }
+  int         ilen()      const { return static_cast<int>(size()); }
+
   void remove_prefix(size_type n) {
     data_ += n;
     size_ -= n;
