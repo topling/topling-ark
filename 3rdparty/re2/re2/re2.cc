@@ -1068,12 +1068,14 @@ bool RE2::Rewrite(std::string* out,
 namespace re2_internal {
 
 template <>
+RE2_DLL_EXPORT
 bool Parse(const char* str, size_t n, void* dest) {
   // We fail if somebody asked us to store into a non-NULL void* pointer
   return (dest == NULL);
 }
 
 template <>
+RE2_DLL_EXPORT
 bool Parse(const char* str, size_t n, std::string* dest) {
   if (dest == NULL) return true;
   dest->assign(str, n);
@@ -1081,6 +1083,7 @@ bool Parse(const char* str, size_t n, std::string* dest) {
 }
 
 template <>
+RE2_DLL_EXPORT
 bool Parse(const char* str, size_t n, StringPiece* dest) {
   if (dest == NULL) return true;
   *dest = StringPiece(str, n);
@@ -1088,6 +1091,7 @@ bool Parse(const char* str, size_t n, StringPiece* dest) {
 }
 
 template <>
+RE2_DLL_EXPORT
 bool Parse(const char* str, size_t n, char* dest) {
   if (n != 1) return false;
   if (dest == NULL) return true;
@@ -1096,6 +1100,7 @@ bool Parse(const char* str, size_t n, char* dest) {
 }
 
 template <>
+RE2_DLL_EXPORT
 bool Parse(const char* str, size_t n, signed char* dest) {
   if (n != 1) return false;
   if (dest == NULL) return true;
@@ -1104,6 +1109,7 @@ bool Parse(const char* str, size_t n, signed char* dest) {
 }
 
 template <>
+RE2_DLL_EXPORT
 bool Parse(const char* str, size_t n, unsigned char* dest) {
   if (n != 1) return false;
   if (dest == NULL) return true;
@@ -1172,6 +1178,7 @@ static const char* TerminateNumber(char* buf, size_t nbuf, const char* str,
 }
 
 template <>
+RE2_DLL_EXPORT
 bool Parse(const char* str, size_t n, float* dest) {
   if (n == 0) return false;
   static const int kMaxLength = 200;
@@ -1188,6 +1195,7 @@ bool Parse(const char* str, size_t n, float* dest) {
 }
 
 template <>
+RE2_DLL_EXPORT
 bool Parse(const char* str, size_t n, double* dest) {
   if (n == 0) return false;
   static const int kMaxLength = 200;
@@ -1204,6 +1212,7 @@ bool Parse(const char* str, size_t n, double* dest) {
 }
 
 template <>
+RE2_DLL_EXPORT
 bool Parse(const char* str, size_t n, long* dest, int radix) {
   if (n == 0) return false;
   char buf[kMaxNumberLength+1];
@@ -1219,6 +1228,7 @@ bool Parse(const char* str, size_t n, long* dest, int radix) {
 }
 
 template <>
+RE2_DLL_EXPORT
 bool Parse(const char* str, size_t n, unsigned long* dest, int radix) {
   if (n == 0) return false;
   char buf[kMaxNumberLength+1];
@@ -1240,6 +1250,7 @@ bool Parse(const char* str, size_t n, unsigned long* dest, int radix) {
 }
 
 template <>
+RE2_DLL_EXPORT
 bool Parse(const char* str, size_t n, short* dest, int radix) {
   long r;
   if (!Parse(str, n, &r, radix)) return false;  // Could not parse
@@ -1250,6 +1261,7 @@ bool Parse(const char* str, size_t n, short* dest, int radix) {
 }
 
 template <>
+RE2_DLL_EXPORT
 bool Parse(const char* str, size_t n, unsigned short* dest, int radix) {
   unsigned long r;
   if (!Parse(str, n, &r, radix)) return false;  // Could not parse
@@ -1260,6 +1272,7 @@ bool Parse(const char* str, size_t n, unsigned short* dest, int radix) {
 }
 
 template <>
+RE2_DLL_EXPORT
 bool Parse(const char* str, size_t n, int* dest, int radix) {
   long r;
   if (!Parse(str, n, &r, radix)) return false;  // Could not parse
@@ -1270,6 +1283,7 @@ bool Parse(const char* str, size_t n, int* dest, int radix) {
 }
 
 template <>
+RE2_DLL_EXPORT
 bool Parse(const char* str, size_t n, unsigned int* dest, int radix) {
   unsigned long r;
   if (!Parse(str, n, &r, radix)) return false;  // Could not parse
@@ -1280,6 +1294,7 @@ bool Parse(const char* str, size_t n, unsigned int* dest, int radix) {
 }
 
 template <>
+RE2_DLL_EXPORT
 bool Parse(const char* str, size_t n, long long* dest, int radix) {
   if (n == 0) return false;
   char buf[kMaxNumberLength+1];
@@ -1295,6 +1310,7 @@ bool Parse(const char* str, size_t n, long long* dest, int radix) {
 }
 
 template <>
+RE2_DLL_EXPORT
 bool Parse(const char* str, size_t n, unsigned long long* dest, int radix) {
   if (n == 0) return false;
   char buf[kMaxNumberLength+1];

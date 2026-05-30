@@ -189,7 +189,7 @@ enum RegexpStatusCode {
 };
 
 // Error status for certain operations.
-class RegexpStatus {
+class RE2_DLL_EXPORT RegexpStatus {
  public:
   RegexpStatus() : code_(kRegexpSuccess), tmp_(NULL) {}
   ~RegexpStatus() { delete tmp_; }
@@ -273,7 +273,7 @@ class CharClass {
   CharClass& operator=(const CharClass&) = delete;
 };
 
-class Regexp {
+class RE2_DLL_EXPORT Regexp {
  public:
 
   // Flags for parsing.  Can be ORed together.
@@ -602,7 +602,7 @@ class Regexp {
 // Character class set: contains non-overlapping, non-abutting RuneRanges.
 typedef std::set<RuneRange, RuneRangeLess> RuneRangeSet;
 
-class CharClassBuilder {
+class RE2_DLL_EXPORT CharClassBuilder {
  public:
   CharClassBuilder();
 

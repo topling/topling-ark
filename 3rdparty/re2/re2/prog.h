@@ -53,7 +53,7 @@ class DFA;
 class Regexp;
 
 // Compiled form of regexp program.
-class Prog {
+class RE2_DLL_EXPORT Prog {
  public:
   Prog();
   ~Prog();

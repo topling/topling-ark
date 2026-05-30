@@ -29,9 +29,26 @@
 #include <string_view>
 #endif
 
+#if defined(_WIN32) || defined(_WIN64)
+#  if defined(TERARK_CREATE_DLL)
+#    define RE2_DLL_EXPORT __declspec(dllexport)
+#  elif defined(TERARK_USE_DLL)
+#    define RE2_DLL_EXPORT __declspec(dllimport)
+#  else
+#    define RE2_DLL_EXPORT
+#  endif
+#else
+#  define RE2_DLL_EXPORT
+#endif
+
+#ifdef _MSC_VER
+#pragma warning(disable: 4251)
+#pragma warning(disable: 4267)
+#endif
+
 namespace re2 {
 
-class StringPiece {
+class RE2_DLL_EXPORT StringPiece {
  public:
   typedef std::char_traits<char> traits_type;
   typedef char value_type;

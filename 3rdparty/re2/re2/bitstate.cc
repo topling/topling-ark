@@ -36,7 +36,7 @@ struct Job {
   const char* p;
 };
 
-class BitState {
+class RE2_DLL_EXPORT BitState {
  public:
   explicit BitState(Prog* prog);
 

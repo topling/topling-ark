@@ -227,7 +227,7 @@ namespace re2 {
 // Interface for regular expression matching.  Also corresponds to a
 // pre-compiled regular expression.  An "RE2" object is safe for
 // concurrent use by multiple threads.
-class RE2 {
+class RE2_DLL_EXPORT RE2 {
  public:
   // We convert user-passed pointers into special Arg objects
   class Arg;
@@ -602,7 +602,7 @@ class RE2 {
                int veclen) const;
 
   // Constructor options
-  class Options {
+  class RE2_DLL_EXPORT Options {
    public:
     // The options are (defaults in parentheses):
     //
@@ -832,7 +832,7 @@ bool Parse(const char* str, size_t n, T* dest, int radix);
 
 }  // namespace re2_internal
 
-class RE2::Arg {
+class RE2_DLL_EXPORT RE2::Arg {
  private:
   template <typename T>
   using CanParse3ary = typename std::enable_if<
